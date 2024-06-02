@@ -1,10 +1,20 @@
 <!DOCTYPE html>
+
+@font-face {
+  font-family: "myfont";
+  src: url("test-domaine-display-condensed-extrabold.woff2") format('woff2');
+}
+
+.mydiv {
+  font-family: myfont
+}
+
 <html>
 	<head>
 		<title>boththumbsdown</title> 
 	</head>
 
-	<div id="typingArea" contenteditable="true" spellcheck="false">
+	<div class="mydiv" id="typingArea" contenteditable="true" spellcheck="false">
 		<p>Edit this content to add your own quote</p>
 	</div>
 
