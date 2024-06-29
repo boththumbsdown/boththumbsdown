@@ -6,6 +6,7 @@ src: url("nong-Regular.woff2") format('woff2');
 }
 
 p {
+	font-family: 'garamond';
 	font-size: 100px;
 	color: #ff0000;
 }
