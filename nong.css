@@ -5,6 +5,11 @@ font-family:'nong';
 src: url("nong-Regular.woff2") format('woff2');
 }
 
+p {
+	font-size: 100px;
+	color: #ff0000;
+}
+
 body{
 	font-family: 'nong';
 	margin-top: 20px;
