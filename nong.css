@@ -5,17 +5,26 @@ font-family:'nong';
 src: url("nong-Regular.woff2") format('woff2');
 }
 
+@font-face{
+font-family: 'dear';
+src: url("dear.woff2") format('woff2');
+}
+
 p {
-	font-family: 'garamond';
-	font-size: 100px;
+	font-family: 'dear';
+	font-size: 60px;
+	margin-bottom: 0px;
+	margin-left: 25px;
+	letter-spacing:-1px;
 	color: #ff0000;
+	text-align:left;
 }
 
 body{
 	font-family: 'nong';
 	margin-top: 20px;
 	margin-left: 40px;
-	line-height: 1.75em;
+	line-height: -1em;
 	letter-spacing:0.5px;
 	font-size:100px;
 	text-align:center;
@@ -23,12 +32,11 @@ body{
 
 .nongfont{
 	font-family: 'nong';
-	font-weight: normal;
 	color: #ff0000;
 	border:none;
-	line-height: 1.4em;
+	line-height: 1.3em;
 	letter-spacing:0.5px;
-	font-size: 100px;
+	font-size: 150px;
 
 }
 
