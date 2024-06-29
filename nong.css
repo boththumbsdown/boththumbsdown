@@ -1,0 +1,41 @@
+@charset "UTF-8";
+
+@font-face{
+font-family:'nong';
+src: url("nong-Regular.woff2") format('woff2');
+}
+
+body{
+	font-family: 'nong';
+	margin-top: 15px;
+	margin-left: 25px;
+	line-height: 1.75em;
+	letter-spacing:0.5px;
+	font-size:50px;
+	text-align:center;
+}
+
+.nongfont{
+	font-family: 'nong';
+	font-weight: normal;
+	border:none;
+	line-height: 1.4em;
+	letter-spacing:0.5px;
+	font-size: 50px;
+
+}
+
+
+
+textarea
+{
+    outline-style: none;
+    width:100%;
+    height: 100%;
+}
+
+::selection {
+   background: red;
+   color: #fff;
+}
+
