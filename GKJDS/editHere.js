@@ -17,8 +17,10 @@ const fonts = [{
     url: 'fonts/NotoSans-Bold.woff'
   }, {
     name: '농체',
-    url: 'nong-Regular.woff2'
-  }
+    url: 'fonts/nong-Regular.woff2'
+  }, {
+    name: 'Helvetica 한글',
+    url: 'fonts/Helvetica_Hangul.woff2'
   }];
 
 window.onload = function () {
@@ -30,6 +32,6 @@ window.onload = function () {
 };
 
 function insertText() {
-  const text = `포스트스크립트(PostScript, PS)는 어도비 시스템을 설립한 존 워낙(John Warnock)과 찰스 게시케(Charlse Geschke)가 만든 페이지 기술 언어의 일종이다. 포스트스크립트 파일은 사람이 읽을 수 있게끔 되어있으며, PCL 언어와는 달리 바이너리화되어있지 않아 텍스트편집기 등에서 ISOLatin1 언어 포맷으로 읽을 수 있고, 장치에 독립적일 수도 있다. 그러나 포스트스크립트를 지원하는 프린터나, 드라이버를 제작하는 것이 비교적 어렵고, 또한 프린터 내부적으로 해석과정을 거친 후에 바이너리화를 해야 하기 때문에 프린터 내부 프로세싱이 많이 요구된다. 1985년 애플이 처음으로 포스트스크립트 엔진을 포함한 프린터 레이저라이터를 출시했으며, 이로부터 탁상 출판의 혁명이 시작되었다. 한때는 그래픽 처리의 사실상 표준이었으나 최근에는 PDF에게 점점 그 자리를 내주고 있다. 또한 운영 체제나 응용 프로그램에서 포스트스크립트 파일을 처리하는 경우가 많기 때문에, 프린터에 포스트스크립트 엔진을 포함하는 경우도 줄고 있다.`;
+  const text = `글자 깎는 장인이 되기 싫었던 박진후와 이경태는 서체를 잘 그리는 디자이너 대신 서체를 매체로 작업하는 디자이너가 되기로 결심한다. 두 사람은 한 벌의 서체를 완성함에 있어, 서체 각 요소에 할당된 공간에 잘 그려진 획을 대신할 ‘무언가’를 배치하는 방식을 채택하였다. 본 전시에서는 서체를 매체로 하는 작업을 소개하고, 웹 또는 문자 입력 소프트웨어를 통해 관람객들로 하여금 직접 타이핑하며 체험할 수 있도록 한다.`;
   document.getElementById("editableDiv").innerHTML = text;
 }
