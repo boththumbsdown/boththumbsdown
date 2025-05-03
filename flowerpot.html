@@ -14,7 +14,6 @@
     /* Noto Sans (안내문용) */
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap');
 
-    /* 기본 스타일 */
     body {
       background: #111;
       color: #fff;
@@ -30,11 +29,13 @@
 
     /* 타이틀 이미지 */
     .title-image {
-      width: 100%;               /* 가로 폭 100% 채우되, */
-      max-width: 533px;          /* 최대 너비를 800px의 2/3로 줄임 */
+      width: 100%;
+      max-width: 533px;         /* 최대 너비를 기존 800px의 2/3로 */
+      padding: 0 1rem;          /* 좌우 패딩 추가 */
       height: auto;
-      margin-bottom: 40px;
+      margin-bottom: 40px;      /* guide-text와 여백 */
       display: block;
+      box-sizing: border-box;   /* padding 포함하여 너비 계산 */
     }
 
     /* 안내 문구 */
