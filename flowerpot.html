@@ -5,26 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>FLOWERPOT</title>
   <style>
+    /* Flowerpot Variable Font */
     @font-face {
       font-family: 'FlowerpotVF';
       src: url('flowerpotVF.woff2') format('woff2');
     }
 
+    /* Noto Sans (안내문용) */
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap');
 
+    /* 기본 스타일 */
     body {
       background: #111;
       color: #fff;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       font-family: 'FlowerpotVF', sans-serif;
       margin: 0;
-      padding: 0;
+      padding: 40px 0;
     }
 
+    /* 타이틀 이미지 */
+    .title-image {
+      width: 100%;               /* 가로 폭 100% 채우되, */
+      max-width: 533px;          /* 최대 너비를 800px의 2/3로 줄임 */
+      height: auto;
+      margin-bottom: 40px;
+      display: block;
+    }
+
+    /* 안내 문구 */
     .guide-text {
       font-family: 'Noto Sans', sans-serif;
       font-size: 1rem;
@@ -32,8 +45,11 @@
       text-align: center;
       margin-bottom: 20px;
       line-height: 1.6;
+      width: 90%;
+      max-width: 800px;
     }
 
+    /* 입력 필드 */
     textarea.variable-input {
       font-family: 'FlowerpotVF', sans-serif;
       font-size: 4rem;
@@ -58,11 +74,20 @@
   </style>
 </head>
 <body>
+  <!-- 타이틀 이미지 -->
+  <img
+    src="flowerpot_title.png"
+    alt="Flowerpot Title"
+    class="title-image"
+  />
+
+  <!-- 안내 문구 -->
   <div class="guide-text">
     원하는 문구를 입력하세요: 한글만 입력 가능합니다.<br />
     Please enter your desired text: only Hangul is allowed.
   </div>
 
+  <!-- 입력 필드 -->
   <textarea
     class="variable-input"
     id="fluctuateInput"
@@ -75,6 +100,7 @@
   <script>
     const textarea = document.getElementById('fluctuateInput');
 
+    // 폰트 웨이트 자동 변화
     function fluctuate() {
       const minWeight = 50;
       const maxWeight = 200;
@@ -86,6 +112,7 @@
       requestAnimationFrame(fluctuate);
     }
 
+    // 입력 내용에 따라 높이 자동 조절
     function autoResize(el) {
       el.style.height = 'auto';
       el.style.height = el.scrollHeight + 'px';
