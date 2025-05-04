@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FLOWERPOT</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 24px;
+      height: 100%;
+      background-color: black;
+      box-sizing: border-box;
+      font-family: sans-serif;
+    }
+
+    .container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    video {
+      max-width: calc(100vw - 48px); /* 전체 패딩 고려 */
+      max-height: calc(100vh - 48px); 
+      width: auto;
+      height: auto;
+    }
+
+    .link {
+      margin-top: 24px;
+      font-size: 1.2rem;
+      color: white;
+      text-decoration: none;
+      border: 2px solid white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .link:hover {
+      background-color: white;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <video autoplay loop muted playsinline>
+      <source src="flowerpot.mp4" type="video/mp4">
+      해당 브라우저는 비디오 재생을 지원하지 않습니다.
+    </video>
+    <a class="link" href="https://boththumbsdown.xyz/flowerpot" target="_blank">직접 타이핑하러 가기</a>
+  </div>
+</body>
+</html>
