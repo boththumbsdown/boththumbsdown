@@ -61,7 +61,6 @@
       object-fit: contain;
       display: block;
       background: #111;
-      border-radius: 14px;
       box-shadow: 0 10px 30px rgba(0,0,0,.45);
     }
 
@@ -72,12 +71,18 @@
       display: flex; justify-content: center; align-items: center;
       font-size: 2.5em;
       font-weight: bold;
-      color: #ff0000;
       text-align: center;
       z-index: 2;
       pointer-events: none; /* 클릭 방해하지 않음 */
       font-family: 'EB Garamond', serif;
       font-weight: 800;
+
+      animation: blinkColor 1s infinite;
+    }
+
+    @keyframes blinkColor {
+      0%, 50% { color: red; }
+      50.01%, 100% { color: blue; }
     }
 
     .meta {
