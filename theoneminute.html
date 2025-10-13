@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>theoneminute</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: #000;
+      overflow: hidden;
+    }
+    video {
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;     /* 꽉 차게 + 비율 유지, 잘리는 부분 허용 */
+      display: block;
+      background: #000;      /* 로딩 중에도 배경 검정 */
+    }
+  </style>
+</head>
+<body>
+  <video
+    src="FINAL_THEONEMINUTE_KYUNGTAE_QT.mov"
+    type="video/quicktime"
+    playsinline
+    controls
+  ></video>
+</body>
+</html>
