@@ -2,7 +2,8 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <!-- 1) viewport-fit=cover 추가 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>could you confirm this?</title>
 
   <!-- Google Fonts: EB Garamond Extrabold + Regular Italic -->
@@ -13,20 +14,28 @@
   <style>
     :root { color-scheme: dark; }
 
+    /* 2) iOS 대응: fill-available & svh/dvh 폴백 구성 */
+    html {
+      height: -webkit-fill-available; /* iOS 15 아래 일부 WebKit */
+    }
     html, body {
-      height: 100%;
       margin: 0;
       background: #000;
       color: #fff;
       font-family: 'EB Garamond', serif;
     }
 
-    /* 전체 레이아웃: stage + footer */
+    /* 전체 레이아웃: stage + footer
+       - 우선 100svh로 잡고, 지원되면 100dvh로 대체 */
     body {
       display: grid;
-      grid-template-rows: 1fr auto; /* 위 stage, 아래 footer */
-      height: 100vh;
+      grid-template-rows: 1fr auto;
+      min-height: 100svh;             /* iOS 사파리 주소창 수축/확장 대응 */
+      min-height: -webkit-fill-available;
       overflow: hidden;
+    }
+    @supports (min-height: 100dvh) {
+      body { min-height: 100dvh; }     /* 최신 브라우저에서 정확한 높이 */
     }
 
     /* 레이어가 겹치는 무대 영역 */
@@ -34,6 +43,7 @@
       position: relative;
       overflow: hidden;
       isolation: isolate;
+      min-height: 0; /* grid 자식의 올바른 수축 허용 */
     }
 
     /* 배경/이미지/전경은 stage 내부에서만 표시 */
@@ -90,7 +100,9 @@
       z-index: 2;
       display: flex; justify-content: center; align-items: center;
       pointer-events: none;
-      padding-bottom: 8vh; /* footer 영역만큼 위로 띄워 footer 침범 방지 */
+      /* stage가 이미 footer 영역을 제외하므로 별도 패딩 불필요
+         (필요하면 아래 주석 해제해서 미세 조정 가능)
+      padding-bottom: 8svh; */
       box-sizing: border-box;
     }
     .foreground img {
@@ -99,16 +111,17 @@
       object-fit: contain;
     }
 
-    /* footer 블록 */
+    /* 3) footer: 배경 제거 + safe-area 하단 패딩 적용 */
     .footer {
       width: 100%;
       text-align: center;
       color: #fff;
       font-weight: 800;
       font-size: 0.8rem;
-      background: rgba(0,0,0,0.5);
+      background: none; /* 배경 제거 */
       padding: 1em 0;
-      line-height: 1; /* 기존 대비 약 2/3로 줄임 */
+      padding-bottom: calc(1em + env(safe-area-inset-bottom)); /* ← iOS 하단 안전영역 */
+      line-height: 1;   /* 2/3 수준으로 축소 유지 */
     }
 
     .footer p { margin: 0.5em 0; }
