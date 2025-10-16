@@ -2,7 +2,6 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
-  <!-- 1) viewport-fit=cover 추가 -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>could you confirm this?</title>
 
@@ -14,9 +13,8 @@
   <style>
     :root { color-scheme: dark; }
 
-    /* 2) iOS 대응: fill-available & svh/dvh 폴백 구성 */
     html {
-      height: -webkit-fill-available; /* iOS 15 아래 일부 WebKit */
+      height: -webkit-fill-available;
     }
     html, body {
       margin: 0;
@@ -25,28 +23,24 @@
       font-family: 'EB Garamond', serif;
     }
 
-    /* 전체 레이아웃: stage + footer
-       - 우선 100svh로 잡고, 지원되면 100dvh로 대체 */
     body {
       display: grid;
       grid-template-rows: 1fr auto;
-      min-height: 100svh;             /* iOS 사파리 주소창 수축/확장 대응 */
+      min-height: 100svh;
       min-height: -webkit-fill-available;
       overflow: hidden;
     }
     @supports (min-height: 100dvh) {
-      body { min-height: 100dvh; }     /* 최신 브라우저에서 정확한 높이 */
+      body { min-height: 100dvh; }
     }
 
-    /* 레이어가 겹치는 무대 영역 */
     .stage {
       position: relative;
       overflow: hidden;
       isolation: isolate;
-      min-height: 0; /* grid 자식의 올바른 수축 허용 */
+      min-height: 0;
     }
 
-    /* 배경/이미지/전경은 stage 내부에서만 표시 */
     .background,
     .viewport,
     .foreground {
@@ -54,7 +48,6 @@
       inset: 0;
     }
 
-    /* 배경 레이어 */
     .background {
       z-index: 0;
       display: flex; justify-content: center; align-items: center;
@@ -79,7 +72,6 @@
       font-style: italic;
     }
 
-    /* 랜덤 이미지 레이어 */
     .viewport {
       z-index: 1;
       display: flex; justify-content: center; align-items: center;
@@ -95,14 +87,10 @@
       box-shadow: 0 10px 30px rgba(0,0,0,.45);
     }
 
-    /* 전경 COULDYOUCONFIRMTHIS 이미지 */
     .foreground {
       z-index: 2;
       display: flex; justify-content: center; align-items: center;
       pointer-events: none;
-      /* stage가 이미 footer 영역을 제외하므로 별도 패딩 불필요
-         (필요하면 아래 주석 해제해서 미세 조정 가능)
-      padding-bottom: 8svh; */
       box-sizing: border-box;
     }
     .foreground img {
@@ -111,20 +99,20 @@
       object-fit: contain;
     }
 
-    /* 3) footer: 배경 제거 + safe-area 하단 패딩 적용 */
+    /* FOOTER */
     .footer {
       width: 100%;
       text-align: center;
       color: #fff;
       font-weight: 800;
       font-size: 0.8rem;
-      background: none; /* 배경 제거 */
-      padding: 1em 0;
-      padding-bottom: calc(1em + env(safe-area-inset-bottom)); /* ← iOS 하단 안전영역 */
-      line-height: 1;   /* 2/3 수준으로 축소 유지 */
+      background: none;
+      padding-top: 0.5em; /* 위쪽 0.5em */
+      padding-bottom: env(safe-area-inset-bottom); /* 홈 인디케이터에 거의 닿게 */
+      line-height: 1;
     }
 
-    .footer p { margin: 0.5em 0; }
+    .footer p { margin: 0.4em 0; }
     .footer a { color: #ffffff; text-decoration: none; }
     .footer a:hover { color: #ff0000; }
     .footer sup { font-size: 0.5em; vertical-align: super; }
@@ -133,12 +121,11 @@
 
     @media (max-width: 480px) {
       .foreground img { max-width: 88vw; max-height: 72vh; }
-      .footer { font-size: 0.75rem; padding: 0.9em 0; line-height: 1.05; }
+      .footer { font-size: 0.75rem; padding-top: 0.4em; line-height: 1.05; }
     }
   </style>
 </head>
 <body>
-  <!-- 메인 stage: 전경과 배경이 겹치는 구역 -->
   <div class="stage">
     <div class="background"></div>
 
@@ -151,7 +138,6 @@
     </div>
   </div>
 
-  <!-- 하단 footer: 별도 블록 -->
   <div class="footer">
     <p>
       <a href="http://instagram.com/boththumbsdown">where to</a><sup>1</sup>
@@ -193,7 +179,6 @@
       img.alt = picked;
     }
 
-    // 초기 이미지 설정 및 0.5초마다 변경
     changeImage();
     setInterval(changeImage, 500);
   </script>
