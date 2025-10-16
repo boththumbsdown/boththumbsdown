@@ -11,16 +11,41 @@
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
 
   <style>
+    :root { color-scheme: dark; }
+
     html, body {
-      height: 100%; margin: 0;
-      background: #000; color: #fff;
+      height: 100%;
+      margin: 0;
+      background: #000;
+      color: #fff;
       font-family: 'EB Garamond', serif;
+    }
+
+    /* 전체 레이아웃: stage + footer */
+    body {
+      display: grid;
+      grid-template-rows: 1fr auto; /* 위 stage, 아래 footer */
+      height: 100vh;
       overflow: hidden;
+    }
+
+    /* 레이어가 겹치는 무대 영역 */
+    .stage {
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    /* 배경/이미지/전경은 stage 내부에서만 표시 */
+    .background,
+    .viewport,
+    .foreground {
+      position: absolute;
+      inset: 0;
     }
 
     /* 배경 레이어 */
     .background {
-      position: fixed; inset: 0;
       z-index: 0;
       display: flex; justify-content: center; align-items: center;
       overflow: hidden;
@@ -40,18 +65,16 @@
       height: 200%;
       white-space: pre-wrap;
       word-break: break-word;
-      font-family: 'EB Garamond', serif;
       font-weight: 400;
       font-style: italic;
     }
 
     /* 랜덤 이미지 레이어 */
     .viewport {
-      position: fixed; inset: 0;
+      z-index: 1;
       display: flex; justify-content: center; align-items: center;
       padding: 6vmin;
       box-sizing: border-box;
-      z-index: 1;
     }
     .viewport img {
       max-width: 100%;
@@ -64,11 +87,11 @@
 
     /* 전경 COULDYOUCONFIRMTHIS 이미지 */
     .foreground {
-      position: fixed;
-      inset: 0;
-      display: flex; justify-content: center; align-items: center;
       z-index: 2;
+      display: flex; justify-content: center; align-items: center;
       pointer-events: none;
+      padding-bottom: 8vh; /* footer 영역만큼 위로 띄워 footer 침범 방지 */
+      box-sizing: border-box;
     }
     .foreground img {
       max-width: 80vw;
@@ -76,61 +99,51 @@
       object-fit: contain;
     }
 
-    /* 하단 연락처 카드 */
+    /* footer 블록 */
     .footer {
-      position: fixed;
-      bottom: 0;
       width: 100%;
       text-align: center;
       color: #fff;
-      font-family: 'EB Garamond', serif;
       font-weight: 800;
       font-size: 0.8rem;
-      z-index: 3;
       background: rgba(0,0,0,0.5);
       padding: 1em 0;
-      line-height: 1.6;
+      line-height: 1; /* 기존 대비 약 2/3로 줄임 */
     }
 
-    .footer p {
-      margin: 0.25em 0; /* 기존보다 절반 정도 줄인 간격 */
-    }
-
-    .footer a {
-      color: #ffffff;
-      text-decoration: none;
-    }
-    .footer a:hover {
-      color: #ff0000;
-    }
-    .footer sup {
-      font-size: 0.5em;
-      vertical-align: super;
-    }
+    .footer p { margin: 0.5em 0; }
+    .footer a { color: #ffffff; text-decoration: none; }
+    .footer a:hover { color: #ff0000; }
+    .footer sup { font-size: 0.5em; vertical-align: super; }
     .garamonditalic { font-weight: 400; font-style: italic; }
     .footnote { font-size: 0.5em; font-weight: 600; vertical-align: super; }
+
+    @media (max-width: 480px) {
+      .foreground img { max-width: 88vw; max-height: 72vh; }
+      .footer { font-size: 0.75rem; padding: 0.9em 0; line-height: 1.05; }
+    }
   </style>
 </head>
 <body>
-  <div class="background"></div>
+  <!-- 메인 stage: 전경과 배경이 겹치는 구역 -->
+  <div class="stage">
+    <div class="background"></div>
 
-  <div class="viewport">
-    <img id="randomImg" alt="랜덤 PNG" />
+    <div class="viewport">
+      <img id="randomImg" alt="랜덤 PNG" />
+    </div>
+
+    <div class="foreground">
+      <img src="COULDYOUCONFIRMTHIS.png" alt="COULD YOU CONFIRM THIS" />
+    </div>
   </div>
 
-  <!-- 전경 이미지 -->
-  <div class="foreground">
-    <img src="COULDYOUCONFIRMTHIS.png" alt="COULD YOU CONFIRM THIS" />
-  </div>
-
-  <!-- 하단 boththumbsdown 정보 -->
+  <!-- 하단 footer: 별도 블록 -->
   <div class="footer">
     <p>
       <a href="http://instagram.com/boththumbsdown">where to</a><sup>1</sup>
-      <a href="http://boththumbsdown.xyz">find me</a><sup>2</sup><br>
-    </p>
-    <p>
-      <span class="garamonditalic">or</span> &nbsp;&nbsp;boththumbsdown@gmail.com<br>
+      <a href="http://boththumbsdown.xyz">find me</a><sup>2</sup> &nbsp;
+      <span class="garamonditalic">or</span> &nbsp;&nbsp;boththumbsdown@gmail.com &nbsp;&nbsp;
       <span class="garamonditalic">or</span> &nbsp;&nbsp;kyungtae@werkplaatstypografie.org
     </p>
     <p>
@@ -142,21 +155,21 @@
 
   <script>
     const files = [
-      "Appearance-1.png", "Appearance-2.png", "Appearance-3.png",
-      "Appearance-4.png", "Appearance-5.png", "Appearance-7.png",
-      "Appearance-8.png", "Appearance-9.png", "Common-Worship-1.png",
-      "Common-Worship-2.png", "Cyclonopedia-1.png", "Cyclonopedia-2.png",
-      "Cyclonopedia-3.png", "Cyclonopedia-4.png", "Cyclonopedia-5.png",
-      "Cyclonopedia-6.png", "Cyclonopedia-7.png", "Cyclonopedia-8.png",
-      "Dust-and-Data-2.png", "Dust-and-Data-3.png", "Dust-and-Data-5.png",
-      "Dust-and-Data-6.png", "Dust-and-Data-7.png", "Dust-and-Data-8.png",
-      "Dust-and-Data-9.png", "Evangelion-1.png", "Evangelion-2.png",
-      "Evangelion-3.png", "G-1.png", "G-2.png", "Microscopic-Images.png",
-      "Monty-Python-1.png", "Monty-Python-2.png", "Monty-Python-3.png",
-      "RED-INK-1.png", "RED-INK-2.png", "SPACE-COLONIES.png",
-      "afamily-1.png", "afamily-2.png", "afamily-3.png",
-      "Zombie-Encyclopedia-1.png", "Zombie-Encyclopedia-2.png",
-      "Zombie-Encyclopedia-3.png", "Zombie-Encyclopedia-4.png"
+      "Appearance-1.png","Appearance-2.png","Appearance-3.png",
+      "Appearance-4.png","Appearance-5.png","Appearance-7.png",
+      "Appearance-8.png","Appearance-9.png","Common-Worship-1.png",
+      "Common-Worship-2.png","Cyclonopedia-1.png","Cyclonopedia-2.png",
+      "Cyclonopedia-3.png","Cyclonopedia-4.png","Cyclonopedia-5.png",
+      "Cyclonopedia-6.png","Cyclonopedia-7.png","Cyclonopedia-8.png",
+      "Dust-and-Data-2.png","Dust-and-Data-3.png","Dust-and-Data-5.png",
+      "Dust-and-Data-6.png","Dust-and-Data-7.png","Dust-and-Data-8.png",
+      "Dust-and-Data-9.png","Evangelion-1.png","Evangelion-2.png",
+      "Evangelion-3.png","G-1.png","G-2.png","Microscopic-Images.png",
+      "Monty-Python-1.png","Monty-Python-2.png","Monty-Python-3.png",
+      "RED-INK-1.png","RED-INK-2.png","SPACE-COLONIES.png",
+      "afamily-1.png","afamily-2.png","afamily-3.png",
+      "Zombie-Encyclopedia-1.png","Zombie-Encyclopedia-2.png",
+      "Zombie-Encyclopedia-3.png","Zombie-Encyclopedia-4.png"
     ];
 
     const img = document.getElementById("randomImg");
