@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Deadline Drift — Garamond</title>
+
+  <style>
+    html, body { height: 100%; }
+
+    body{
+      margin:0;
+      background:#000;
+      color:#fff;
+      display:grid;
+      place-items:center;
+
+      /* ✅ Garamond */
+      font-family: "EB Garamond", Garamond, "Adobe Garamond Pro", serif;
+    }
+
+    .wiggle-text{
+      text-align:center;
+      font-size: 52px;      /* Garamond은 약간 키우는 게 좋아 */
+      line-height: 1.03;
+      letter-spacing: -0.015em;
+      user-select:none;
+    }
+
+    .line{
+      display:block;
+      transform-origin: 50% 50%;
+      margin: 0.06em 0;
+    }
+
+    .char{
+      display:inline-block;
+      transform-origin: 50% 60%;
+      will-change: transform;
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .char{ transform:none !important; }
+      .line{ transform:none !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wiggle-text" id="txt"
+    data-text="Werkplaats Typografie/application deadline/1 march, 2026/midnight local time">
+  </div>
+
+  <script>
+    const MAX_MOVE = 2;
+    const MAX_ROT  = 5;
+
+    const LINE_TILTS  = [-8, -5, -2, 0];     // 줄 기울기
+    const LINE_SPEEDS = [0.010, 0.018, 0.035, 0.014]; // 줄 속도
+
+    const container = document.getElementById('txt');
+    const lines = container.dataset.text.split('/');
+    container.textContent = '';
+
+    const chars = [];
+    const rand = (a,b)=> a + Math.random()*(b-a);
+
+    lines.forEach((lineText, i) => {
+      const lineEl = document.createElement('div');
+      lineEl.className = 'line';
+      lineEl.style.transform = `rotate(${LINE_TILTS[i] ?? 0}deg)`;
+      container.appendChild(lineEl);
+
+      const baseSpeed = LINE_SPEEDS[i] ?? 0.02;
+
+      [...lineText].forEach(ch => {
+        const span = document.createElement('span');
+        span.className = 'char';
+        span.textContent = ch === ' ' ? '\u00A0' : ch;
+        lineEl.appendChild(span);
+
+        chars.push({
+          el: span,
+          speed: baseSpeed * rand(0.65, 1.55),
+          x:0, y:0, r:0,
+          tx:(Math.random()*2-1)*MAX_MOVE,
+          ty:(Math.random()*2-1)*MAX_MOVE,
+          tr:(Math.random()*2-1)*MAX_ROT
+        });
+      });
+    });
+
+    function animate(){
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      for (const c of chars){
+        const s = c.speed;
+        c.x += (c.tx - c.x) * s;
+        c.y += (c.ty - c.y) * s;
+        c.r += (c.tr - c.r) * s;
+
+        if (Math.abs(c.tx-c.x)<0.1 && Math.abs(c.ty-c.y)<0.1 && Math.abs(c.tr-c.r)<0.2){
+          c.tx=(Math.random()*2-1)*MAX_MOVE;
+          c.ty=(Math.random()*2-1)*MAX_MOVE;
+          c.tr=(Math.random()*2-1)*MAX_ROT;
+        }
+
+        c.el.style.transform =
+          `translate(${c.x.toFixed(2)}px, ${c.y.toFixed(2)}px) rotate(${c.r.toFixed(2)}deg)`;
+      }
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
+</body>
+</html>
