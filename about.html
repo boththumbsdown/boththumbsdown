@@ -14,11 +14,18 @@
 			font-display: swap;
 		}
 
+		:root{
+			--bg: #000;
+			--fg: #fff;
+			--handle: rgb(255, 0, 0);
+			--indent: 1.6em; /* 인덴트 단위(원하면 이 값만 조절) */
+		}
+
 		html, body{
 			margin: 0;
 			padding: 24px;
-			background: #000;
-			color: #fff;
+			background: var(--bg);
+			color: var(--fg);
 			font-family: "MrsEavesOvercooked", serif;
 			font-size: 20px;
 			line-height: 1.25;
@@ -27,130 +34,133 @@
 			font-synthesis: none;
 		}
 
+		/* 텍스트는 일반 흐름으로: 자동 줄바꿈 시에도 인덴트 유지 가능 */
 		.cv{
 			margin: 0;
-			white-space: pre-wrap;
-			tab-size: 4;
+			max-width: 980px;
 		}
 
+		.line{
+			display: block;
+		}
+
+		/* indent levels */
+		.l1{ padding-left: var(--indent); }
+		.l2{ padding-left: calc(var(--indent) * 2); }
+		.l3{ padding-left: calc(var(--indent) * 3); }
+
+		/* section title */
 		.section{
 			display: block;
 			line-height: 2;
 			margin-top: 1.2em;
 		}
 
+		/* year */
 		.year{
 			opacity: 0.6;
 		}
 
-		.name{
-			color: #fff;
-		}
+		/* name/handle */
+		.name{ color: var(--fg); }
+		.handle{ color: var(--handle); }
 
-		.handle{
-			color: rgb(255, 0, 0);
-		}
-
+		/* Print (PDF) */
 		@media print{
 			html, body{
 				background: #fff !important;
 				color: #000 !important;
 				padding: 18mm;
 				font-size: 11pt;
-				line-height: 1.25;
+				line-height: 1.3;
 				-webkit-print-color-adjust: exact;
 				print-color-adjust: exact;
 			}
 			.year{ opacity: 0.75; }
-			.name{ color: #000 !important; }
+			.name, .handle{ color: #000 !important; }
 		}
 	</style>
 </head>
 
 <body>
-<div class="cv">
-<span class="name">Kyungtae Lee</span>
-<span class="handle">boththumbsdown</span>
+	<div class="cv">
+		<span class="line name">Kyungtae Lee</span>
+		<span class="line handle">boththumbsdown</span>
 
-	Currently
-		in Arnhem, NL
-	<span class="year">1992</span>
-		Born in South Korea
+		<span class="line l1">Currently</span>
+		<span class="line l2">in Arnhem, NL</span>
 
-
-<span class="section">Education</span>
-	Current
-		Werkplaats Typografie
-		Arnhem, NL
-
-	<span class="year">2025</span>
-		MFA, Visual Communication Design
-		Seoul National University
-		Seoul, KR
-
-	<span class="year">2018</span>
-		BSc., Industrial Design
-		Korea Advanced Institute of Science and Technology (KAIST)
-		Daejeon, KR
+		<span class="line year l1">1992</span>
+		<span class="line l2">Born in South Korea</span>
 
 
-<span class="section">Selected Group Exhibitions</span>
-	<span class="year">2025</span>
-		Gridshift
-		Korean Society of Typography Exhibition 19
-		Realation Space, Seoul, KR
+		<span class="section">Education</span>
 
-		San Francisco Art Book Fair
-		San Francisco, California, US
+		<span class="line l1">Current</span>
+		<span class="line l2">Werkplaats Typografie</span>
+		<span class="line l3">Arnhem, NL</span>
 
-	<span class="year">2024</span>
-		The Typesetter’s Bridge
-		Korean Society of Typography Exhibition 18
-		Realation Space, Seoul, KR
+		<span class="line year l1">2025</span>
+		<span class="line l2">MFA, Visual Communication Design</span>
+		<span class="line l3">Seoul National University</span>
+		<span class="line l3">Seoul, KR</span>
 
-		Patchwork
-		Seoul National University, Seoul, KR
+		<span class="line year l1">2018</span>
+		<span class="line l2">BSc., Industrial Design</span>
+		<span class="line l3">Korea Advanced Institute of Science and Technology (KAIST)</span>
+		<span class="line l3">Daejeon, KR</span>
 
-	<span class="year">2023</span>
-		Which Mirror Do You Want To Lick? Seoul
-		Seoul National University, Seoul, KR
 
-		Unrealized Archive 7: Text to Image
-		whatreallymatters, Seoul, KR
+		<span class="section">Selected Group Exhibitions</span>
 
-		Exhibition of Seoul National University at San Jose State University
-		San Jose State University, California, US
+		<span class="line year l1">2025</span>
+		<span class="line l2">Gridshift</span>
+		<span class="line l3">Korean Society of Typography Exhibition 19</span>
+		<span class="line l3">Realation Space, Seoul, KR</span>
+		<span class="line l2">San Francisco Art Book Fair</span>
+		<span class="line l3">San Francisco, California, US</span>
 
-	<span class="year">2022</span>
-		Convenience Store
-		Pop Namsan, Seoul, KR
+		<span class="line year l1">2024</span>
+		<span class="line l2">The Typesetter’s Bridge</span>
+		<span class="line l3">Korean Society of Typography Exhibition 18</span>
+		<span class="line l3">Realation Space, Seoul, KR</span>
+		<span class="line l2">Patchwork</span>
+		<span class="line l3">Seoul National University, Seoul, KR</span>
 
-		Open Studio 82
-		Seoul National University, Seoul, KR
+		<span class="line year l1">2023</span>
+		<span class="line l2">Which Mirror Do You Want To Lick? Seoul</span>
+		<span class="line l3">Seoul National University, Seoul, KR</span>
+		<span class="line l2">Unrealized Archive 7: Text to Image</span>
+		<span class="line l3">whatreallymatters, Seoul, KR</span>
+		<span class="line l2">Exhibition of Seoul National University at San Jose State University</span>
+		<span class="line l3">San Jose State University, California, US</span>
 
-		Vibrating Words and Handwritten Letter
-		Korean Society of Typography Exhibition 16
-		Online & Art Sonje Center, Seoul, KR
+		<span class="line year l1">2022</span>
+		<span class="line l2">Convenience Store</span>
+		<span class="line l3">Pop Namsan, Seoul, KR</span>
+		<span class="line l2">Open Studio 82</span>
+		<span class="line l3">Seoul National University, Seoul, KR</span>
+		<span class="line l2">Vibrating Words and Handwritten Letter</span>
+		<span class="line l3">Korean Society of Typography Exhibition 16</span>
+		<span class="line l3">Online & Art Sonje Center, Seoul, KR</span>
+		<span class="line l2">Conspiracy Theory</span>
+		<span class="line l3">Seoul National University, Seoul, KR</span>
+		<span class="line l2">Searching All Sources...</span>
+		<span class="line l3">Seoul National University, Seoul, KR</span>
 
-		Conspiracy Theory
-		Seoul National University, Seoul, KR
+		<span class="line year l1">2021</span>
+		<span class="line l2">Singing Words</span>
+		<span class="line l3">Korean Society of Typography Exhibition 15</span>
+		<span class="line l3">Online & Coex, Seoul, KR</span>
 
-		Searching All Sources...
-		Seoul National University, Seoul, KR
+		<span class="line year l1">2019</span>
+		<span class="line l2">Be Actively</span>
+		<span class="line l3">Daejeon, KR</span>
 
-	<span class="year">2021</span>
-		Singing Words
-		Korean Society of Typography Exhibition 15
-		Online & Coex, Seoul, KR
-
-	<span class="year">2019</span>
-		Be Actively
-		Daejeon, KR
-
-	<span class="year">2017</span>
-		Redefining Everyday Living
-		ID KAIST
-		KAIST, Daejeon, KR
-</div>
+		<span class="line year l1">2017</span>
+		<span class="line l2">Redefining Everyday Living</span>
+		<span class="line l3">ID KAIST</span>
+		<span class="line l3">KAIST, Daejeon, KR</span>
+	</div>
 </body>
 </html>
