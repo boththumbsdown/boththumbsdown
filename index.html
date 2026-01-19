@@ -1,102 +1,226 @@
 <!DOCTYPE html>
 <html lang="ko">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>boththumbsdown</title> 
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>boththumbsdown</title>
 
-		<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
-		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=3">
+  <!-- Icons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=3" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="manifest" href="/site.webmanifest" />
 
-		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-		<link rel="manifest" href="/site.webmanifest">
+  <style>
+    /* -------------------------
+       Fonts
+    -------------------------- */
+    @font-face {
+      font-family: "MrsEavesOvercooked";
+      src: url("MrsEavesPencildrawnBold-Overcooked.woff2") format("woff2");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
 
-		<style>
-			@font-face {
-				font-family: "MrsEavesPencildrawnBold-Overcooked";
-				src: url("MrsEavesPencildrawnBold-Overcooked.woff2") format("woff2");
-				font-weight: bold;
-				font-style: normal;
-				font-display: swap;
-			}
+    @font-face {
+      font-family: "MrsEavesBurnt";
+      src: url("MrsEavesPencildrawnBold-burnt.woff2") format("woff2");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
 
-			body {
+    @font-face {
+      font-family: "FranklinGothicPencilExtraCond";
+      src: url("FranklinGothicPencildrawn-ExtraCond.woff2") format("woff2");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
 
-				background-color: #000000;
-				color: #FFFFFF;
-				line-height: 1.2;
-  				font-family: "MrsEavesPencildrawnBold-Overcooked", serif;
-  			}
+    /* -------------------------
+       Base
+    -------------------------- */
+    :root {
+      --bg: #000;
+      --fg: #fff;
+      --link: rgb(255, 0, 0);
+      --link-hover: rgb(0, 255, 0);
+    }
 
-  			h1 {
-  				font-style: normal;
-  				font-size: 27px;
-  			}
+    * { box-sizing: border-box; }
 
-  			a {
-  				color: rgb(255, 0, 0);
-  				text-decoration: none;
-  			}
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "MrsEavesOvercooked", serif;
+      font-size: 20px;
+      line-height: 1.2;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      position: relative;
+      overflow-x: hidden;
+      font-synthesis: none;
+      text-align: center;
+    }
 
-  			a:hover {
-  				text-decoration: underline;
-  			}
+    /* -------------------------
+       Background image
+    -------------------------- */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-color: #000;
+      background-image: url("boththumbsdown_wideandrough.png");
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: auto 100vh;
+      z-index: -1;
+      pointer-events: none;
+    }
 
-  			.btd {
-  				max-width: 350px;
-  				height: auto;
-  			}
+    /* -------------------------
+       Layout
+    -------------------------- */
+    .wrap {
+      max-width: 740px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
 
-  			.manicule {
-  				max-width: 100px;
-  				height: auto;
-  			}
-  		</style>
-	</head>
+    /* -------------------------
+       Typography
+    -------------------------- */
+    h1 {
+      margin: 0 0 6px 0;
+      font-family: "FranklinGothicPencilExtraCond", sans-serif;
+      font-size: 60px;
+      font-weight: 700;
+      font-style: normal;
+      line-height: 1;
+    }
 
-	<body>
-		<h1>* everything's subject to change</h1>
-		
-		<img src="boththumbsdown_rough_wide.png" alt="boththumbsdown" class="btd" />
+    /* h2 정리:
+       - h2에는 링크만 들어가므로: 기본 underline/hover를 h2 전용으로 깨끗하게
+       - br 사용 대신 블록으로 쌓기
+    */
+    h2 {
+      margin: 0 0 16px 0;
+      font-family: "MrsEavesBurnt", serif;
+      font-size: 30px;
+      font-weight: 700;
+      font-style: normal;
+      line-height: 1.2;
+    }
 
-		<br>
-		some unsorted hyperlinks
-		<br>
-		<img src="JohnWilkesBoothManicule.png" alt="☟☟☟☟☟" class="manicule" />
-		<br>
-		<a href="http://boththumbsdown.xyz/dec2025hongsangsoo">december 2025. hongsangsoo</a>
-		<br>
-		<a href="http://boththumbsdown.xyz/happynewyear2026">happynewyear2026</a>
-		<br>
-		<a href="http://boththumbsdown.xyz/couldyouconfirmthis">could you confirm this?</a>
-		<br>
-		<a href="http://boththumbsdown.xyz/couldyouconfirmthis.pdf">could you confirm this?.pdf</a>
-		<br>
-		<a href="http://boththumbsdown.xyz/EYE">EYE</a>
-		<br>
-		<a href="http://boththumbsdown.xyz/ghostsofworks">ghosts of works (halloween decoration for werkplaats typografie halloween 2025)</a>
-		<br>
-		<a href="http://boththumbsdown.xyz/LOSTINTRANSLATION">LOSTINTRANSLATION</a>
-		<br>
-		<a href="http://boththumbsdown.xyz/helveticahangeul">Helvetica Hangeul</a>
-		<br>
-		<a href="http://boththumbsdown.xyz/needtostayawake">need to stay awake..</a>
-		<br>
-		<a href="http://boththumbsdown.xyz/toomuchcandygonnarotyoursoul">toomuchcandygonnarotyoursoul</a>
-		<br>
-		<a href="http://boththumbsdown.xyz/flowerpot-play">flowerpot</a>
-		<br>
-		<a href="https://boththumbsdown.neocities.org">neocities..</a>
-		<br>
-		<a href="http://instagram.com/boththumbsdown">where i reside atm</a>
+    .h2-links {
+      margin: 0;
+      padding: 0;
+    }
 
-		<br><br>
+    .h2-links a {
+      display: inline-block;
+    }
 
-		and check <a href="http://archive.radiohead.com/Site13/rh0005.html">this</a> out (it's essentially where i am going)
-		<br><br><br><br><br><br><br>
-		for more:<br>
-		hello@boththumbsdown.xyz<br>
-		(i hate a href mailto tag. who uses default mail app?)
-	</body>
+    .h2-links a + a {
+      margin-top: 6px;
+    }
+
+    p { margin: 10px 0; }
+
+    /* -------------------------
+       Links
+       - hover 시 underline 제거
+       - hover 시 초록색으로
+    -------------------------- */
+    a {
+      color: var(--link);
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--link-hover);
+      text-decoration: none;
+    }
+
+    /* -------------------------
+       Images (center)
+    -------------------------- */
+    img {
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .manicule {
+      max-width: 100px;
+      width: 100%;
+      height: auto;
+      margin-top: 6px;
+      margin-bottom: 10px;
+    }
+
+    /* -------------------------
+       Links list
+    -------------------------- */
+    .links {
+      margin: 6px 0 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .links li { margin: 6px 0; }
+
+    .spacer { height: 84px; }
+
+    @media (max-width: 480px) {
+      body { padding: 18px; }
+      h1 { font-size: 34px; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+    <h1>BOTHTHUMBSDOWN</h1>
+
+    <h2 class="h2-links">
+      <a href="http://boththumbsdown.xyz/about">about me</a><br />
+      <a href="mailto:hello@boththumbsdown.xyz">write me an email</a>
+    </h2>
+
+    <p>some unsorted hyperlinks</p>
+
+    <img src="JohnWilkesBoothManicule.png" alt="☟☟☟☟☟" class="manicule" />
+
+    <ul class="links">
+      <li><a href="http://boththumbsdown.xyz/dec2025hongsangsoo">december 2025. hongsangsoo</a></li>
+      <li><a href="http://boththumbsdown.xyz/happynewyear2026">happynewyear2026</a></li>
+      <li><a href="http://boththumbsdown.xyz/couldyouconfirmthis">could you confirm this?</a></li>
+      <li><a href="http://boththumbsdown.xyz/couldyouconfirmthis.pdf">could you confirm this?.pdf</a></li>
+      <li><a href="http://boththumbsdown.xyz/EYE">EYE</a></li>
+      <li><a href="http://boththumbsdown.xyz/ghostsofworks">ghosts of works</a></li>
+      <li><a href="http://boththumbsdown.xyz/LOSTINTRANSLATION">LOSTINTRANSLATION</a></li>
+      <li><a href="http://boththumbsdown.xyz/helveticahangeul">Helvetica Hangeul</a></li>
+      <li><a href="http://boththumbsdown.xyz/needtostayawake">need to stay awake..</a></li>
+      <li><a href="http://boththumbsdown.xyz/toomuchcandygonnarotyoursoul">toomuchcandygonnarotyoursoul</a></li>
+      <li><a href="http://boththumbsdown.xyz/flowerpot-play">flowerpot</a></li>
+      <li><a href="https://boththumbsdown.neocities.org">neocities..</a></li>
+      <li><a href="http://instagram.com/boththumbsdown">where i reside atm</a></li>
+    </ul>
+
+    <div class="spacer"></div>
+
+    <p>
+      and check <a href="http://archive.radiohead.com/Site13/rh0005.html">this</a> out
+      (it's essentially where i am going)
+    </p>
+
+    <div class="spacer"></div>
+  </main>
+</body>
 </html>
