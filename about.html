@@ -18,12 +18,15 @@
 			--bg: #000;
 			--fg: #fff;
 			--handle: rgb(255, 0, 0);
-			--indent: 1.6em; /* 인덴트 단위(원하면 이 값만 조절) */
+			--indent: 1.6em; /* default indent */
 		}
 
 		html, body{
 			margin: 0;
-			padding: 24px;
+			padding-top: 24px;
+			padding-right: 24px;
+			padding-bottom: 24px;
+			padding-left: 0; /* no left padding */
 			background: var(--bg);
 			color: var(--fg);
 			font-family: "MrsEavesOvercooked", serif;
@@ -34,7 +37,6 @@
 			font-synthesis: none;
 		}
 
-		/* 텍스트는 일반 흐름으로: 자동 줄바꿈 시에도 인덴트 유지 가능 */
 		.cv{
 			margin: 0;
 			max-width: 980px;
@@ -61,11 +63,25 @@
 			opacity: 0.6;
 		}
 
-		/* name/handle */
+		/* name / handle */
 		.name{ color: var(--fg); }
 		.handle{ color: var(--handle); }
 
-		/* Print (PDF) */
+		/* explicit guarantee: never indent these */
+		.name,
+		.handle,
+		.section{
+			padding-left: 0 !important;
+		}
+
+		/* mobile: reduce indent to half */
+		@media (max-width: 600px){
+			:root{
+				--indent: 0.8em;
+			}
+		}
+
+		/* Print / PDF */
 		@media print{
 			html, body{
 				background: #fff !important;
