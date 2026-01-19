@@ -18,15 +18,12 @@
 			--bg: #000;
 			--fg: #fff;
 			--handle: rgb(255, 0, 0);
-			--indent: 1.6em; /* default indent */
+			--indent: 1.6em; /* desktop indent */
 		}
 
 		html, body{
 			margin: 0;
-			padding-top: 24px;
-			padding-right: 24px;
-			padding-bottom: 24px;
-			padding-left: 0; /* no left padding */
+			padding: 24px;
 			background: var(--bg);
 			color: var(--fg);
 			font-family: "MrsEavesOvercooked", serif;
@@ -67,17 +64,20 @@
 		.name{ color: var(--fg); }
 		.handle{ color: var(--handle); }
 
-		/* explicit guarantee: never indent these */
+		/* explicit guarantee */
 		.name,
 		.handle,
 		.section{
 			padding-left: 0 !important;
 		}
 
-		/* mobile: reduce indent to half */
+		/* 📱 mobile: flush-left + no hierarchy */
 		@media (max-width: 600px){
+			html, body{
+				padding-left: 0;
+			}
 			:root{
-				--indent: 0.8em;
+				--indent: 0;
 			}
 		}
 
