@@ -17,6 +17,10 @@
 <style>
   html, body { margin:0; padding:0; background:#000; overflow:hidden; height:100%; }
 
+  :root{
+    --uiScale: 1; /* 1080x1920 기준 스케일 */
+  }
+
   /* Noto Sans KR */
   .noto-sans-kr-<uniquifier> {
     font-family: "Noto Sans KR", sans-serif;
@@ -54,7 +58,7 @@
     font-weight: 700;
     font-style: normal;
 
-    font-size: 72px;
+    font-size: calc(72px * var(--uiScale));
     letter-spacing: -0.04em;
     word-spacing: 0.4em;
   }
@@ -68,7 +72,7 @@
     font-weight: 700;
     font-style: normal;
 
-    font-size: 64px;
+    font-size: calc(64px * var(--uiScale));
     letter-spacing: -0.02em;
     color: #fff;
     user-select:none; pointer-events:none; z-index:2; white-space:nowrap;
@@ -155,6 +159,11 @@ const OVERLAY_FADE_MS = 2000; // CSS(#blackOverlay transition)와 맞추기
 /* 루프 시작 시 mediaBand도 부드럽게 등장 */
 const MEDIA_FADEIN_MS = 1200;
 
+/* 1080x1920 기준 스케일 */
+const BASE_W = 1080;
+const BASE_H = 1920;
+let uiScale = 1;
+
 let drops = [];
 let lastSpawn = 0;
 let lastTime = performance.now();
@@ -183,6 +192,17 @@ let resetScheduled = false;
 
 function rand(min, max){ return min + Math.random() * (max - min); }
 function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+
+function updateUiScale(){
+  const sx = window.innerWidth / BASE_W;
+  const sy = window.innerHeight / BASE_H;
+  uiScale = Math.min(sx, sy);
+
+  // 너무 극단으로 가지 않게(원하면 숫자 조절/삭제 가능)
+  uiScale = clamp(uiScale, 0.45, 1.75);
+
+  document.documentElement.style.setProperty("--uiScale", uiScale.toFixed(4));
+}
 
 function overlayOn(){
   const ov = document.getElementById("blackOverlay");
@@ -265,7 +285,8 @@ function spawnDrop(){
   el.className = "drop";
   el.textContent = "사실";
 
-  const size = Math.round(rand(50, 76));
+  const baseSize = Math.round(rand(50, 76));
+  const size = Math.max(10, Math.round(baseSize * uiScale));
   el.style.fontSize = size + "px";
 
   const x = pickSpawnX(size);
@@ -751,6 +772,7 @@ function tick(now){
   requestAnimationFrame(tick);
 }
 
+updateUiScale();
 buildRail();
 
 /* 첫 화면도 부드럽게 시작 */
@@ -764,6 +786,7 @@ setTimeout(() => {
 }, 80);
 
 window.addEventListener("resize", () => {
+  updateUiScale();
   buildRail();
   if (!morphing){
     piles.clear();
