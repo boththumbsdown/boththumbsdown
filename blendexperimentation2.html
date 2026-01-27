@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>INFORMATION → BELIEF (no triangles, smooth polish, vertical travel)</title>
+  <style>
+    :root{ --canvas-w:1080px; --canvas-h:1920px; }
+    body{
+      margin:0; min-height:100vh; display:grid; place-items:center;
+      background:#0f0f12; color:#eee;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    }
+    .stage{ width:var(--canvas-w); height:var(--canvas-h); display:block; }
+    #outGroup path{ shape-rendering: geometricPrecision; }
+  </style>
+</head>
+<body>
+  <svg id="svg" class="stage" viewBox="0 0 1080 1920" role="img" aria-label="INFORMATION to BELIEF morph">
+    <path id="measurePath" d="M0,0Z" fill="none" stroke="none" visibility="hidden"></path>
+
+    <!-- 인스턴스들 -->
+    <g id="outGroup" fill="currentColor" stroke="none" fill-rule="nonzero"></g>
+
+    <!-- 중앙 BELIEF 오버레이(원본 벡터) -->
+    <g id="beliefOverlay" fill="currentColor" stroke="none" fill-rule="nonzero" opacity="0"></g>
+
+    <g id="srcA" visibility="hidden" opacity="0" pointer-events="none"></g>
+    <g id="srcB" visibility="hidden" opacity="0" pointer-events="none"></g>
+  </svg>
+
+  <script>
+    const D_INFORMATION = [
+      `M0,3.71h34.46v188.74H0V3.71Z`,
+      `M54.08,3.71h33.67l31.55,99.67h.53V3.71h27.57v188.74h-26.77l-36.85-114.25h-.53v114.25h-29.16V3.71Z`,
+      `M168.34,3.71h77.14v29.16h-42.68v50.37h31.55v30.75h-31.55v78.47h-34.46V3.71Z`,
+      `M301.94,0c30.49,0,50.37,23.59,50.37,98.08s-19.88,98.08-50.37,98.08-50.37-23.59-50.37-98.08S271.46,0,301.94,0ZM289.22,117.97c0,40.82,4.77,49.04,12.72,49.04s12.72-8.22,12.72-49.04v-39.76c0-40.82-4.77-49.04-12.72-49.04s-12.72,8.22-12.72,49.04v39.76Z`,
+      `M369.54,3.71h38.7c32.87,0,54.61,13.78,54.61,53.55,0,15.91-4.77,37.11-20.15,46.13l20.41,89.07h-34.73l-16.17-81.12h-8.22v81.12h-34.46V3.71ZM404.01,83.77h6.89c12.72,0,17.5-12.72,17.5-26.24,0-20.41-7.42-26.24-19.09-26.24h-5.3v52.49Z`,
+      `M476.11,3.71h45.86l15.37,96.76h.53l16.17-96.76h44.8v188.74h-30.75V54.08h-.53l-23.33,138.38h-19.09l-23.06-138.38h-.53v138.38h-25.45V3.71Z`,
+      `M636.76,3.71h49.84l23.33,188.74h-33.14l-5.04-41.88h-27.83l-4.77,41.88h-28.89L636.76,3.71ZM658.76,32.87h-.53l-10.87,90.13h21.47l-10.07-90.13Z`,
+      `M728.75,32.87h-29.69V3.71h93.84v29.16h-29.69v159.58h-34.46V32.87Z`,
+      `M800.06,3.71h34.46v188.74h-34.46V3.71Z`,
+      `M900.79,0c30.49,0,50.37,23.59,50.37,98.08s-19.88,98.08-50.37,98.08-50.37-23.59-50.37-98.08S870.31,0,900.79,0ZM888.07,117.97c0,40.82,4.77,49.04,12.72,49.04s12.72-8.22,12.72-49.04v-39.76c0-40.82-4.77-49.04-12.72-49.04s-12.72,8.22-12.72,49.04v39.76Z`,
+      `M967.07,3.71h33.67l31.55,99.67h.53V3.71h27.57v188.74h-26.77l-36.85-114.25h-.53v114.25h-29.16V3.71Z`
+    ];
+
+    const D_BELIEF = [
+      `M0,0h25.44c12.72,0,27.98,7,27.98,28.62,0,12.72-5.72,22.58-18.44,25.28v.32c14.15,3.34,20.67,13.2,20.67,27.51,0,20.67-13.99,31.48-29.26,31.48H0V0ZM20.67,46.43c10.33,0,13.04-4.77,13.04-14.95,0-12.88-2.7-15.1-13.04-14.95v29.89ZM20.67,96.67c12.4,0,14.31-4.93,14.31-16.7,0-10.33-2.54-16.22-14.31-16.06v32.75Z`,
+      `M64.71,0h46.75v17.49h-26.08v28.94h19.24v18.44h-19.24v30.85h27.19v17.49h-47.86V0Z`,
+      `M120.68,0h20.67v95.72h26.39v17.49h-47.06V0Z`,
+      `M175.85,0h20.67v113.21h-20.67V0Z`,
+      `M209.08,0h46.75v17.49h-26.08v28.94h19.24v18.44h-19.24v30.85h27.19v17.49h-47.86V0Z`,
+      `M265.05,0h46.27v17.49h-25.6v30.21h18.92v18.44h-18.92v47.06h-20.67V0Z`
+    ];
+
+    const MAP = [
+      { from:[0,1],   to:0 }, // IN -> B
+      { from:[2,3],   to:1 }, // FO -> E
+      { from:[4,5],   to:2 }, // RM -> L
+      { from:[6],     to:3 }, // A  -> I
+      { from:[7,8],   to:4 }, // TI -> E
+      { from:[9,10],  to:5 }, // ON -> F
+    ];
+
+    const svg = document.getElementById("svg");
+    const outGroup = document.getElementById("outGroup");
+    const overlay = document.getElementById("beliefOverlay");
+    const measurePath = document.getElementById("measurePath");
+
+    const CANVAS_W = 1080, CANVAS_H = 1920;
+
+    const COUNT_INFO = 10;
+
+    const APPEAR_STAGGER = 1000; // 1초
+    const PAUSE_BEFORE_MERGE = 900;
+
+    const BASE_MERGE_MS = 9000;
+    const MIN_MERGE_FACTOR = 0.35;
+
+    const HOLD_BELIEF_MS = 5000;
+    const BLACK_GAP_MS = 1000;
+
+    const SAMPLES_TOTAL = 720;
+
+    // “매끈해지는” 구간: 마지막 20%
+    const POLISH_START = 0.80;
+
+    // 가로축 이동 최소화: 0이면 완전 고정
+    const X_DRIFT = 0; // 필요하면 10~30 정도만 허용
+
+    let rafIds = [];
+    function clearRafs(){ rafIds.forEach(id=>cancelAnimationFrame(id)); rafIds=[]; }
+
+    function easeInOutSine(t){ return -(Math.cos(Math.PI * t) - 1) / 2; }
+
+    function makePath(d){
+      const p = document.createElementNS("http://www.w3.org/2000/svg","path");
+      p.setAttribute("d", d);
+      p.setAttribute("fill-rule","nonzero");
+      return p;
+    }
+
+    function splitSubpaths(d){
+      const s = (d||"").trim();
+      const parts = s.split(/(?=[Mm])/).map(x=>x.trim()).filter(Boolean);
+      return parts.length ? parts : ["M0,0Z"];
+    }
+
+    function allocateSamplesByLength(lengths, totalSamples){
+      const sum = lengths.reduce((a,b)=>a+b,0) || 1;
+      let alloc = lengths.map(L => Math.max(16, Math.round((L/sum)*totalSamples)));
+      let diff = totalSamples - alloc.reduce((a,b)=>a+b,0);
+      let i=0;
+      while(diff!==0 && alloc.length){
+        const k=i%alloc.length;
+        if(diff>0){ alloc[k]++; diff--; }
+        else if(alloc[k]>16){ alloc[k]--; diff++; }
+        i++;
+      }
+      return alloc;
+    }
+
+    function sampleCompoundD(d, totalSamples){
+      const subs = splitSubpaths(d);
+      const lengths = subs.map(sd=>{
+        measurePath.setAttribute("d", sd);
+        return Math.max(0.0001, measurePath.getTotalLength());
+      });
+      const alloc = allocateSamplesByLength(lengths, totalSamples);
+
+      return subs.map((sd, idx)=>{
+        measurePath.setAttribute("d", sd);
+        const len = Math.max(0.0001, measurePath.getTotalLength());
+        const n = alloc[idx];
+        const pts = new Array(n);
+        for(let i=0;i<n;i++){
+          const p = measurePath.getPointAtLength((i/(n-1))*len);
+          pts[i]=[p.x,p.y];
+        }
+        return pts;
+      });
+    }
+
+    function contoursToD(contours){
+      let d="";
+      for(const pts of contours){
+        if(!pts || pts.length<2) continue;
+        d += `M${pts[0][0]},${pts[0][1]}`;
+        for(let i=1;i<pts.length;i++) d += `L${pts[i][0]},${pts[i][1]}`;
+        d += `Z`;
+      }
+      return d || "M0,0Z";
+    }
+
+    function normalizeContoursCount(arr, maxC){
+      if(arr.length===maxC) return arr;
+      const out = new Array(maxC);
+      for(let i=0;i<maxC;i++){
+        const idx = Math.floor((i+0.5)/maxC * arr.length);
+        out[i] = arr[Math.max(0, Math.min(arr.length-1, idx))];
+      }
+      return out;
+    }
+
+    // 원본 그대로 보여주기(삼각형 방지): from 글자들을 path 여러 개로 유지
+    function buildRawInfoGroup(parentG, indices){
+      const g = document.createElementNS("http://www.w3.org/2000/svg","g");
+      const paths = indices.map(idx=>{
+        const p = makePath(D_INFORMATION[idx]);
+        g.appendChild(p);
+        return p;
+      });
+      parentG.appendChild(g);
+      return { g, paths };
+    }
+
+    // 모핑용 단일 path (merge 시점에만 생성)
+    function buildMorphPath(parentG, fromIndices){
+      const p = document.createElementNS("http://www.w3.org/2000/svg","path");
+      // 초기 d는 "샘플링 폴리곤"이 아니라, 그냥 첫 글자 d로 시작(튀는 면 최소화)
+      p.setAttribute("d", D_INFORMATION[fromIndices[0]]);
+      parentG.appendChild(p);
+      return p;
+    }
+
+    function bboxOfDs(ds){
+      const g=document.createElementNS("http://www.w3.org/2000/svg","g");
+      g.setAttribute("visibility","hidden");
+      ds.forEach(d => g.appendChild(makePath(d)));
+      svg.appendChild(g);
+      const b=g.getBBox();
+      g.remove();
+      return b;
+    }
+
+    function animateVerticalTransform(g, from, to, ms){
+      const t0=performance.now();
+      function frame(now){
+        const t=Math.min(1, Math.max(0,(now-t0)/ms));
+        const e=easeInOutSine(t);
+
+        const x = from.x + (to.x - from.x) * e * (X_DRIFT ? 1 : 0); // X_DRIFT=0이면 고정
+        const xx = X_DRIFT ? (from.x + (to.x-from.x)*e) : from.x;
+
+        const y = from.y + (to.y-from.y)*e;
+        const s = from.s + (to.s-from.s)*e;
+
+        g.setAttribute("transform", `translate(${xx} ${y}) scale(${s})`);
+
+        if(t<1) rafIds.push(requestAnimationFrame(frame));
+        else g.setAttribute("transform", `translate(${X_DRIFT?to.x:from.x} ${to.y}) scale(${to.s})`);
+      }
+      rafIds.push(requestAnimationFrame(frame));
+    }
+
+    function morphContoursTo(outPath, fromContours, toContours, ms){
+      const maxC = Math.max(fromContours.length, toContours.length);
+      const A = normalizeContoursCount(fromContours, maxC);
+      const B = normalizeContoursCount(toContours, maxC);
+
+      const t0=performance.now();
+      function frame(now){
+        const t = Math.min(1, Math.max(0,(now-t0)/ms));
+        const e = easeInOutSine(t);
+
+        const outContours = new Array(maxC);
+        for(let c=0;c<maxC;c++){
+          const a=A[c], b=B[c];
+          const n=Math.min(a.length,b.length);
+          const pts=new Array(n);
+          for(let i=0;i<n;i++){
+            const ax=a[i][0], ay=a[i][1];
+            const bx=b[i][0], by=b[i][1];
+            pts[i]=[ax+(bx-ax)*e, ay+(by-ay)*e];
+          }
+          outContours[c]=pts;
+        }
+        outPath.setAttribute("d", contoursToD(outContours));
+
+        if(t<1) rafIds.push(requestAnimationFrame(frame));
+      }
+      rafIds.push(requestAnimationFrame(frame));
+    }
+
+    function animateOverlayPolish(ms){
+      const t0=performance.now();
+      function frame(now){
+        const t = Math.min(1, Math.max(0,(now-t0)/ms));
+        // 0..POLISH_START: 0, 이후 0→1
+        const p = (t <= POLISH_START) ? 0 : (t - POLISH_START) / (1 - POLISH_START);
+        const e = easeInOutSine(Math.min(1, Math.max(0, p)));
+        overlay.setAttribute("opacity", String(e));
+        if(t<1) requestAnimationFrame(frame);
+        else overlay.setAttribute("opacity","1");
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function runCycle(){
+      clearRafs();
+      outGroup.style.display="";
+      outGroup.innerHTML="";
+      overlay.innerHTML="";
+      overlay.setAttribute("opacity","0");
+
+      const infoBBox = bboxOfDs(D_INFORMATION);
+      const beliefBBox = bboxOfDs(D_BELIEF);
+
+      // layout
+      const paddingX=40, paddingY=60;
+      const availableW = CANVAS_W - paddingX*2;
+      const availableH = CANVAS_H - paddingY*2;
+
+      const scaleByHeight = (availableH/COUNT_INFO)/infoBBox.height;
+      const scaleByWidth  = availableW/infoBBox.width;
+      const INFO_SCALE = Math.min(scaleByHeight, scaleByWidth);
+      const slotH = infoBBox.height * INFO_SCALE;
+
+      function infoTfForIndex(i){
+        const x = paddingX + (availableW - infoBBox.width*INFO_SCALE)/2 - infoBBox.x*INFO_SCALE;
+        const y = paddingY + i*slotH - infoBBox.y*INFO_SCALE;
+        return {x,y,s:INFO_SCALE};
+      }
+
+      function beliefTfCentered(){
+        const pad=60;
+        const availW = CANVAS_W - pad*2;
+        const availH = CANVAS_H - pad*2;
+        const s = Math.min(availW/beliefBBox.width, availH/beliefBBox.height);
+        const x = (CANVAS_W - beliefBBox.width*s)/2 - beliefBBox.x*s;
+        const y = (CANVAS_H - beliefBBox.height*s)/2 - beliefBBox.y*s;
+        return {x,y,s};
+      }
+      const BELIEF_TF = beliefTfCentered();
+
+      // overlay BELIEF (원본 벡터를 중앙에)
+      overlay.setAttribute("transform", `translate(${BELIEF_TF.x} ${BELIEF_TF.y}) scale(${BELIEF_TF.s})`);
+      D_BELIEF.forEach(d => overlay.appendChild(makePath(d)));
+
+      // distance calc (instance center to belief center)
+      const beliefCenter = {
+        cx: BELIEF_TF.x + (beliefBBox.x + beliefBBox.width/2) * BELIEF_TF.s,
+        cy: BELIEF_TF.y + (beliefBBox.y + beliefBBox.height/2) * BELIEF_TF.s,
+      };
+
+      function centerOfInfo(tf){
+        return {
+          cx: tf.x + (infoBBox.x + infoBBox.width/2) * tf.s,
+          cy: tf.y + (infoBBox.y + infoBBox.height/2) * tf.s,
+        };
+      }
+
+      // instances: 각 instance는 "raw words"를 먼저 그림(삼각형 제거)
+      const instances=[];
+      for(let i=0;i<COUNT_INFO;i++){
+        const tf = infoTfForIndex(i);
+
+        const g = document.createElementNS("http://www.w3.org/2000/svg","g");
+        g.setAttribute("transform", `translate(${tf.x} ${tf.y}) scale(${tf.s})`);
+        g.style.display="none";
+        outGroup.appendChild(g);
+
+        // raw groups per mapping (원본 path 여러개)
+        const rawGroups = MAP.map(m => buildRawInfoGroup(g, m.from));
+
+        // merge 시점에 이 rawGroups를 숨기고 morphPaths를 보여줄 것
+        instances.push({ g, tf, rawGroups, morphPaths: [] });
+      }
+
+      // appear
+      for(let i=0;i<COUNT_INFO;i++){
+        setTimeout(()=>{ instances[i].g.style.display=""; }, i*APPEAR_STAGGER);
+      }
+      const totalAppearTime = (COUNT_INFO-1)*APPEAR_STAGGER;
+
+      // merge
+      setTimeout(()=>{
+        clearRafs();
+
+        // duration sync
+        const dists = instances.map(inst=>{
+          const c=centerOfInfo(inst.tf);
+          return Math.hypot(c.cx-beliefCenter.cx, c.cy-beliefCenter.cy);
+        });
+        const maxDist = Math.max(...dists, 1);
+
+        // overlay polish (A 해결)
+        animateOverlayPolish(BASE_MERGE_MS);
+
+        for(let i=0;i<COUNT_INFO;i++){
+          const inst=instances[i];
+          const c=centerOfInfo(inst.tf);
+          const dist=Math.hypot(c.cx-beliefCenter.cx, c.cy-beliefCenter.cy);
+          const dur=Math.max(BASE_MERGE_MS*MIN_MERGE_FACTOR, BASE_MERGE_MS*(dist/maxDist));
+
+          // 이동: 세로만(가로 고정)
+          const to = { x: BELIEF_TF.x, y: BELIEF_TF.y, s: BELIEF_TF.s };
+          animateVerticalTransform(inst.g, inst.tf, to, dur);
+
+          // raw 숨기고 morphPath 생성
+          inst.rawGroups.forEach(rg => rg.g.style.display="none");
+
+          inst.morphPaths = MAP.map((m, idx)=>{
+            const mp = buildMorphPath(inst.g, m.from);
+            mp.style.display="";
+            return mp;
+          });
+
+          // 각 morphPath를 해당 BELIEF letter로 morph
+          for(let k=0;k<MAP.length;k++){
+            const m = MAP[k];
+            const outP = inst.morphPaths[k];
+
+            // fromContours: 해당 fromIndices의 contour를 합쳐서(모핑 전용)
+            const fromContoursList = m.from.map(ii => sampleCompoundD(D_INFORMATION[ii], Math.floor(SAMPLES_TOTAL / m.from.length)));
+            const fromContours = fromContoursList.flat();
+
+            // toContours: BELIEF letter
+            const toContours = sampleCompoundD(D_BELIEF[m.to], SAMPLES_TOTAL);
+
+            // 로컬 좌표에서 모핑
+            morphContoursTo(outP, fromContours, toContours, dur);
+          }
+        }
+
+        // hold then black then restart
+        setTimeout(()=>{
+          outGroup.style.display="none";
+          overlay.setAttribute("opacity","0");
+          setTimeout(()=>runCycle(), BLACK_GAP_MS);
+        }, BASE_MERGE_MS + HOLD_BELIEF_MS);
+
+      }, totalAppearTime + PAUSE_BEFORE_MERGE);
+    }
+
+    runCycle();
+  </script>
+</body>
+</html>

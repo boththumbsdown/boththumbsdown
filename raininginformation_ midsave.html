@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Information → Media → Perspective → Belief (Morph)</title>
+<style>
+  html, body { margin:0; padding:0; background:#000; overflow:hidden; height:100%; }
+
+  .media-band{
+    position: fixed; left: 0; top: 25vh;
+    width: 100vw; height: 120px;
+    display: flex; align-items: center; overflow: hidden;
+    pointer-events: none; z-index: 10;
+    opacity: 1;
+    transition: opacity 5s linear; /* ✅ 5초 페이드 */
+  }
+
+  .media-rail{
+    display: inline-flex; gap: 42px; white-space: nowrap; color: #fff;
+    font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    font-weight: 900; font-size: 72px; letter-spacing: -0.04em;
+    opacity: 0.95; transform: translate3d(0,0,0); will-change: transform;
+    -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision;
+  }
+
+  .drop{
+    position: absolute; top: -140px; left: 0;
+    transform: translate3d(0,0,0); will-change: transform;
+    font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    font-weight: 900; font-size: 64px; letter-spacing: -0.02em; color: #fff;
+    user-select:none; pointer-events:none; z-index:2; white-space:nowrap;
+    -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision;
+  }
+
+  /* ✅ 엔딩: 단 한 단어 "신념" */
+  .belief-word{
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0.94);
+    color: #ff0000;
+    font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    font-weight: 900;
+    letter-spacing: -0.08em;
+    line-height: 0.85;
+    opacity: 0;
+    z-index: 40;
+    pointer-events: none;
+    transition: opacity 520ms ease, transform 520ms ease;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
+    white-space: nowrap;
+  }
+  .belief-word.show{
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+</style>
+</head>
+<body>
+
+<div class="media-band" id="mediaBand">
+  <div class="media-rail" id="mediaRail"></div>
+</div>
+
+<div class="belief-word" id="beliefWord">신념</div>
+
+<script>
+/**
+ * 변경 요구사항:
+ * - pile top이 미디어 아래선에 닿는 순간 -> "종결 시퀀스" 시작
+ *   1) 5초 인터벌: 정보 더 이상 내리지 않음(스폰/이동 정지), 미디어는 5초 동안 fade out
+ *   2) 5초 후: 쌓인 관점이 "신념" (단 한 단어, 화면을 꽉 채우는 큰 글자)로 morph
+ *
+ * 구현:
+ * - endArmed 상태로 5초 타이머 시작
+ * - 그동안 drop 업데이트/스폰 중지(정지된 상태로 유지)
+ * - 5초 후: 관점 요소들을 중앙으로 모으고(scale/translate), 동시에 "신념" 텍스트 페이드 인
+ */
+
+const COLORS = ["#00ff3b", "#0033ff", "#ffee00"];
+const SPAWN_EVERY_MS = 170;
+
+let drops = [];
+let lastSpawn = 0;
+let lastTime = performance.now();
+let railOffset = 0;
+
+const PILE_STEP = 86;
+const piles = new Map();   // colIndex -> stackedHeight
+
+let ended = false;         // 인터벌 + morph 끝난 최종 상태
+let endArmed = false;      // 5초 인터벌 진행 중
+const END_DELAY_MS = 5000; // ✅ 5초
+
+function rand(min, max){ return min + Math.random() * (max - min); }
+
+function buildRail(){
+  const rail = document.getElementById("mediaRail");
+  rail.innerHTML = "";
+  const word = "미디어";
+  const repeatCount = Math.ceil(window.innerWidth / 120) + 12;
+  for(let i=0;i<repeatCount;i++){
+    const span = document.createElement("span");
+    span.textContent = word;
+    rail.appendChild(span);
+  }
+}
+
+function getMediaCenterY(){
+  const band = document.getElementById("mediaBand");
+  const r = band.getBoundingClientRect();
+  return r.top + r.height / 2;
+}
+function getMediaUnderlineY(){
+  const rail = document.getElementById("mediaRail");
+  const r = rail.getBoundingClientRect();
+  return r.bottom;
+}
+
+function colIndexForX(x){ return Math.floor(x / PILE_STEP); }
+function snapXToCol(x){
+  const col = colIndexForX(x);
+  return col * PILE_STEP + (PILE_STEP * 0.15);
+}
+function getColPileTopY(col){
+  const h = piles.get(col) || 0;
+  return window.innerHeight - h;
+}
+
+function spawnDrop(){
+  const el = document.createElement("div");
+  el.className = "drop";
+  el.textContent = "정보";
+
+  const size = Math.round(rand(52, 76));
+  el.style.fontSize = size + "px";
+
+  const x = rand(0, window.innerWidth - size * 2);
+  const y = rand(-160, -40);
+
+  const vy = rand(170, 360);
+  const vx = rand(-20, 20);
+
+  el.style.opacity = rand(0.85, 1);
+  document.body.appendChild(el);
+
+  drops.push({
+    el, x, y, vx, vy,
+    converted: false,
+    size,
+    landed: false,
+    col: null,
+    h: size * 1.15
+  });
+}
+
+function convertToPerspective(d){
+  d.converted = true;
+  d.el.textContent = "관점";
+  d.el.style.color = COLORS[(Math.random() * COLORS.length) | 0];
+  d.el.style.transition = "transform 160ms ease-out, filter 160ms ease-out";
+  d.el.style.filter = "blur(0.2px)";
+  d.el._pulse = true;
+}
+
+function landIntoPile(d){
+  d.landed = true;
+  d.vy = 0;
+  d.vx = 0;
+
+  d.col = colIndexForX(d.x);
+  d.x = snapXToCol(d.x);
+
+  const currentH = piles.get(d.col) || 0;
+  const topY = window.innerHeight - currentH;
+  d.y = topY - d.h;
+
+  piles.set(d.col, currentH + d.h);
+
+  d.el.style.transition = "transform 120ms ease-out";
+  d.el.style.transform = `translate3d(${d.x}px, ${d.y}px, 0) scale(1.02, 0.96)`;
+  setTimeout(() => {
+    if (!d.el) return;
+    d.el.style.transition = "transform 160ms ease-out";
+    d.el.style.transform = `translate3d(${d.x}px, ${d.y}px, 0) scale(1)`;
+    d.el.style.filter = "none";
+  }, 140);
+}
+
+function getPileTopY(){
+  let maxH = 0;
+  for (const h of piles.values()) maxH = Math.max(maxH, h);
+  return window.innerHeight - maxH;
+}
+
+/* ✅ 5초 인터벌 시작: 정보 정지 + 미디어 페이드 */
+function armEnding(){
+  if (endArmed || ended) return;
+  endArmed = true;
+
+  // 정보 더 이상 내리지 않음: 스폰 중지 + 모두 정지
+  for (const d of drops){ d.vx = 0; d.vy = 0; }
+
+  // 미디어 5초 페이드아웃 (CSS transition 5s)
+  const band = document.getElementById("mediaBand");
+  band.style.opacity = "0";
+
+  // 5초 후 morph
+  setTimeout(() => {
+    morphToBelief();
+  }, END_DELAY_MS);
+}
+
+/* ✅ “쌓인 관점” -> 중앙으로 수렴 + "신념" 단어 등장 */
+function morphToBelief(){
+  if (ended) return;
+  ended = true;
+
+  // 미디어 완전 제거
+  const band = document.getElementById("mediaBand");
+  band.style.display = "none";
+
+  // 쌓인 관점(landed)들을 중앙으로 빨려들듯 이동 + 빨강으로
+  const cx = window.innerWidth / 2;
+  const cy = window.innerHeight / 2;
+
+  for (const d of drops){
+    if (!(d.converted && d.landed && d.el)) continue;
+
+    // 현재 transform을 “월드 좌표”로 보고, 중앙으로 모으는 최종 위치를 계산
+    // (대충 중앙 주변에 모이도록 약간 랜덤 오프셋)
+    const tx = cx + rand(-40, 40);
+    const ty = cy + rand(-40, 40);
+
+    // 절대좌표 이동: translate3d(tx,ty)로 보내려면 기존 x,y 대신 쓰면 됨
+    // (drop은 transform으로 위치를 찍고 있으니까, transition 걸고 값만 바꿈)
+    d.el.style.transition = "transform 900ms cubic-bezier(.2,.9,.2,1), opacity 900ms ease, filter 900ms ease";
+    d.el.style.color = "#ff0000";
+    d.el.style.filter = "blur(0px)";
+    d.el.style.opacity = "0.0"; // 관점들이 사라지면서 신념으로 수렴하는 느낌
+
+    // scale up + move to center
+    d.el.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(1.2)`;
+  }
+
+  // 화면을 꽉 채우는 "신념" 사이즈 계산 후 표시
+  const belief = document.getElementById("beliefWord");
+  const size = computeMaxFontSizeForWord(belief, "신념");
+  belief.style.fontSize = size + "px";
+
+  // 약간 딜레이 후 등장(관점이 수렴한 뒤 “응결”)
+  setTimeout(() => {
+    belief.classList.add("show");
+  }, 650);
+}
+
+/* ✅ 화면을 “반복 없이 단 한 단어”로 꽉 채우는 폰트 크기 계산 */
+function computeMaxFontSizeForWord(el, text){
+  el.textContent = text;
+
+  const padX = 36;
+  const padY = 36;
+  const maxW = window.innerWidth - padX * 2;
+  const maxH = window.innerHeight - padY * 2;
+
+  // 이분 탐색
+  let lo = 24, hi = 2000, best = 24;
+
+  // 잠깐 보이게 해서 측정
+  const prevDisplay = el.style.display;
+  const prevOpacity = el.style.opacity;
+  el.style.display = "block";
+  el.style.opacity = "0";
+
+  while (lo <= hi){
+    const mid = (lo + hi) >> 1;
+    el.style.fontSize = mid + "px";
+    const r = el.getBoundingClientRect();
+    const ok = (r.width <= maxW) && (r.height <= maxH);
+    if (ok){
+      best = mid;
+      lo = mid + 1;
+    } else {
+      hi = mid - 1;
+    }
+  }
+
+  el.style.opacity = prevOpacity;
+  el.style.display = prevDisplay || "";
+
+  return best;
+}
+
+function tick(now){
+  const dt = Math.min(0.033, (now - lastTime) / 1000);
+  lastTime = now;
+
+  // ✅ 5초 인터벌 동안 & 엔딩 후: 떨어짐/스폰 중지
+  if (endArmed || ended){
+    requestAnimationFrame(tick);
+    return;
+  }
+
+  // media rail motion
+  const rail = document.getElementById("mediaRail");
+  railOffset -= 26 * dt;
+  if (railOffset < -240) railOffset = 0;
+  rail.style.transform = `translate3d(${railOffset}px, 0, 0)`;
+
+  // spawn
+  if (now - lastSpawn > SPAWN_EVERY_MS){
+    const n = (Math.random() < 0.1) ? 2 : 1;
+    for(let i=0;i<n;i++) spawnDrop();
+    lastSpawn = now;
+  }
+
+  const mediaCenterY = getMediaCenterY();
+  const mediaUnderlineY = getMediaUnderlineY();
+
+  for (let i = drops.length - 1; i >= 0; i--){
+    const d = drops[i];
+    if (d.landed) continue;
+
+    d.y += d.vy * dt;
+    d.x += d.vx * dt;
+
+    if (d.x < -220) d.x = window.innerWidth + 200;
+    if (d.x > window.innerWidth + 220) d.x = -200;
+
+    // 정보 -> 관점 변환(네 보정 유지)
+    const glyphMidY = d.y + d.size * 0.55 - 150;
+    if (!d.converted && glyphMidY >= mediaCenterY){
+      convertToPerspective(d);
+    }
+
+    // 관점은 해당 컬럼의 pile top에 닿으면 착지
+    if (d.converted){
+      const col = colIndexForX(d.x);
+      const pileTopY = getColPileTopY(col);
+      const bottomY = d.y + d.h;
+      if (bottomY >= pileTopY){
+        d.y = pileTopY - d.h;
+        landIntoPile(d);
+      }
+    } else {
+      // 정보는 화면 아래 넘어가면 제거
+      if (d.y > window.innerHeight + 240){
+        d.el.remove();
+        drops.splice(i, 1);
+        continue;
+      }
+    }
+
+    // render + pulse
+    if (d.converted && d.el._pulse){
+      d.el.style.transform = `translate3d(${d.x}px, ${d.y}px, 0) scale(1.06)`;
+      d.el._pulse = false;
+      setTimeout(() => {
+        if (!d.el) return;
+        d.el.style.transform = `translate3d(${d.x}px, ${d.y}px, 0) scale(1)`;
+        d.el.style.filter = "none";
+      }, 170);
+    } else {
+      d.el.style.transform = `translate3d(${d.x}px, ${d.y}px, 0)`;
+    }
+  }
+
+  // ✅ pile top이 미디어 아래선에 닿는 순간: 5초 인터벌 시작
+  const pileTopGlobal = getPileTopY();
+  if (pileTopGlobal <= mediaUnderlineY){
+    armEnding();
+  }
+
+  requestAnimationFrame(tick);
+}
+
+buildRail();
+window.addEventListener("resize", () => {
+  buildRail();
+  if (!ended){
+    piles.clear();
+  } else {
+    // 엔딩 상태면 신념 크기 재계산
+    const belief = document.getElementById("beliefWord");
+    belief.style.fontSize = computeMaxFontSizeForWord(belief, "신념") + "px";
+  }
+});
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
