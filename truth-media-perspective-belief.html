@@ -129,7 +129,7 @@
 
 <script>
 /* 사실 생성 속도 */
-const SPAWN_EVERY_MS = 500;
+const SPAWN_EVERY_MS = 300;
 const BURST_CHANCE = 0.28;
 const BURST_MIN = 2;
 const BURST_MAX = 4;
@@ -144,7 +144,7 @@ const FLOOR_OFFSET = 150;
 
 const CRAZY_DURATION_MS = 10000;
 const COLLAPSE_MS = 1000;
-const BELIEF_SHOW_AT_MS = 1200;
+const BELIEF_SHOW_AT_MS = 2400;
 
 /* 신념 폰트 크기 */
 const BELIEF_SCALE = 0.10;
@@ -228,7 +228,7 @@ function buildRail(){
   const rail = document.getElementById("mediaRail");
   rail.innerHTML = "";
 
-  const word = "신문 인스타그램 뉴스 책 틱톡 유튜브 팟캐스트 블로그 잡지 쓰레드 엑스";
+  const word = "뉴스 인스타그램 신문 책 틱톡 유튜브 팟캐스트 블로그 잡지 쓰레드 엑스";
 
   const track = document.createElement("div");
   track.className = "rail-track";
@@ -449,8 +449,12 @@ function updateCrazyMorph(now, dt){
   const t = (now - morphStartMs) / CRAZY_DURATION_MS;
   const p = clamp(t, 0, 1);
 
-  const cx = window.innerWidth / 2;
-  const cy = window.innerHeight / 2;
+  /* 관점이 모이는 지점 manual shift */
+  const X_SHIFT = -60 * uiScale;
+  const Y_SHIFT = 100 * uiScale;
+
+  const cx = window.innerWidth / 2 + X_SHIFT;
+  const cy = window.innerHeight / 2 + Y_SHIFT;
 
   const speedRamp = 1 + 2.8 * Math.pow(p, 1.35);
 
@@ -703,7 +707,7 @@ function tick(now){
     return;
   }
 
-  if (!endArmed){
+  {
     const rail = document.getElementById("mediaRail");
     railOffset -= railSpeed * dt;
     if (railLoopW > 0){
@@ -711,7 +715,6 @@ function tick(now){
     }
     rail.style.transform = `translate3d(${railOffset}px, 0, 0)`;
   }
-
   if (!endArmed && (now - lastSpawn > SPAWN_EVERY_MS)){
     const burst = (Math.random() < BURST_CHANCE);
     const n = burst ? Math.floor(rand(BURST_MIN, BURST_MAX + 1)) : 1;
