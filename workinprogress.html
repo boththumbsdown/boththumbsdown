@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>work in progress</title>
+  <style>
+    html, body{
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      background: rgb(0,0,0);
+      overflow: hidden;
+    }
+
+    .wrap{
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+    }
+
+    /* 크롭 없이, 최대한 크게, 항상 중앙 */
+    img{
+      max-width: 100vw;
+      max-height: 100vh;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <img src="workinprogress.gif" alt="work in progress" />
+  </div>
+</body>
+</html>
