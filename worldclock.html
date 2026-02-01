@@ -68,14 +68,19 @@ html,body{
   line-height:1;
   letter-spacing:0.02em;
   color:var(--white);
-  white-space:nowrap;
+
   text-rendering:geometricPrecision;
   -webkit-font-smoothing:antialiased;
 
-  transform: scale(0.60); 
-  transform-origin: top center; 
+  display:inline-block;            /* 🔑 핵심 */
+  text-align:center;               /* 🔑 두 줄 중앙 */
+  transform: scale(0.60);
+  transform-origin: top center;
 }
-.headline.is-wrapped{ white-space:pre-line; }
+
+.headline.is-wrapped{
+  white-space:pre-line;
+}
 
 /* ================= CLOCK ================= */
 .center-clock{
@@ -136,7 +141,9 @@ html,body{
 
 <!-- HEADLINE -->
 <div class="headline-wrap">
-  <div class="headline" id="headlineLine">EVERY DAY<br>IS A NEW DAY</div>
+  <div class="headline is-wrapped" id="headlineLine">
+    EVERY DAY<br>IS A NEW DAY
+  </div>
 </div>
 
 <!-- CLOCK -->
