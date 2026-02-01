@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Midnight Globe (Satellite, 3D)</title>
+
+  <link href="https://unpkg.com/cesium/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
+  <script src="https://unpkg.com/cesium/Build/Cesium/Cesium.js"></script>
+
+  <style>
+    :root{ --bg:#000; --red:#ff0000; --white:#ffffff; }
+    html,body{
+      margin:0; height:100%; background:var(--bg); overflow:hidden;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    }
+    #cesiumContainer{ position:fixed; inset:0; }
+
+    .center-line{
+      position:fixed; left:50%; top:0; width:2px; height:100vh;
+      background:rgba(255,255,255,0.85);
+      transform:translateX(-50%);
+      pointer-events:none; z-index:50;
+    }
+    .midnight-indicator{
+      position:fixed; left:50%; top:50%;
+      transform:translate(-50%,-50%);
+      width:22px; height:22px; border-radius:999px;
+      background:var(--red);
+      box-shadow:0 0 22px rgba(255,0,0,0.35);
+      z-index:60; pointer-events:none;
+    }
+    .midnight-indicator::before{
+      content:"";
+      position:absolute; left:50%; top:50%;
+      transform:translate(-50%,-50%);
+      width:2px; height:90px;
+      background:rgba(255,0,0,0.55);
+      border-radius:2px;
+    }
+
+    .top-ui{
+      position:fixed; left:50%; top:4vh; transform:translateX(-50%);
+      display:flex; flex-direction:column; align-items:center; gap:2.2vh;
+      z-index:80; pointer-events:none;
+    }
+    .clock{ width:min(46vh, 520px); aspect-ratio:1/1; display:block; }
+    .digital{
+      color:var(--red); font-weight:800;
+      font-size:min(10vh, 120px);
+      line-height:1; letter-spacing:0.02em;
+      text-rendering:geometricPrecision;
+      -webkit-font-smoothing:antialiased;
+    }
+    .debug{
+      position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
+      color:rgba(255,255,255,0.55);
+      font-size:12px; letter-spacing:0.02em;
+      z-index:90; user-select:none; pointer-events:none; white-space:nowrap;
+    }
+    @media (max-aspect-ratio: 3/4){
+      .digital{ font-size:min(8vh, 92px); }
+      .clock{ width:min(38vh, 440px); }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="cesiumContainer"></div>
+
+  <div class="center-line"></div>
+  <div class="midnight-indicator" title="Midnight zone center"></div>
+
+  <div class="top-ui">
+    <svg class="clock" viewBox="0 0 100 100" aria-hidden="true">
+      <circle cx="50" cy="50" r="40" fill="none" stroke="var(--red)" stroke-width="1.2"></circle>
+      <line x1="50" y1="10" x2="50" y2="18" stroke="var(--red)" stroke-width="1.6" stroke-linecap="round"></line>
+      <line x1="50" y1="50" x2="50" y2="28" stroke="var(--red)" stroke-width="3.2" stroke-linecap="round"></line>
+      <line x1="50" y1="50" x2="50" y2="20" stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"></line>
+      <circle cx="50" cy="50" r="2.2" fill="var(--red)"></circle>
+    </svg>
+    <div class="digital">00:00</div>
+  </div>
+
+  <div class="debug" id="debug"></div>
+
+<script>
+(async () => {
+  // 0) Token
+  Cesium.Ion.defaultAccessToken =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJkNWNmOTE0Yi0wMDAzLTQzNDAtYTg4NC02YjdmYTVkZjBlNDgiLCJpZCI6Mzg1ODc3LCJpYXQiOjE3Njk5Nzg5Njl9.tCSau-yKKszfHUbw8Ip_t2uRNyduPYBTDSpgeD2hxC4";
+
+  // 1) Viewer
+  const viewer = new Cesium.Viewer("cesiumContainer", {
+    animation:false, timeline:false, baseLayerPicker:false, geocoder:false,
+    homeButton:false, navigationHelpButton:false, sceneModePicker:false,
+    fullscreenButton:false, selectionIndicator:false, infoBox:false,
+    shouldAnimate:true
+  });
+
+  // "별만 보이는 느낌" 방지용: 배경 요소 끄기
+  viewer.scene.skyAtmosphere.show = false;
+  viewer.scene.skyBox.show = false;
+  viewer.scene.sun.show = false;
+  viewer.scene.moon.show = false;
+  viewer.scene.fog.enabled = false;
+  viewer.scene.backgroundColor = Cesium.Color.BLACK;
+  viewer.scene.postProcessStages.fxaa.enabled = true;
+
+  // 위성 베이스맵 붙이기 (실패하면 콘솔 출력)
+  viewer.imageryLayers.removeAll();
+  try{
+    const provider = await Cesium.createWorldImageryAsync({
+      style: Cesium.IonWorldImageryStyle.AERIAL
+    });
+    viewer.imageryLayers.addImageryProvider(provider);
+  }catch(err){
+    console.error("❌ Imagery load failed:", err);
+  }
+
+  const debugEl = document.getElementById("debug");
+
+  // 2) DEBUG keyboard
+  let DEBUG = true;
+  let debugBaseUTC = new Date(Date.UTC(2026, 1, 1, 0, 0, 0));
+  let debugHours = 0;
+
+  function makeDebugNow(){
+    return new Date(debugBaseUTC.getTime() + debugHours * 3600 * 1000);
+  }
+
+  window.addEventListener("keydown", (e) => {
+    const tag = (document.activeElement && document.activeElement.tagName) ? document.activeElement.tagName.toLowerCase() : "";
+    if(tag === "input" || tag === "textarea") return;
+
+    if(e.key === "d" || e.key === "D") DEBUG = !DEBUG;
+
+    if(e.key === "r" || e.key === "R"){
+      const n = new Date();
+      debugBaseUTC = new Date(Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate(), 0, 0, 0));
+      debugHours = 0;
+    }
+
+    const step = e.shiftKey ? 1 : 0.25;
+    if(e.key === "ArrowRight"){
+      if(!DEBUG) return;
+      debugHours = (debugHours + step) % 24;
+      e.preventDefault();
+    }
+    if(e.key === "ArrowLeft"){
+      if(!DEBUG) return;
+      debugHours = (debugHours - step + 24) % 24;
+      e.preventDefault();
+    }
+  });
+
+  // 3) 자정대 계산
+  function getMidnightOffsetHours(now){
+    const utc = now.getUTCHours() + now.getUTCMinutes()/60 + (now.getUTCSeconds() + now.getUTCMilliseconds()/1000)/3600;
+    let offset = -utc;
+    offset = ((offset % 24) + 24) % 24;
+    if(offset > 12) offset -= 24;
+    return offset;
+  }
+  function offsetToLongitude(offsetHours){ return offsetHours * 15; }
+
+  // 4) 카메라 (lookAt: 지구 확실히 보이게)
+  const CAM_LAT = 20;                          // 중심 위도
+  const CAM_RANGE = 6_500_000;                 // 작을수록 지구가 큼 (4e6~9e6 추천)
+  const CAM_PITCH = Cesium.Math.toRadians(-55);
+  const CAM_HEADING = Cesium.Math.toRadians(0);
+
+  function setCameraToLon(lonDeg){
+    const target = Cesium.Cartesian3.fromDegrees(lonDeg, CAM_LAT, 0);
+    const offset = new Cesium.HeadingPitchRange(CAM_HEADING, CAM_PITCH, CAM_RANGE);
+    viewer.camera.lookAt(target, offset);
+  }
+
+  // 첫 샷
+  setCameraToLon(0);
+
+  function animate(){
+    const now = DEBUG ? makeDebugNow() : new Date();
+
+    const offsetH = getMidnightOffsetHours(now);
+    const midnightLon = offsetToLongitude(offsetH);
+
+    setCameraToLon(midnightLon);
+
+    const hh = String(now.getUTCHours()).padStart(2,"0");
+    const mm = String(now.getUTCMinutes()).padStart(2,"0");
+    const ss = String(now.getUTCSeconds()).padStart(2,"0");
+
+    debugEl.textContent =
+      `${DEBUG ? "DEBUG" : "LIVE"} | UTC ${hh}:${mm}:${ss}` +
+      ` | lon ≈ ${midnightLon.toFixed(1)}°` +
+      ` | (D=toggle, ←/→=scrub, Shift=+1h, R=reset)`;
+
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+})();
+</script>
+</body>
+</html>
