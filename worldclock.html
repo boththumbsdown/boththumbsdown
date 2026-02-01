@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Midnight Globe (Satellite, 3D)</title>
+  <title>WORLD CLOCK</title>
 
   <link href="https://unpkg.com/cesium/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
   <script src="https://unpkg.com/cesium/Build/Cesium/Cesium.js"></script>
@@ -15,8 +15,14 @@
       --blue: rgb(0,0,255);
       --green: rgb(0,255,0);
       --white:#fff;
-      --big: min(10vh, 120px); /* ✅ 디지털 시계 크기 = 모든 텍스트 크기 */
+
+      --big: min(10vh, 120px);
       --tight: -0.6vh;
+
+      --uiScale: 1;
+      --topPad: 3vh;
+      --bottomSafe: 120px;   /* ✅ 하단 안전영역(잘림 방지) */
+      --sideSafe: 2.5vw;
     }
 
     html,body{
@@ -31,31 +37,29 @@
       transform:translateX(-50%);
       pointer-events:none; z-index:50;
     }
-    .midnight-indicator{
-      position:fixed; left:50%; top:50%;
-      transform:translate(-50%,-50%);
-      width:22px; height:22px; border-radius:999px;
-      background:var(--red);
-      box-shadow:0 0 22px rgba(255,0,0,0.35);
-      z-index:60; pointer-events:none;
-    }
-    .midnight-indicator::before{
-      content:"";
-      position:absolute; left:50%; top:50%;
-      transform:translate(-50%,-50%);
-      width:2px; height:90px;
-      background:rgba(255,0,0,0.55);
-      border-radius:2px;
-    }
 
+    /* ✅ top-ui는 위치만 담당 */
     .top-ui{
-      position:fixed; left:50%; top:3vh; transform:translateX(-50%);
-      display:flex; flex-direction:column; align-items:center;
-      gap:2.0vh;
-      z-index:80; pointer-events:none;
+      position:fixed;
+      left:50%;
+      top: var(--topPad);
+      transform: translateX(-50%);
+      z-index:80;
+      pointer-events:none;
+      max-width: calc(100vw - (var(--sideSafe) * 2));
     }
 
-    /* 공통 텍스트 스타일 (디지털 시계 크기 동일) */
+    /* ✅ 실제 내용은 ui-inner에서 scale */
+    .ui-inner{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:2.0vh;
+      transform: scale(var(--uiScale));
+      transform-origin: top center;
+      will-change: transform;
+    }
+
     .text-big{
       font-weight:800;
       font-size: var(--big);
@@ -67,23 +71,25 @@
       white-space: nowrap;
     }
 
-    .headline{ color: var(--white); }
+    .headline{ color: var(--white); }  /* ✅ 다시 한 줄 */
+    .date{ color: var(--red); margin-top: var(--tight); }
     .digital{ color: var(--red); margin-top: var(--tight); }
 
-    /* LONGITUDE + 값 (줄바꿈 유지) */
     .lon{
       color: var(--blue);
       margin-top: var(--tight);
       text-shadow: 0 0 24px rgba(0,0,255,0.18);
-      white-space: pre-line; /* ✅ 줄바꿈 */
+      white-space: pre-line;
     }
 
-    /* 나라/도시 (줄바꿈 유지) */
     .place{
       color: var(--green);
       margin-top: var(--tight);
       text-shadow: 0 0 24px rgba(0,255,0,0.14);
-      white-space: pre-line; /* ✅ 줄바꿈 */
+      white-space: pre-line;
+
+      /* ✅ “항상 2줄” 자리 확보: 줄바꿈/폰트로드/도시표시에 따라 잘리지 않게 */
+      min-height: calc((var(--big) * 2) + 1.2vh);
     }
 
     .clock{
@@ -92,15 +98,18 @@
       display:block;
     }
 
-    .debug{
-      position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
-      color:rgba(255,255,255,0.55);
-      font-size:12px; letter-spacing:0.02em;
-      z-index:90; user-select:none; pointer-events:none; white-space:nowrap;
+    /* ✅ 측정용(숨김) UI: 실제 표시 UI와 동일한 내용/스타일로 높이 계산 안정화 */
+    .measure-wrap{
+      position:fixed;
+      left:-99999px;
+      top:-99999px;
+      visibility:hidden;
+      pointer-events:none;
+      z-index:-1;
     }
 
     @media (max-aspect-ratio: 3/4){
-      :root{ --big: min(8vh, 92px); } /* 모바일에서도 “같은 크기” 유지 */
+      :root{ --big: min(8vh, 92px); }
       .clock{ width:min(38vh, 440px); }
     }
   </style>
@@ -110,34 +119,50 @@
   <div id="cesiumContainer"></div>
 
   <div class="center-line"></div>
-  <div class="midnight-indicator" title="Midnight zone center"></div>
+  <!-- ✅ 붉은 점+세로선(midnight-indicator) 삭제 -->
 
   <div class="top-ui">
-    <!-- ✅ 최상단 문구 -->
-    <div class="text-big headline">EVERY DAY IS A NEW DAY</div>
+    <div class="ui-inner" id="uiInner">
+      <div class="text-big headline">EVERY DAY IS A NEW DAY</div>
 
-    <!-- 00:00 고정 아날로그 -->
-    <svg class="clock" viewBox="0 0 100 100" aria-hidden="true">
-      <circle cx="50" cy="50" r="40" fill="none" stroke="var(--red)" stroke-width="1.2"></circle>
-      <line x1="50" y1="10" x2="50" y2="18" stroke="var(--red)" stroke-width="1.6" stroke-linecap="round"></line>
-      <line x1="50" y1="50" x2="50" y2="28" stroke="var(--red)" stroke-width="3.2" stroke-linecap="round"></line>
-      <line x1="50" y1="50" x2="50" y2="20" stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"></line>
-      <circle cx="50" cy="50" r="2.2" fill="var(--red)"></circle>
-    </svg>
+      <svg class="clock" viewBox="0 0 100 100" aria-hidden="true">
+        <circle cx="50" cy="50" r="40" fill="none" stroke="var(--red)" stroke-width="1.2"></circle>
+        <line x1="50" y1="10" x2="50" y2="18" stroke="var(--red)" stroke-width="1.6" stroke-linecap="round"></line>
+        <line x1="50" y1="50" x2="50" y2="28" stroke="var(--red)" stroke-width="3.2" stroke-linecap="round"></line>
+        <line x1="50" y1="50" x2="50" y2="20" stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"></line>
+        <circle cx="50" cy="50" r="2.2" fill="var(--red)"></circle>
+      </svg>
 
-    <!-- ✅ 디지털 (크기 기준) -->
-    <div class="text-big digital">00:00:00</div>
+      <div class="text-big date" id="dateLine">2026 FEB 01</div>
+      <div class="text-big digital" id="timeLine">00:00:00</div>
 
-    <!-- ✅ LONGITUDE 줄바꿈 + 값 -->
-    <div class="text-big lon" id="lonLine">LONGITUDE
+      <div class="text-big lon" id="lonLine">LONGITUDE
 000.000°E</div>
 
-    <!-- ✅ 나라/도시도 같은 크기 -->
-    <div class="text-big place" id="placeLine">대한민국
-서울</div>
+      <div class="text-big place" id="placeLine"></div>
+    </div>
   </div>
 
-  <div class="debug" id="debug"></div>
+  <!-- ✅ 측정용 복제 UI (PLACE가 비어도 2줄 기준으로 높이 계산) -->
+  <div class="measure-wrap">
+    <div class="ui-inner" id="uiMeasure">
+      <div class="text-big headline">EVERY DAY IS A NEW DAY</div>
+      <svg class="clock" viewBox="0 0 100 100" aria-hidden="true">
+        <circle cx="50" cy="50" r="40" fill="none" stroke="var(--red)" stroke-width="1.2"></circle>
+        <line x1="50" y1="10" x2="50" y2="18" stroke="var(--red)" stroke-width="1.6" stroke-linecap="round"></line>
+        <line x1="50" y1="50" x2="50" y2="28" stroke="var(--red)" stroke-width="3.2" stroke-linecap="round"></line>
+        <line x1="50" y1="50" x2="50" y2="20" stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"></line>
+        <circle cx="50" cy="50" r="2.2" fill="var(--red)"></circle>
+      </svg>
+      <div class="text-big date" id="dateMeasure">2026 FEB 01</div>
+      <div class="text-big digital">00:00:00</div>
+      <div class="text-big lon" id="lonMeasure">LONGITUDE
+000.000°E</div>
+      <!-- ✅ 항상 2줄(대표 텍스트)로 측정 -->
+      <div class="text-big place" id="placeMeasure">대한민국
+서울</div>
+    </div>
+  </div>
 
 <script>
 (async () => {
@@ -169,45 +194,36 @@
     console.error("❌ Imagery load failed:", err);
   }
 
-  const debugEl = document.getElementById("debug");
   const lonEl = document.getElementById("lonLine");
   const placeEl = document.getElementById("placeLine");
+  const dateEl = document.getElementById("dateLine");
+  const timeEl = document.getElementById("timeLine");
 
-  // LIVE 기본 (D키로 디버그 토글 가능)
-  let DEBUG = false;
-  let debugBaseUTC = new Date(Date.UTC(2026, 1, 1, 0, 0, 0));
-  let debugHours = 0;
+  const uiMeasure = document.getElementById("uiMeasure");
+  const lonMeasure = document.getElementById("lonMeasure");
+  const dateMeasure = document.getElementById("dateMeasure");
 
-  function makeDebugNow(){
-    return new Date(debugBaseUTC.getTime() + debugHours * 3600 * 1000);
+  /* ✅ 어떤 화면에서도 절대 안 잘리게: “측정용 UI(최대 높이)” 기준으로 자동 축소 */
+  function fitUI(){
+    document.documentElement.style.setProperty("--uiScale", "1");
+    requestAnimationFrame(() => {
+      const rootStyle = getComputedStyle(document.documentElement);
+      const topPad = parseFloat(rootStyle.getPropertyValue("--topPad")) || 0;
+      const bottomSafe = parseFloat(rootStyle.getPropertyValue("--bottomSafe")) || 64;
+
+      const maxH = window.innerHeight - (bottomSafe + 8);
+      const naturalH = uiMeasure.scrollHeight + topPad;
+
+      const scale = Math.min(1, maxH / naturalH);
+      document.documentElement.style.setProperty("--uiScale", String(scale));
+    });
   }
 
-  window.addEventListener("keydown", (e) => {
-    const tag = (document.activeElement && document.activeElement.tagName) ? document.activeElement.tagName.toLowerCase() : "";
-    if(tag === "input" || tag === "textarea") return;
+  window.addEventListener("resize", fitUI);
+  setTimeout(fitUI, 0);
+  setTimeout(fitUI, 200);
+  setTimeout(fitUI, 600);
 
-    if(e.key === "d" || e.key === "D") DEBUG = !DEBUG;
-
-    if(e.key === "r" || e.key === "R"){
-      const n = new Date();
-      debugBaseUTC = new Date(Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate(), 0, 0, 0));
-      debugHours = 0;
-    }
-
-    const step = e.shiftKey ? 1 : 0.25;
-    if(e.key === "ArrowRight"){
-      if(!DEBUG) return;
-      debugHours = (debugHours + step) % 24;
-      e.preventDefault();
-    }
-    if(e.key === "ArrowLeft"){
-      if(!DEBUG) return;
-      debugHours = (debugHours - step + 24) % 24;
-      e.preventDefault();
-    }
-  });
-
-  // 자정대 경도
   function getMidnightOffsetHours(now){
     const utc = now.getUTCHours()
       + now.getUTCMinutes()/60
@@ -222,37 +238,139 @@
   function normLon180(lon){
     return ((lon + 180) % 360 + 360) % 360 - 180;
   }
-
   function lonEWText(lon180){
     const dir = lon180 >= 0 ? "E" : "W";
     const abs = Math.abs(lon180);
-    const num = abs.toFixed(3).padStart(7, "0"); // 000.000
+    const num = abs.toFixed(3).padStart(7, "0");
     return `${num}°${dir}`;
   }
 
-  // 도시 DB (필요하면 추가)
+  function formatMidnightDate(now){
+    const offsetH = getMidnightOffsetHours(now);
+    const shifted = new Date(now.getTime() + offsetH * 3600 * 1000);
+
+    const Y = shifted.getUTCFullYear();
+    const M = shifted.getUTCMonth();
+    const D = shifted.getUTCDate();
+
+    const MONTHS = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+    return `${Y} ${MONTHS[M]} ${String(D).padStart(2,"0")}`;
+  }
+
   const CITIES = [
-    { country:"영국", city:"런던", lon:-0.1278 },
-    { country:"프랑스", city:"파리", lon:2.3522 },
-    { country:"네덜란드", city:"암스테르담", lon:4.9041 },
-    { country:"독일", city:"베를린", lon:13.4050 },
-    { country:"이탈리아", city:"로마", lon:12.4964 },
-    { country:"그리스", city:"아테네", lon:23.7275 },
-    { country:"튀르키예", city:"이스탄불", lon:28.9784 },
+    { country:"세네갈", city:"다카르", lon:-17.4677 },
+    { country:"모로코", city:"카사블랑카", lon:-7.5898 },
+    { country:"가나", city:"아크라", lon:-0.1870 },
+    { country:"나이지리아", city:"라고스", lon:3.3792 },
+    { country:"튀니지", city:"튀니스", lon:10.1815 },
+    { country:"이집트", city:"알렉산드리아", lon:29.9187 },
     { country:"이집트", city:"카이로", lon:31.2357 },
+    { country:"에티오피아", city:"아디스아바바", lon:38.7578 },
     { country:"케냐", city:"나이로비", lon:36.8219 },
-    { country:"아랍에미리트", city:"두바이", lon:55.2708 },
-    { country:"인도", city:"뉴델리", lon:77.2090 },
-    { country:"태국", city:"방콕", lon:100.5018 },
-    { country:"중국", city:"상하이", lon:121.4737 },
-    { country:"대한민국", city:"서울", lon:126.9780 },
-    { country:"일본", city:"도쿄", lon:139.6503 },
-    { country:"호주", city:"시드니", lon:151.2093 },
-    { country:"미국", city:"뉴욕", lon:-74.0060 },
-    { country:"미국", city:"로스앤젤레스", lon:-118.2437 },
-    { country:"브라질", city:"상파울루", lon:-46.6333 },
-    { country:"아르헨티나", city:"부에노스아이레스", lon:-58.3816 },
+    { country:"탄자니아", city:"다르에스살람", lon:39.2083 },
+    { country:"남아프리카공화국", city:"케이프타운", lon:18.4241 },
+    { country:"남아프리카공화국", city:"요하네스버그", lon:28.0473 },
+
+    { country:"아이슬란드", city:"레이캬비크", lon:-21.8277 },
+    { country:"아일랜드", city:"더블린", lon:-6.2603 },
+    { country:"영국", city:"런던", lon:-0.1278 },
+    { country:"영국", city:"맨체스터", lon:-2.2426 },
+    { country:"포르투갈", city:"리스본", lon:-9.1393 },
+    { country:"스페인", city:"마드리드", lon:-3.7038 },
+    { country:"스페인", city:"바르셀로나", lon:2.1734 },
+    { country:"프랑스", city:"파리", lon:2.3522 },
+    { country:"프랑스", city:"마르세유", lon:5.3698 },
+    { country:"벨기에", city:"브뤼셀", lon:4.3517 },
+    { country:"네덜란드", city:"암스테르담", lon:4.9041 },
+    { country:"네덜란드", city:"로테르담", lon:4.4792 },
+    { country:"독일", city:"함부르크", lon:9.9937 },
+    { country:"독일", city:"베를린", lon:13.4050 },
+    { country:"독일", city:"뮌헨", lon:11.5820 },
+    { country:"스위스", city:"취리히", lon:8.5417 },
+    { country:"이탈리아", city:"밀라노", lon:9.1900 },
+    { country:"이탈리아", city:"로마", lon:12.4964 },
+    { country:"이탈리아", city:"나폴리", lon:14.2681 },
+    { country:"오스트리아", city:"비엔나", lon:16.3738 },
+    { country:"체코", city:"프라하", lon:14.4378 },
+    { country:"헝가리", city:"부다페스트", lon:19.0402 },
+    { country:"폴란드", city:"바르샤바", lon:21.0122 },
+    { country:"덴마크", city:"코펜하겐", lon:12.5683 },
+    { country:"스웨덴", city:"스톡홀름", lon:18.0686 },
+    { country:"노르웨이", city:"오슬로", lon:10.7522 },
+    { country:"핀란드", city:"헬싱키", lon:24.9384 },
+    { country:"그리스", city:"아테네", lon:23.7275 },
+    { country:"루마니아", city:"부쿠레슈티", lon:26.1025 },
+    { country:"우크라이나", city:"키이우", lon:30.5234 },
+    { country:"러시아", city:"상트페테르부르크", lon:30.3351 },
     { country:"러시아", city:"모스크바", lon:37.6173 },
+
+    { country:"이스라엘", city:"텔아비브", lon:34.7818 },
+    { country:"레바논", city:"베이루트", lon:35.5018 },
+    { country:"사우디아라비아", city:"리야드", lon:46.6753 },
+    { country:"아랍에미리트", city:"아부다비", lon:54.3773 },
+    { country:"아랍에미리트", city:"두바이", lon:55.2708 },
+    { country:"카타르", city:"도하", lon:51.5310 },
+    { country:"튀르키예", city:"이스탄불", lon:28.9784 },
+    { country:"조지아", city:"트빌리시", lon:44.8271 },
+    { country:"아제르바이잔", city:"바쿠", lon:49.8671 },
+    { country:"이란", city:"테헤란", lon:51.3890 },
+    { country:"우즈베키스탄", city:"타슈켄트", lon:69.2401 },
+    { country:"카자흐스탄", city:"알마티", lon:76.9450 },
+
+    { country:"파키스탄", city:"카라치", lon:67.0099 },
+    { country:"인도", city:"뭄바이", lon:72.8777 },
+    { country:"인도", city:"뉴델리", lon:77.2090 },
+    { country:"인도", city:"첸나이", lon:80.2707 },
+    { country:"스리랑카", city:"콜롬보", lon:79.8612 },
+    { country:"방글라데시", city:"다카", lon:90.4125 },
+    { country:"네팔", city:"카트만두", lon:85.3240 },
+
+    { country:"미얀마", city:"양곤", lon:96.1951 },
+    { country:"태국", city:"방콕", lon:100.5018 },
+    { country:"캄보디아", city:"프놈펜", lon:104.9282 },
+    { country:"베트남", city:"호치민", lon:106.6297 },
+    { country:"베트남", city:"하노이", lon:105.8342 },
+    { country:"말레이시아", city:"쿠알라룸푸르", lon:101.6869 },
+    { country:"싱가포르", city:"싱가포르", lon:103.8198 },
+    { country:"인도네시아", city:"자카르타", lon:106.8456 },
+    { country:"필리핀", city:"마닐라", lon:120.9842 },
+
+    { country:"중국", city:"베이징", lon:116.4074 },
+    { country:"중국", city:"상하이", lon:121.4737 },
+    { country:"중국", city:"홍콩", lon:114.1694 },
+    { country:"대만", city:"타이베이", lon:121.5654 },
+    { country:"대한민국", city:"서울", lon:126.9780 },
+    { country:"대한민국", city:"부산", lon:129.0756 },
+    { country:"일본", city:"오사카", lon:135.5023 },
+    { country:"일본", city:"도쿄", lon:139.6503 },
+    { country:"일본", city:"삿포로", lon:141.3545 },
+
+    { country:"호주", city:"퍼스", lon:115.8605 },
+    { country:"호주", city:"애들레이드", lon:138.6007 },
+    { country:"호주", city:"멜버른", lon:144.9631 },
+    { country:"호주", city:"시드니", lon:151.2093 },
+    { country:"뉴질랜드", city:"오클랜드", lon:174.7633 },
+    { country:"뉴질랜드", city:"웰링턴", lon:174.7772 },
+
+    { country:"캐나다", city:"밴쿠버", lon:-123.1207 },
+    { country:"캐나다", city:"캘거리", lon:-114.0719 },
+    { country:"캐나다", city:"토론토", lon:-79.3832 },
+    { country:"미국", city:"시애틀", lon:-122.3321 },
+    { country:"미국", city:"샌프란시스코", lon:-122.4194 },
+    { country:"미국", city:"로스앤젤레스", lon:-118.2437 },
+    { country:"미국", city:"덴버", lon:-104.9903 },
+    { country:"미국", city:"시카고", lon:-87.6298 },
+    { country:"미국", city:"휴스턴", lon:-95.3698 },
+    { country:"미국", city:"워싱턴DC", lon:-77.0369 },
+    { country:"미국", city:"뉴욕", lon:-74.0060 },
+    { country:"멕시코", city:"멕시코시티", lon:-99.1332 },
+    { country:"쿠바", city:"아바나", lon:-82.3666 },
+    { country:"콜롬비아", city:"보고타", lon:-74.0721 },
+    { country:"페루", city:"리마", lon:-77.0428 },
+    { country:"칠레", city:"산티아고", lon:-70.6693 },
+    { country:"아르헨티나", city:"부에노스아이레스", lon:-58.3816 },
+    { country:"브라질", city:"리우데자네이루", lon:-43.1729 },
+    { country:"브라질", city:"상파울루", lon:-46.6333 }
   ];
 
   function lonDiffDeg(a, b){
@@ -260,19 +378,15 @@
     if(d > 180) d = 360 - d;
     return d;
   }
-
   function getCandidateCitiesByLongitude(passingLon180){
-    const THRESH = 3.0;
+    const THRESH = 2.0;
     const withDist = CITIES.map(c => ({...c, d: lonDiffDeg(passingLon180, c.lon)}));
-    const candidates = withDist.filter(c => c.d <= THRESH).sort((a,b)=>a.d-b.d);
-    if(candidates.length) return candidates;
-    return withDist.sort((a,b)=>a.d-b.d).slice(0,5);
+    return withDist.filter(c => c.d <= THRESH).sort((a,b)=>a.d-b.d);
   }
 
-  // 카메라 (전체 보이게)
   const CAM_LAT = 0;
-  const CAM_RANGE = 9_500_000;                 // ✅ 더 전체로
-  const CAM_PITCH = Cesium.Math.toRadians(-55);
+  const CAM_RANGE = 15_000_000;
+  const CAM_PITCH = Cesium.Math.toRadians(-90);
   const CAM_HEADING = Cesium.Math.toRadians(0);
 
   function setCameraToLon(lonDeg){
@@ -283,7 +397,7 @@
   setCameraToLon(0);
 
   function animate(){
-    const now = DEBUG ? makeDebugNow() : new Date();
+    const now = new Date();
 
     const offsetH = getMidnightOffsetHours(now);
     const midnightLon = offsetToLongitude(offsetH);
@@ -291,28 +405,34 @@
 
     setCameraToLon(midnightLon);
 
-    // LONGITUDE 줄바꿈 포맷
-    lonEl.textContent = `LONGITUDE\n${lonEWText(passingLon)}`;
+    const lonText = `LONGITUDE\n${lonEWText(passingLon)}`;
+    lonEl.textContent = lonText;
+    lonMeasure.textContent = lonText;
 
-    // 나라/도시: 후보가 여러개면 매초 순환
+    const dateText = formatMidnightDate(now);
+    dateEl.textContent = dateText;
+    dateMeasure.textContent = dateText;
+
+    timeEl.textContent = "00:00:00";
+
     const candidates = getCandidateCitiesByLongitude(passingLon);
     const sec = Math.floor(now.getTime()/1000);
-    const idx = candidates.length ? (sec % candidates.length) : 0;
-    const chosen = candidates[idx] || {country:"-", city:"-"};
-    placeEl.textContent = `${chosen.country}\n${chosen.city}`;
 
-    // (하단 디버그는 작게 유지)
-    const hh = String(now.getUTCHours()).padStart(2,"0");
-    const mm = String(now.getUTCMinutes()).padStart(2,"0");
-    const ss = String(now.getUTCSeconds()).padStart(2,"0");
-    debugEl.textContent =
-      `${DEBUG ? "DEBUG" : "LIVE"} | UTC ${hh}:${mm}:${ss}` +
-      ` | candidates ${candidates.length}` +
-      ` | (D=toggle, ←/→=scrub, Shift=+1h, R=reset)`;
+    if(!candidates.length){
+      placeEl.textContent = "";
+    }else{
+      const idx = sec % candidates.length;
+      const chosen = candidates[idx];
+      placeEl.textContent = `${chosen.country}\n${chosen.city}`;
+    }
+
+    // ✅ 매 프레임 fitUI는 부담 적고, 무엇보다 “항상 전체가 보이게” 보장
+    fitUI();
 
     requestAnimationFrame(animate);
   }
 
+  fitUI();
   animate();
 })();
 </script>
