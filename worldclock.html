@@ -177,8 +177,8 @@ html,body{
 
 <!-- BOTTOM INFO -->
 <div class="bottom-ui">
-  <div class="info-line datetime" id="dateTimeLine">2026 FEB 02 00:00:00</div>
-  <div class="info-line lon" id="lonLine">LONGITUDE 000.0000E</div>
+  <div class="info-line datetime" id="dateTimeLine">LOADING…</div>
+  <div class="info-line lon" id="lonLine">LOADING…</div>
   <div class="info-line place" id="placeLine"></div>
 </div>
 
@@ -258,7 +258,7 @@ html,body{
     const M = shifted.getUTCMonth();
     const D = shifted.getUTCDate();
     const MONTHS = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
-    return `${Y} ${MONTHS[M]} ${String(D).padStart(2,"0")} 00:00:00`;
+    return `${Y} ${MONTHS[M]} ${String(D).padStart(2,"0")}. 00:00:00`;
   }
 
   function formatLongitudeDecimal4(lon180){
