@@ -16,166 +16,147 @@
       --green: rgb(0,255,0);
       --white:#fff;
 
-      --big: min(10vh, 120px);
-      --tight: -0.6vh;
+      --big: min(10vh, 120px);   /* 기준 폰트 */
+      --infoScale: 0.5;          /* ✅ 아래 정보 50% */
 
-      --uiScale: 1;
       --topPad: 3vh;
-
-      /* ✅ 글자 잘림 방지: safe-area 포함 + 기본값 더 여유있게 */
-      --bottomSafe: max(160px, calc(env(safe-area-inset-bottom, 0px) + 24px));
       --sideSafe: 2.5vw;
     }
 
     html,body{
-      margin:0; height:100%; background:var(--bg); overflow:hidden;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      margin:0;
+      height:100%;
+      background:var(--bg);
+      overflow:hidden;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
+        "Apple SD Gothic Neo","Noto Sans KR",sans-serif;
     }
+
     #cesiumContainer{ position:fixed; inset:0; }
 
     .center-line{
-      position:fixed; left:50%; top:0; width:2px; height:100vh;
-      background:rgba(255,255,255,0.85);
-      transform:translateX(-50%);
-      pointer-events:none; z-index:50;
-    }
-
-    /* ✅ top-ui는 위치만 담당 */
-    .top-ui{
       position:fixed;
       left:50%;
-      top: var(--topPad);
-      transform: translateX(-50%);
-      z-index:80;
+      top:0;
+      width:2px;
+      height:100vh;
+      background:rgba(255,255,255,0.85);
+      transform:translateX(-50%);
       pointer-events:none;
-      max-width: calc(100vw - (var(--sideSafe) * 2));
+      z-index:40;
     }
 
-    /* ✅ 실제 내용은 ui-inner에서 scale */
-    .ui-inner{
+    /* ================= HEADLINE ================= */
+    .headline-wrap{
+      position:fixed;
+      left:50%;
+      top:var(--topPad);
+      transform:translateX(-50%);
+      max-width: calc(100vw - (var(--sideSafe) * 2));
+      z-index:80;
+      pointer-events:none;
+      text-align:center;
+    }
+    .headline{
+      font-weight:800;
+      font-size: var(--big);
+      line-height:1;
+      letter-spacing:0.02em;
+      color:var(--white);
+      white-space:nowrap;
+      text-rendering:geometricPrecision;
+      -webkit-font-smoothing:antialiased;
+    }
+    .headline.is-wrapped{ white-space:pre-line; }
+
+    /* ================= CLOCK ================= */
+    .center-clock{
+      position:fixed;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      width:min(46vh,520px);
+      aspect-ratio:1/1;
+      z-index:60;
+      pointer-events:none;
+    }
+
+    /* ================= BOTTOM INFO ================= */
+    .bottom-ui{
+      position:fixed;
+      left:50%;
+      top:50%;
+      transform:translate(-50%, calc(-50% + (min(46vh,520px) / 2) + 5vh)) scale(var(--infoScale));
+      transform-origin: top center;
+
       display:flex;
       flex-direction:column;
       align-items:center;
-      gap:2.0vh;
-      transform: scale(var(--uiScale));
-      transform-origin: top center;
-      will-change: transform;
-    }
+      gap:0.6em;
 
-    .text-big{
-      font-weight:800;
-      font-size: var(--big);
-      line-height: 1;
-      letter-spacing: 0.02em;
-      text-rendering: geometricPrecision;
-      -webkit-font-smoothing: antialiased;
-      text-align:center;
-      white-space: nowrap;
-    }
-
-    .headline{ color: var(--white); }  /* ✅ 다시 한 줄 */
-    /* ✅ 잘릴 때만 줄바꿈 허용 */
-    .headline.is-wrapped{ white-space: pre-line; }
-
-    .date{ color: var(--red); margin-top: var(--tight); }
-    .digital{ color: var(--red); margin-top: var(--tight); }
-
-    .lon{
-      color: var(--blue);
-      margin-top: var(--tight);
-      text-shadow: 0 0 24px rgba(0,0,255,0.18);
-      white-space: pre-line;
-    }
-
-    .place{
-      color: var(--green);
-      margin-top: var(--tight);
-      text-shadow: 0 0 24px rgba(0,255,0,0.14);
-      white-space: pre-line;
-
-      /* ✅ “항상 2줄” 자리 확보 */
-      min-height: calc((var(--big) * 2) + 1.2vh);
-    }
-
-    .clock{
-      width:min(46vh, 520px);
-      aspect-ratio:1/1;
-      display:block;
-    }
-
-    /* ✅ 측정용(숨김) UI */
-    .measure-wrap{
-      position:fixed;
-      left:-99999px;
-      top:-99999px;
-      visibility:hidden;
       pointer-events:none;
-      z-index:-1;
+      z-index:90;
+      max-width: calc(100vw - (var(--sideSafe) * 2));
     }
 
-    @media (max-aspect-ratio: 3/4){
+    .info-line{
+      font-weight:800;
+      font-size:var(--big);
+      line-height:1;
+      letter-spacing:0.02em;
+      white-space:nowrap;
+      text-align:center;
+      text-rendering:geometricPrecision;
+      -webkit-font-smoothing:antialiased;
+    }
+
+    .info-line.datetime{ color:var(--red); }
+    .info-line.lon{ color:var(--blue); }
+    .info-line.place{ color:var(--green); }
+
+    @media (max-aspect-ratio:3/4){
       :root{ --big: min(8vh, 92px); }
-      .clock{ width:min(38vh, 440px); }
+      .center-clock{ width:min(38vh,440px); }
+      .bottom-ui{
+        transform:translate(-50%, calc(-50% + (min(38vh,440px) / 2) + 5vh)) scale(var(--infoScale));
+      }
     }
   </style>
 </head>
 
 <body>
   <div id="cesiumContainer"></div>
-
   <div class="center-line"></div>
 
-  <div class="top-ui">
-    <div class="ui-inner" id="uiInner">
-      <div class="text-big headline" id="headlineLine">EVERY DAY IS A NEW DAY</div>
-
-      <!-- ✅ 시계 눈금(분 표시)용 g 추가 -->
-      <svg class="clock" viewBox="0 0 100 100" aria-hidden="true">
-        <g id="minuteTicks"></g>
-
-        <circle cx="50" cy="50" r="40" fill="none" stroke="var(--red)" stroke-width="1.2"></circle>
-
-        <!-- 12시 마커(원래 있던 짧은 선) -->
-        <line x1="50" y1="10" x2="50" y2="18" stroke="var(--red)" stroke-width="1.6" stroke-linecap="round"></line>
-
-        <!-- hands -->
-        <line x1="50" y1="50" x2="50" y2="28" stroke="var(--red)" stroke-width="3.2" stroke-linecap="round"></line>
-        <line x1="50" y1="50" x2="50" y2="20" stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"></line>
-        <circle cx="50" cy="50" r="2.2" fill="var(--red)"></circle>
-      </svg>
-
-      <div class="text-big date" id="dateLine">2026 FEB 01</div>
-      <div class="text-big digital" id="timeLine">00:00:00</div>
-
-      <div class="text-big lon" id="lonLine">LONGITUDE
-000.000°E</div>
-
-      <div class="text-big place" id="placeLine"></div>
-    </div>
+  <!-- HEADLINE -->
+  <div class="headline-wrap">
+    <div class="headline" id="headlineLine">EVERY DAY IS A NEW DAY</div>
   </div>
 
-  <!-- ✅ 측정용 복제 UI -->
-  <div class="measure-wrap">
-    <div class="ui-inner" id="uiMeasure">
-      <div class="text-big headline" id="headlineMeasure">EVERY DAY IS A NEW DAY</div>
+  <!-- CLOCK (CENTER) -->
+  <svg class="center-clock" viewBox="0 0 100 100" aria-hidden="true">
+    <g id="minuteTicks"></g>
 
-      <svg class="clock" viewBox="0 0 100 100" aria-hidden="true">
-        <g></g>
-        <circle cx="50" cy="50" r="40" fill="none" stroke="var(--red)" stroke-width="1.2"></circle>
-        <line x1="50" y1="10" x2="50" y2="18" stroke="var(--red)" stroke-width="1.6" stroke-linecap="round"></line>
-        <line x1="50" y1="50" x2="50" y2="28" stroke="var(--red)" stroke-width="3.2" stroke-linecap="round"></line>
-        <line x1="50" y1="50" x2="50" y2="20" stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"></line>
-        <circle cx="50" cy="50" r="2.2" fill="var(--red)"></circle>
-      </svg>
+    <circle cx="50" cy="50" r="40" fill="none"
+      stroke="var(--red)" stroke-width="1.2"></circle>
 
-      <div class="text-big date" id="dateMeasure">2026 FEB 01</div>
-      <div class="text-big digital">00:00:00</div>
-      <div class="text-big lon" id="lonMeasure">LONGITUDE
-000.000°E</div>
+    <line x1="50" y1="10" x2="50" y2="18"
+      stroke="var(--red)" stroke-width="1.6" stroke-linecap="round"></line>
 
-      <div class="text-big place" id="placeMeasure">대한민국
-서울</div>
-    </div>
+    <!-- hands (00:00 fixed) -->
+    <line x1="50" y1="50" x2="50" y2="28"
+      stroke="var(--red)" stroke-width="3.2" stroke-linecap="round"></line>
+    <line x1="50" y1="50" x2="50" y2="20"
+      stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"></line>
+
+    <circle cx="50" cy="50" r="2.2" fill="var(--red)"></circle>
+  </svg>
+
+  <!-- BOTTOM INFO -->
+  <div class="bottom-ui">
+    <div class="info-line datetime" id="dateTimeLine">2026 FEB 02 00:00:00</div>
+    <div class="info-line lon" id="lonLine">LONGITUDE 0000E</div>
+    <div class="info-line place" id="placeLine"></div>
   </div>
 
 <script>
@@ -196,7 +177,6 @@
   viewer.scene.moon.show = false;
   viewer.scene.fog.enabled = false;
   viewer.scene.backgroundColor = Cesium.Color.BLACK;
-  viewer.scene.postProcessStages.fxaa.enabled = true;
 
   viewer.imageryLayers.removeAll();
   try{
@@ -208,33 +188,20 @@
     console.error("❌ Imagery load failed:", err);
   }
 
-  const headlineEl = document.getElementById("headlineLine");
-  const headlineMeasureEl = document.getElementById("headlineMeasure");
-
-  const lonEl = document.getElementById("lonLine");
-  const placeEl = document.getElementById("placeLine");
-  const dateEl = document.getElementById("dateLine");
-  const timeEl = document.getElementById("timeLine");
-
-  const uiMeasure = document.getElementById("uiMeasure");
-  const lonMeasure = document.getElementById("lonMeasure");
-  const dateMeasure = document.getElementById("dateMeasure");
-
-  /* ✅ 1) 시계 눈금(60분) 생성: 5분은 길게/굵게, 나머지는 짧게 */
-  function buildMinuteTicks(){
+  /* ===== minute ticks ===== */
+  (function buildMinuteTicks(){
     const g = document.getElementById("minuteTicks");
     if(!g) return;
     g.innerHTML = "";
 
     const cx = 50, cy = 50;
-    const rOuter = 40;        // 원 테두리 반지름
-    const rInnerMinor = 36.2; // 일반 분 눈금 시작
-    const rInnerMajor = 34.2; // 5분(major) 눈금 시작
+    const rOuter = 40;
+    const rInnerMinor = 36.2;
+    const rInnerMajor = 34.2;
 
     for(let i=0;i<60;i++){
       const isMajor = (i % 5 === 0);
-
-      const a = (i * 6) * Math.PI / 180; // 6deg per minute
+      const a = (i * 6) * Math.PI / 180;
       const sin = Math.sin(a), cos = Math.cos(a);
 
       const x2 = cx + sin * rOuter;
@@ -253,90 +220,50 @@
       line.setAttribute("stroke-linecap", "round");
       line.setAttribute("stroke-width", isMajor ? "1.6" : "1.0");
       line.setAttribute("opacity", isMajor ? "0.95" : "0.85");
-
       g.appendChild(line);
     }
-  }
-  buildMinuteTicks();
+  })();
 
-  /* ✅ 2) 헤드라인이 가로로 잘리면 "EVERY DAY\nIS A NEW DAY"로 변경 */
-  function setHeadlineWrapped(isWrapped){
-    if(isWrapped){
-      headlineEl.textContent = "EVERY DAY\nIS A NEW DAY";
-      headlineMeasureEl.textContent = "EVERY DAY\nIS A NEW DAY";
-      headlineEl.classList.add("is-wrapped");
-      headlineMeasureEl.classList.add("is-wrapped");
-    }else{
-      headlineEl.textContent = "EVERY DAY IS A NEW DAY";
-      headlineMeasureEl.textContent = "EVERY DAY IS A NEW DAY";
-      headlineEl.classList.remove("is-wrapped");
-      headlineMeasureEl.classList.remove("is-wrapped");
-    }
-  }
+  /* ===== UI elements ===== */
+  const headlineEl = document.getElementById("headlineLine");
+  const dateTimeEl = document.getElementById("dateTimeLine");
+  const lonEl = document.getElementById("lonLine");
+  const placeEl = document.getElementById("placeLine");
 
+  /* ===== headline wrap (가로 부족하면 2줄) ===== */
   function getSideSafePx(){
     const rootStyle = getComputedStyle(document.documentElement);
     const v = rootStyle.getPropertyValue("--sideSafe").trim();
-    // --sideSafe는 vw로 주고 있으니, 대충 처리: "2.5vw"면 innerWidth*0.025
     if(v.endsWith("vw")){
       const n = parseFloat(v) || 0;
       return window.innerWidth * (n/100);
     }
     return parseFloat(v) || 0;
   }
-
-  function decideHeadlineWrap(){
-    // 현재 스케일 기준으로 "자연폭" vs "자연허용폭" 비교
-    const rootStyle = getComputedStyle(document.documentElement);
-    const uiScale = parseFloat(rootStyle.getPropertyValue("--uiScale")) || 1;
+  function applyHeadlineWrap(){
+    headlineEl.classList.remove("is-wrapped");
+    headlineEl.textContent = "EVERY DAY IS A NEW DAY";
 
     const sideSafe = getSideSafePx();
-    const maxScreenW = window.innerWidth - (sideSafe * 2);
-    const maxNaturalW = maxScreenW / uiScale;
+    const maxW = window.innerWidth - (sideSafe * 2);
 
-    // 한 줄 버전으로 먼저 놓고 측정
-    headlineMeasureEl.classList.remove("is-wrapped");
-    headlineMeasureEl.textContent = "EVERY DAY IS A NEW DAY";
-
-    const needWrap = (headlineMeasureEl.scrollWidth > maxNaturalW);
-    setHeadlineWrapped(needWrap);
+    const needWrap = (headlineEl.scrollWidth > maxW);
+    if(needWrap){
+      headlineEl.textContent = "EVERY DAY\nIS A NEW DAY";
+      headlineEl.classList.add("is-wrapped");
+    }
   }
+  applyHeadlineWrap();
+  window.addEventListener("resize", applyHeadlineWrap);
+  setTimeout(applyHeadlineWrap, 200);
+  setTimeout(applyHeadlineWrap, 600);
 
-  /* ✅ 어떤 화면에서도 절대 안 잘리게: 측정용 UI 기준으로 자동 축소 */
-  function fitUI(){
-    // 먼저 헤드라인 줄바꿈 여부 결정 → 그 상태로 "최대 높이" 재측정
-    decideHeadlineWrap();
-
-    document.documentElement.style.setProperty("--uiScale", "1");
-    requestAnimationFrame(() => {
-      const rootStyle = getComputedStyle(document.documentElement);
-      const topPad = parseFloat(rootStyle.getPropertyValue("--topPad")) || 0;
-      const bottomSafe = parseFloat(rootStyle.getPropertyValue("--bottomSafe")) || 64;
-
-      const maxH = window.innerHeight - (bottomSafe + 8);
-      const naturalH = uiMeasure.scrollHeight + topPad;
-
-      const scale = Math.min(1, maxH / naturalH);
-      document.documentElement.style.setProperty("--uiScale", String(scale));
-
-      // 스케일 바뀌면 가로 허용폭도 바뀌니 한 번 더 확정
-      requestAnimationFrame(() => decideHeadlineWrap());
-    });
-  }
-
-  window.addEventListener("resize", () => {
-    buildMinuteTicks(); // 혹시 DPI/스케일 변동 체감용
-    fitUI();
-  });
-
-  setTimeout(fitUI, 0);
-  setTimeout(fitUI, 200);
-  setTimeout(fitUI, 600);
-
+  /* ===== math helpers ===== */
   function getMidnightOffsetHours(now){
-    const utc = now.getUTCHours()
-      + now.getUTCMinutes()/60
-      + (now.getUTCSeconds() + now.getUTCMilliseconds()/1000)/3600;
+    const utc =
+      now.getUTCHours() +
+      now.getUTCMinutes()/60 +
+      (now.getUTCSeconds() + now.getUTCMilliseconds()/1000)/3600;
 
     let offset = -utc;
     offset = ((offset % 24) + 24) % 24;
@@ -347,14 +274,9 @@
   function normLon180(lon){
     return ((lon + 180) % 360 + 360) % 360 - 180;
   }
-  function lonEWText(lon180){
-    const dir = lon180 >= 0 ? "E" : "W";
-    const abs = Math.abs(lon180);
-    const num = abs.toFixed(3).padStart(7, "0");
-    return `${num}°${dir}`;
-  }
 
-  function formatMidnightDate(now){
+  // ✅ 날짜 포맷: "YYYY MON DD 00:00:00"
+  function formatMidnightDateTime(now){
     const offsetH = getMidnightOffsetHours(now);
     const shifted = new Date(now.getTime() + offsetH * 3600 * 1000);
 
@@ -363,9 +285,18 @@
     const D = shifted.getUTCDate();
 
     const MONTHS = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
-    return `${Y} ${MONTHS[M]} ${String(D).padStart(2,"0")}`;
+    return `${Y} ${MONTHS[M]} ${String(D).padStart(2,"0")} 00:00:00`;
   }
 
+  // ✅ 경도 포맷: "LONGITUDE 0000E"
+  function formatLongitude4(lon180){
+    const dir = lon180 >= 0 ? "E" : "W";
+    const abs = Math.abs(lon180);
+    const num = abs.toFixed(4).padStart(8, "0");
+    return `LONGITUDE ${num}${dir}`;
+  }
+
+  /* ===== cities (원래 너 리스트 그대로) ===== */
   const CITIES = [
     { country:"세네갈", city:"다카르", lon:-17.4677 },
     { country:"모로코", city:"카사블랑카", lon:-7.5898 },
@@ -493,6 +424,7 @@
     return withDist.filter(c => c.d <= THRESH).sort((a,b)=>a.d-b.d);
   }
 
+  /* ===== camera ===== */
   const CAM_LAT = 0;
   const CAM_RANGE = 15_000_000;
   const CAM_PITCH = Cesium.Math.toRadians(-90);
@@ -514,34 +446,29 @@
 
     setCameraToLon(midnightLon);
 
-    const lonText = `LONGITUDE\n${lonEWText(passingLon)}`;
-    lonEl.textContent = lonText;
-    lonMeasure.textContent = lonText;
+    // ✅ 날짜+시간 (빨간색)
+    dateTimeEl.textContent = formatMidnightDateTime(now);
 
-    const dateText = formatMidnightDate(now);
-    dateEl.textContent = dateText;
-    dateMeasure.textContent = dateText;
+    // ✅ 경도 (파란색)
+    lonEl.textContent = formatLongitude4(passingLon);
 
-    timeEl.textContent = "00:00:00";
+    // ✅ 시간은 포맷 요구상 dateTime에 포함이므로 따로 안 둠 (항상 00:00:00)
+    // 만약 “시간 라인”을 별도로 다시 원하면 말해줘.
 
+    // ✅ 장소 (초록색) 한 줄: 나라 · 도시
     const candidates = getCandidateCitiesByLongitude(passingLon);
     const sec = Math.floor(now.getTime()/1000);
 
     if(!candidates.length){
       placeEl.textContent = "";
     }else{
-      const idx = sec % candidates.length;
-      const chosen = candidates[idx];
-      placeEl.textContent = `${chosen.country}\n${chosen.city}`;
+      const chosen = candidates[sec % candidates.length];
+      placeEl.textContent = `${chosen.country} · ${chosen.city}`;
     }
-
-    // ✅ “항상 전체가 보이게” 보장
-    fitUI();
 
     requestAnimationFrame(animate);
   }
 
-  fitUI();
   animate();
 })();
 </script>
