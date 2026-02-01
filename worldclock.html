@@ -9,7 +9,7 @@
   <script src="https://unpkg.com/cesium/Build/Cesium/Cesium.js"></script>
 
   <style>
-    :root{ --bg:#000; --red:#ff0000; --white:#ffffff; }
+    :root{ --bg:#000; --red:#ff0000; --white:#ffffff; --blue:#2f7bff; }
     html,body{
       margin:0; height:100%; background:var(--bg); overflow:hidden;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
@@ -52,15 +52,31 @@
       text-rendering:geometricPrecision;
       -webkit-font-smoothing:antialiased;
     }
+
+    /* ✅ 좌표를 시간 아래 크게 */
+    .coord{
+      color: var(--blue);
+      font-weight: 800;
+      font-size: min(6.2vh, 72px);
+      line-height: 1;
+      letter-spacing: 0.02em;
+      text-rendering: geometricPrecision;
+      -webkit-font-smoothing: antialiased;
+      margin-top: -0.6vh; /* 살짝 붙이기 */
+      text-shadow: 0 0 24px rgba(47,123,255,0.18);
+    }
+
     .debug{
       position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
       color:rgba(255,255,255,0.55);
       font-size:12px; letter-spacing:0.02em;
       z-index:90; user-select:none; pointer-events:none; white-space:nowrap;
     }
+
     @media (max-aspect-ratio: 3/4){
       .digital{ font-size:min(8vh, 92px); }
       .clock{ width:min(38vh, 440px); }
+      .coord{ font-size:min(4.6vh, 52px); }
     }
   </style>
 </head>
@@ -79,18 +95,20 @@
       <line x1="50" y1="50" x2="50" y2="20" stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"></line>
       <circle cx="50" cy="50" r="2.2" fill="var(--red)"></circle>
     </svg>
-    <div class="digital">00:00</div>
+
+    <div class="digital">00:00:00</div>
+
+    <!-- ✅ 파란 좌표 줄 -->
+    <div class="coord" id="coordLine">longitude 000.000</div>
   </div>
 
   <div class="debug" id="debug"></div>
 
 <script>
 (async () => {
-  // 0) Token
   Cesium.Ion.defaultAccessToken =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJkNWNmOTE0Yi0wMDAzLTQzNDAtYTg4NC02YjdmYTVkZjBlNDgiLCJpZCI6Mzg1ODc3LCJpYXQiOjE3Njk5Nzg5Njl9.tCSau-yKKszfHUbw8Ip_t2uRNyduPYBTDSpgeD2hxC4";
 
-  // 1) Viewer
   const viewer = new Cesium.Viewer("cesiumContainer", {
     animation:false, timeline:false, baseLayerPicker:false, geocoder:false,
     homeButton:false, navigationHelpButton:false, sceneModePicker:false,
@@ -98,7 +116,6 @@
     shouldAnimate:true
   });
 
-  // "별만 보이는 느낌" 방지용: 배경 요소 끄기
   viewer.scene.skyAtmosphere.show = false;
   viewer.scene.skyBox.show = false;
   viewer.scene.sun.show = false;
@@ -107,7 +124,6 @@
   viewer.scene.backgroundColor = Cesium.Color.BLACK;
   viewer.scene.postProcessStages.fxaa.enabled = true;
 
-  // 위성 베이스맵 붙이기 (실패하면 콘솔 출력)
   viewer.imageryLayers.removeAll();
   try{
     const provider = await Cesium.createWorldImageryAsync({
@@ -119,9 +135,10 @@
   }
 
   const debugEl = document.getElementById("debug");
+  const coordEl = document.getElementById("coordLine");
 
-  // 2) DEBUG keyboard
-  let DEBUG = true;
+  // LIVE 기본
+  let DEBUG = false;
   let debugBaseUTC = new Date(Date.UTC(2026, 1, 1, 0, 0, 0));
   let debugHours = 0;
 
@@ -154,20 +171,25 @@
     }
   });
 
-  // 3) 자정대 계산
   function getMidnightOffsetHours(now){
-    const utc = now.getUTCHours() + now.getUTCMinutes()/60 + (now.getUTCSeconds() + now.getUTCMilliseconds()/1000)/3600;
+    const utc = now.getUTCHours()
+      + now.getUTCMinutes()/60
+      + (now.getUTCSeconds() + now.getUTCMilliseconds()/1000)/3600;
+
     let offset = -utc;
     offset = ((offset % 24) + 24) % 24;
     if(offset > 12) offset -= 24;
     return offset;
   }
   function offsetToLongitude(offsetHours){ return offsetHours * 15; }
+  function normLon180(lon){
+    return ((lon + 180) % 360 + 360) % 360 - 180;
+  }
 
-  // 4) 카메라 (lookAt: 지구 확실히 보이게)
-  const CAM_LAT = 20;                          // 중심 위도
-  const CAM_RANGE = 6_500_000;                 // 작을수록 지구가 큼 (4e6~9e6 추천)
-  const CAM_PITCH = Cesium.Math.toRadians(-55);
+  /* ✅ 카메라: “전체 보이게” 추천 세팅 */
+  const CAM_LAT = 0;
+  const CAM_RANGE = 8_200_000;                 // 더 크게/전체 = 9_000_000~11_000_000
+  const CAM_PITCH = Cesium.Math.toRadians(-55); // -45~ -65 추천
   const CAM_HEADING = Cesium.Math.toRadians(0);
 
   function setCameraToLon(lonDeg){
@@ -176,7 +198,6 @@
     viewer.camera.lookAt(target, offset);
   }
 
-  // 첫 샷
   setCameraToLon(0);
 
   function animate(){
@@ -184,17 +205,21 @@
 
     const offsetH = getMidnightOffsetHours(now);
     const midnightLon = offsetToLongitude(offsetH);
+    const passingLon = normLon180(midnightLon);
 
     setCameraToLon(midnightLon);
 
+    // 하단 디버그(유지)
     const hh = String(now.getUTCHours()).padStart(2,"0");
     const mm = String(now.getUTCMinutes()).padStart(2,"0");
     const ss = String(now.getUTCSeconds()).padStart(2,"0");
-
     debugEl.textContent =
       `${DEBUG ? "DEBUG" : "LIVE"} | UTC ${hh}:${mm}:${ss}` +
-      ` | lon ≈ ${midnightLon.toFixed(1)}°` +
       ` | (D=toggle, ←/→=scrub, Shift=+1h, R=reset)`;
+
+    // ✅ 파란 좌표 텍스트(시간 아래)
+    const lonText = (passingLon >= 0 ? "+" : "-") + String(Math.abs(passingLon).toFixed(3)).padStart(7, "0");
+    coordEl.textContent = `longitude ${lonText}`;
 
     requestAnimationFrame(animate);
   }
