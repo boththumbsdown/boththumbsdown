@@ -21,7 +21,9 @@
 
       --uiScale: 1;
       --topPad: 3vh;
-      --bottomSafe: 120px;   /* ✅ 하단 안전영역(잘림 방지) */
+
+      /* ✅ 글자 잘림 방지: safe-area 포함 + 기본값 더 여유있게 */
+      --bottomSafe: max(160px, calc(env(safe-area-inset-bottom, 0px) + 24px));
       --sideSafe: 2.5vw;
     }
 
@@ -72,6 +74,9 @@
     }
 
     .headline{ color: var(--white); }  /* ✅ 다시 한 줄 */
+    /* ✅ 잘릴 때만 줄바꿈 허용 */
+    .headline.is-wrapped{ white-space: pre-line; }
+
     .date{ color: var(--red); margin-top: var(--tight); }
     .digital{ color: var(--red); margin-top: var(--tight); }
 
@@ -88,7 +93,7 @@
       text-shadow: 0 0 24px rgba(0,255,0,0.14);
       white-space: pre-line;
 
-      /* ✅ “항상 2줄” 자리 확보: 줄바꿈/폰트로드/도시표시에 따라 잘리지 않게 */
+      /* ✅ “항상 2줄” 자리 확보 */
       min-height: calc((var(--big) * 2) + 1.2vh);
     }
 
@@ -98,7 +103,7 @@
       display:block;
     }
 
-    /* ✅ 측정용(숨김) UI: 실제 표시 UI와 동일한 내용/스타일로 높이 계산 안정화 */
+    /* ✅ 측정용(숨김) UI */
     .measure-wrap{
       position:fixed;
       left:-99999px;
@@ -119,15 +124,21 @@
   <div id="cesiumContainer"></div>
 
   <div class="center-line"></div>
-  <!-- ✅ 붉은 점+세로선(midnight-indicator) 삭제 -->
 
   <div class="top-ui">
     <div class="ui-inner" id="uiInner">
-      <div class="text-big headline">EVERY DAY IS A NEW DAY</div>
+      <div class="text-big headline" id="headlineLine">EVERY DAY IS A NEW DAY</div>
 
+      <!-- ✅ 시계 눈금(분 표시)용 g 추가 -->
       <svg class="clock" viewBox="0 0 100 100" aria-hidden="true">
+        <g id="minuteTicks"></g>
+
         <circle cx="50" cy="50" r="40" fill="none" stroke="var(--red)" stroke-width="1.2"></circle>
+
+        <!-- 12시 마커(원래 있던 짧은 선) -->
         <line x1="50" y1="10" x2="50" y2="18" stroke="var(--red)" stroke-width="1.6" stroke-linecap="round"></line>
+
+        <!-- hands -->
         <line x1="50" y1="50" x2="50" y2="28" stroke="var(--red)" stroke-width="3.2" stroke-linecap="round"></line>
         <line x1="50" y1="50" x2="50" y2="20" stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"></line>
         <circle cx="50" cy="50" r="2.2" fill="var(--red)"></circle>
@@ -143,22 +154,25 @@
     </div>
   </div>
 
-  <!-- ✅ 측정용 복제 UI (PLACE가 비어도 2줄 기준으로 높이 계산) -->
+  <!-- ✅ 측정용 복제 UI -->
   <div class="measure-wrap">
     <div class="ui-inner" id="uiMeasure">
-      <div class="text-big headline">EVERY DAY IS A NEW DAY</div>
+      <div class="text-big headline" id="headlineMeasure">EVERY DAY IS A NEW DAY</div>
+
       <svg class="clock" viewBox="0 0 100 100" aria-hidden="true">
+        <g></g>
         <circle cx="50" cy="50" r="40" fill="none" stroke="var(--red)" stroke-width="1.2"></circle>
         <line x1="50" y1="10" x2="50" y2="18" stroke="var(--red)" stroke-width="1.6" stroke-linecap="round"></line>
         <line x1="50" y1="50" x2="50" y2="28" stroke="var(--red)" stroke-width="3.2" stroke-linecap="round"></line>
         <line x1="50" y1="50" x2="50" y2="20" stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"></line>
         <circle cx="50" cy="50" r="2.2" fill="var(--red)"></circle>
       </svg>
+
       <div class="text-big date" id="dateMeasure">2026 FEB 01</div>
       <div class="text-big digital">00:00:00</div>
       <div class="text-big lon" id="lonMeasure">LONGITUDE
 000.000°E</div>
-      <!-- ✅ 항상 2줄(대표 텍스트)로 측정 -->
+
       <div class="text-big place" id="placeMeasure">대한민국
 서울</div>
     </div>
@@ -194,6 +208,9 @@
     console.error("❌ Imagery load failed:", err);
   }
 
+  const headlineEl = document.getElementById("headlineLine");
+  const headlineMeasureEl = document.getElementById("headlineMeasure");
+
   const lonEl = document.getElementById("lonLine");
   const placeEl = document.getElementById("placeLine");
   const dateEl = document.getElementById("dateLine");
@@ -203,8 +220,93 @@
   const lonMeasure = document.getElementById("lonMeasure");
   const dateMeasure = document.getElementById("dateMeasure");
 
-  /* ✅ 어떤 화면에서도 절대 안 잘리게: “측정용 UI(최대 높이)” 기준으로 자동 축소 */
+  /* ✅ 1) 시계 눈금(60분) 생성: 5분은 길게/굵게, 나머지는 짧게 */
+  function buildMinuteTicks(){
+    const g = document.getElementById("minuteTicks");
+    if(!g) return;
+    g.innerHTML = "";
+
+    const cx = 50, cy = 50;
+    const rOuter = 40;        // 원 테두리 반지름
+    const rInnerMinor = 36.2; // 일반 분 눈금 시작
+    const rInnerMajor = 34.2; // 5분(major) 눈금 시작
+
+    for(let i=0;i<60;i++){
+      const isMajor = (i % 5 === 0);
+
+      const a = (i * 6) * Math.PI / 180; // 6deg per minute
+      const sin = Math.sin(a), cos = Math.cos(a);
+
+      const x2 = cx + sin * rOuter;
+      const y2 = cy - cos * rOuter;
+
+      const rIn = isMajor ? rInnerMajor : rInnerMinor;
+      const x1 = cx + sin * rIn;
+      const y1 = cy - cos * rIn;
+
+      const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+      line.setAttribute("x1", x1.toFixed(3));
+      line.setAttribute("y1", y1.toFixed(3));
+      line.setAttribute("x2", x2.toFixed(3));
+      line.setAttribute("y2", y2.toFixed(3));
+      line.setAttribute("stroke", "var(--red)");
+      line.setAttribute("stroke-linecap", "round");
+      line.setAttribute("stroke-width", isMajor ? "1.6" : "1.0");
+      line.setAttribute("opacity", isMajor ? "0.95" : "0.85");
+
+      g.appendChild(line);
+    }
+  }
+  buildMinuteTicks();
+
+  /* ✅ 2) 헤드라인이 가로로 잘리면 "EVERY DAY\nIS A NEW DAY"로 변경 */
+  function setHeadlineWrapped(isWrapped){
+    if(isWrapped){
+      headlineEl.textContent = "EVERY DAY\nIS A NEW DAY";
+      headlineMeasureEl.textContent = "EVERY DAY\nIS A NEW DAY";
+      headlineEl.classList.add("is-wrapped");
+      headlineMeasureEl.classList.add("is-wrapped");
+    }else{
+      headlineEl.textContent = "EVERY DAY IS A NEW DAY";
+      headlineMeasureEl.textContent = "EVERY DAY IS A NEW DAY";
+      headlineEl.classList.remove("is-wrapped");
+      headlineMeasureEl.classList.remove("is-wrapped");
+    }
+  }
+
+  function getSideSafePx(){
+    const rootStyle = getComputedStyle(document.documentElement);
+    const v = rootStyle.getPropertyValue("--sideSafe").trim();
+    // --sideSafe는 vw로 주고 있으니, 대충 처리: "2.5vw"면 innerWidth*0.025
+    if(v.endsWith("vw")){
+      const n = parseFloat(v) || 0;
+      return window.innerWidth * (n/100);
+    }
+    return parseFloat(v) || 0;
+  }
+
+  function decideHeadlineWrap(){
+    // 현재 스케일 기준으로 "자연폭" vs "자연허용폭" 비교
+    const rootStyle = getComputedStyle(document.documentElement);
+    const uiScale = parseFloat(rootStyle.getPropertyValue("--uiScale")) || 1;
+
+    const sideSafe = getSideSafePx();
+    const maxScreenW = window.innerWidth - (sideSafe * 2);
+    const maxNaturalW = maxScreenW / uiScale;
+
+    // 한 줄 버전으로 먼저 놓고 측정
+    headlineMeasureEl.classList.remove("is-wrapped");
+    headlineMeasureEl.textContent = "EVERY DAY IS A NEW DAY";
+
+    const needWrap = (headlineMeasureEl.scrollWidth > maxNaturalW);
+    setHeadlineWrapped(needWrap);
+  }
+
+  /* ✅ 어떤 화면에서도 절대 안 잘리게: 측정용 UI 기준으로 자동 축소 */
   function fitUI(){
+    // 먼저 헤드라인 줄바꿈 여부 결정 → 그 상태로 "최대 높이" 재측정
+    decideHeadlineWrap();
+
     document.documentElement.style.setProperty("--uiScale", "1");
     requestAnimationFrame(() => {
       const rootStyle = getComputedStyle(document.documentElement);
@@ -216,10 +318,17 @@
 
       const scale = Math.min(1, maxH / naturalH);
       document.documentElement.style.setProperty("--uiScale", String(scale));
+
+      // 스케일 바뀌면 가로 허용폭도 바뀌니 한 번 더 확정
+      requestAnimationFrame(() => decideHeadlineWrap());
     });
   }
 
-  window.addEventListener("resize", fitUI);
+  window.addEventListener("resize", () => {
+    buildMinuteTicks(); // 혹시 DPI/스케일 변동 체감용
+    fitUI();
+  });
+
   setTimeout(fitUI, 0);
   setTimeout(fitUI, 200);
   setTimeout(fitUI, 600);
@@ -426,7 +535,7 @@
       placeEl.textContent = `${chosen.country}\n${chosen.city}`;
     }
 
-    // ✅ 매 프레임 fitUI는 부담 적고, 무엇보다 “항상 전체가 보이게” 보장
+    // ✅ “항상 전체가 보이게” 보장
     fitUI();
 
     requestAnimationFrame(animate);
