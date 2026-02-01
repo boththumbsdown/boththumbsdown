@@ -9,7 +9,16 @@
   <script src="https://unpkg.com/cesium/Build/Cesium/Cesium.js"></script>
 
   <style>
-    :root{ --bg:#000; --red:#ff0000; --white:#ffffff; --blue:#2f7bff; }
+    :root{
+      --bg:#000;
+      --red:#ff0000;
+      --blue: rgb(0,0,255);
+      --green: rgb(0,255,0);
+      --white:#fff;
+      --big: min(10vh, 120px); /* ✅ 디지털 시계 크기 = 모든 텍스트 크기 */
+      --tight: -0.6vh;
+    }
+
     html,body{
       margin:0; height:100%; background:var(--bg); overflow:hidden;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
@@ -40,30 +49,47 @@
     }
 
     .top-ui{
-      position:fixed; left:50%; top:4vh; transform:translateX(-50%);
-      display:flex; flex-direction:column; align-items:center; gap:2.2vh;
+      position:fixed; left:50%; top:3vh; transform:translateX(-50%);
+      display:flex; flex-direction:column; align-items:center;
+      gap:2.0vh;
       z-index:80; pointer-events:none;
     }
-    .clock{ width:min(46vh, 520px); aspect-ratio:1/1; display:block; }
-    .digital{
-      color:var(--red); font-weight:800;
-      font-size:min(10vh, 120px);
-      line-height:1; letter-spacing:0.02em;
-      text-rendering:geometricPrecision;
-      -webkit-font-smoothing:antialiased;
-    }
 
-    /* ✅ 좌표를 시간 아래 크게 */
-    .coord{
-      color: var(--blue);
-      font-weight: 800;
-      font-size: min(6.2vh, 72px);
+    /* 공통 텍스트 스타일 (디지털 시계 크기 동일) */
+    .text-big{
+      font-weight:800;
+      font-size: var(--big);
       line-height: 1;
       letter-spacing: 0.02em;
       text-rendering: geometricPrecision;
       -webkit-font-smoothing: antialiased;
-      margin-top: -0.6vh; /* 살짝 붙이기 */
-      text-shadow: 0 0 24px rgba(47,123,255,0.18);
+      text-align:center;
+      white-space: nowrap;
+    }
+
+    .headline{ color: var(--white); }
+    .digital{ color: var(--red); margin-top: var(--tight); }
+
+    /* LONGITUDE + 값 (줄바꿈 유지) */
+    .lon{
+      color: var(--blue);
+      margin-top: var(--tight);
+      text-shadow: 0 0 24px rgba(0,0,255,0.18);
+      white-space: pre-line; /* ✅ 줄바꿈 */
+    }
+
+    /* 나라/도시 (줄바꿈 유지) */
+    .place{
+      color: var(--green);
+      margin-top: var(--tight);
+      text-shadow: 0 0 24px rgba(0,255,0,0.14);
+      white-space: pre-line; /* ✅ 줄바꿈 */
+    }
+
+    .clock{
+      width:min(46vh, 520px);
+      aspect-ratio:1/1;
+      display:block;
     }
 
     .debug{
@@ -74,9 +100,8 @@
     }
 
     @media (max-aspect-ratio: 3/4){
-      .digital{ font-size:min(8vh, 92px); }
+      :root{ --big: min(8vh, 92px); } /* 모바일에서도 “같은 크기” 유지 */
       .clock{ width:min(38vh, 440px); }
-      .coord{ font-size:min(4.6vh, 52px); }
     }
   </style>
 </head>
@@ -88,6 +113,10 @@
   <div class="midnight-indicator" title="Midnight zone center"></div>
 
   <div class="top-ui">
+    <!-- ✅ 최상단 문구 -->
+    <div class="text-big headline">EVERY DAY IS A NEW DAY</div>
+
+    <!-- 00:00 고정 아날로그 -->
     <svg class="clock" viewBox="0 0 100 100" aria-hidden="true">
       <circle cx="50" cy="50" r="40" fill="none" stroke="var(--red)" stroke-width="1.2"></circle>
       <line x1="50" y1="10" x2="50" y2="18" stroke="var(--red)" stroke-width="1.6" stroke-linecap="round"></line>
@@ -96,10 +125,16 @@
       <circle cx="50" cy="50" r="2.2" fill="var(--red)"></circle>
     </svg>
 
-    <div class="digital">00:00:00</div>
+    <!-- ✅ 디지털 (크기 기준) -->
+    <div class="text-big digital">00:00:00</div>
 
-    <!-- ✅ 파란 좌표 줄 -->
-    <div class="coord" id="coordLine">longitude 000.000</div>
+    <!-- ✅ LONGITUDE 줄바꿈 + 값 -->
+    <div class="text-big lon" id="lonLine">LONGITUDE
+000.000°E</div>
+
+    <!-- ✅ 나라/도시도 같은 크기 -->
+    <div class="text-big place" id="placeLine">대한민국
+서울</div>
   </div>
 
   <div class="debug" id="debug"></div>
@@ -135,9 +170,10 @@
   }
 
   const debugEl = document.getElementById("debug");
-  const coordEl = document.getElementById("coordLine");
+  const lonEl = document.getElementById("lonLine");
+  const placeEl = document.getElementById("placeLine");
 
-  // LIVE 기본
+  // LIVE 기본 (D키로 디버그 토글 가능)
   let DEBUG = false;
   let debugBaseUTC = new Date(Date.UTC(2026, 1, 1, 0, 0, 0));
   let debugHours = 0;
@@ -171,6 +207,7 @@
     }
   });
 
+  // 자정대 경도
   function getMidnightOffsetHours(now){
     const utc = now.getUTCHours()
       + now.getUTCMinutes()/60
@@ -186,10 +223,56 @@
     return ((lon + 180) % 360 + 360) % 360 - 180;
   }
 
-  /* ✅ 카메라: “전체 보이게” 추천 세팅 */
+  function lonEWText(lon180){
+    const dir = lon180 >= 0 ? "E" : "W";
+    const abs = Math.abs(lon180);
+    const num = abs.toFixed(3).padStart(7, "0"); // 000.000
+    return `${num}°${dir}`;
+  }
+
+  // 도시 DB (필요하면 추가)
+  const CITIES = [
+    { country:"영국", city:"런던", lon:-0.1278 },
+    { country:"프랑스", city:"파리", lon:2.3522 },
+    { country:"네덜란드", city:"암스테르담", lon:4.9041 },
+    { country:"독일", city:"베를린", lon:13.4050 },
+    { country:"이탈리아", city:"로마", lon:12.4964 },
+    { country:"그리스", city:"아테네", lon:23.7275 },
+    { country:"튀르키예", city:"이스탄불", lon:28.9784 },
+    { country:"이집트", city:"카이로", lon:31.2357 },
+    { country:"케냐", city:"나이로비", lon:36.8219 },
+    { country:"아랍에미리트", city:"두바이", lon:55.2708 },
+    { country:"인도", city:"뉴델리", lon:77.2090 },
+    { country:"태국", city:"방콕", lon:100.5018 },
+    { country:"중국", city:"상하이", lon:121.4737 },
+    { country:"대한민국", city:"서울", lon:126.9780 },
+    { country:"일본", city:"도쿄", lon:139.6503 },
+    { country:"호주", city:"시드니", lon:151.2093 },
+    { country:"미국", city:"뉴욕", lon:-74.0060 },
+    { country:"미국", city:"로스앤젤레스", lon:-118.2437 },
+    { country:"브라질", city:"상파울루", lon:-46.6333 },
+    { country:"아르헨티나", city:"부에노스아이레스", lon:-58.3816 },
+    { country:"러시아", city:"모스크바", lon:37.6173 },
+  ];
+
+  function lonDiffDeg(a, b){
+    let d = Math.abs(a - b);
+    if(d > 180) d = 360 - d;
+    return d;
+  }
+
+  function getCandidateCitiesByLongitude(passingLon180){
+    const THRESH = 3.0;
+    const withDist = CITIES.map(c => ({...c, d: lonDiffDeg(passingLon180, c.lon)}));
+    const candidates = withDist.filter(c => c.d <= THRESH).sort((a,b)=>a.d-b.d);
+    if(candidates.length) return candidates;
+    return withDist.sort((a,b)=>a.d-b.d).slice(0,5);
+  }
+
+  // 카메라 (전체 보이게)
   const CAM_LAT = 0;
-  const CAM_RANGE = 8_200_000;                 // 더 크게/전체 = 9_000_000~11_000_000
-  const CAM_PITCH = Cesium.Math.toRadians(-55); // -45~ -65 추천
+  const CAM_RANGE = 9_500_000;                 // ✅ 더 전체로
+  const CAM_PITCH = Cesium.Math.toRadians(-55);
   const CAM_HEADING = Cesium.Math.toRadians(0);
 
   function setCameraToLon(lonDeg){
@@ -197,7 +280,6 @@
     const offset = new Cesium.HeadingPitchRange(CAM_HEADING, CAM_PITCH, CAM_RANGE);
     viewer.camera.lookAt(target, offset);
   }
-
   setCameraToLon(0);
 
   function animate(){
@@ -209,17 +291,24 @@
 
     setCameraToLon(midnightLon);
 
-    // 하단 디버그(유지)
+    // LONGITUDE 줄바꿈 포맷
+    lonEl.textContent = `LONGITUDE\n${lonEWText(passingLon)}`;
+
+    // 나라/도시: 후보가 여러개면 매초 순환
+    const candidates = getCandidateCitiesByLongitude(passingLon);
+    const sec = Math.floor(now.getTime()/1000);
+    const idx = candidates.length ? (sec % candidates.length) : 0;
+    const chosen = candidates[idx] || {country:"-", city:"-"};
+    placeEl.textContent = `${chosen.country}\n${chosen.city}`;
+
+    // (하단 디버그는 작게 유지)
     const hh = String(now.getUTCHours()).padStart(2,"0");
     const mm = String(now.getUTCMinutes()).padStart(2,"0");
     const ss = String(now.getUTCSeconds()).padStart(2,"0");
     debugEl.textContent =
       `${DEBUG ? "DEBUG" : "LIVE"} | UTC ${hh}:${mm}:${ss}` +
+      ` | candidates ${candidates.length}` +
       ` | (D=toggle, ←/→=scrub, Shift=+1h, R=reset)`;
-
-    // ✅ 파란 좌표 텍스트(시간 아래)
-    const lonText = (passingLon >= 0 ? "+" : "-") + String(Math.abs(passingLon).toFixed(3)).padStart(7, "0");
-    coordEl.textContent = `longitude ${lonText}`;
 
     requestAnimationFrame(animate);
   }
