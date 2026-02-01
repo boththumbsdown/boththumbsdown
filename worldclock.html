@@ -1,163 +1,166 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>WORLD CLOCK</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>WORLD CLOCK</title>
 
-  <link href="https://unpkg.com/cesium/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
-  <script src="https://unpkg.com/cesium/Build/Cesium/Cesium.js"></script>
+<link href="https://unpkg.com/cesium/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
+<script src="https://unpkg.com/cesium/Build/Cesium/Cesium.js"></script>
 
-  <style>
-    :root{
-      --bg:#000;
-      --red:#ff0000;
-      --blue: rgb(0,0,255);
-      --green: rgb(0,255,0);
-      --white:#fff;
+<style>
+:root{
+  --bg:#000;
+  --white:#fff;
+  --red:#ff0000;
+  --blue:rgb(0,0,255);
+  --green:rgb(0,255,0);
 
-      --big: min(10vh, 120px);   /* 기준 폰트 */
-      --infoScale: 0.5;          /* ✅ 아래 정보 50% */
+  --big: min(10vh, 120px);
+  --infoScale: 0.5;
 
-      --topPad: 3vh;
-      --sideSafe: 2.5vw;
-    }
+  --sideSafe: 2.5vw;
+  --topPad: 3vh;
+}
 
-    html,body{
-      margin:0;
-      height:100%;
-      background:var(--bg);
-      overflow:hidden;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
-        "Apple SD Gothic Neo","Noto Sans KR",sans-serif;
-    }
+html,body{
+  margin:0;
+  height:100%;
+  background:var(--bg);
+  overflow:hidden;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
+    "Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+}
 
-    #cesiumContainer{ position:fixed; inset:0; }
+#cesiumContainer{
+  position:fixed;
+  inset:0;
+}
 
-    .center-line{
-      position:fixed;
-      left:50%;
-      top:0;
-      width:2px;
-      height:100vh;
-      background:rgba(255,255,255,0.85);
-      transform:translateX(-50%);
-      pointer-events:none;
-      z-index:40;
-    }
+/* ================= CENTER LINE ================= */
+.center-line{
+  position:fixed;
+  left:50%;
+  top:0;
+  width:2px;
+  height:100vh;
+  background:rgba(255,255,255,0.85);
+  transform:translateX(-50%);
+  pointer-events:none;
+  z-index:30;
+}
 
-    /* ================= HEADLINE ================= */
-    .headline-wrap{
-      position:fixed;
-      left:50%;
-      top:var(--topPad);
-      transform:translateX(-50%);
-      max-width: calc(100vw - (var(--sideSafe) * 2));
-      z-index:80;
-      pointer-events:none;
-      text-align:center;
-    }
-    .headline{
-      font-weight:800;
-      font-size: var(--big);
-      line-height:1;
-      letter-spacing:0.02em;
-      color:var(--white);
-      white-space:nowrap;
-      text-rendering:geometricPrecision;
-      -webkit-font-smoothing:antialiased;
-    }
-    .headline.is-wrapped{ white-space:pre-line; }
+/* ================= HEADLINE ================= */
+.headline-wrap{
+  position:fixed;
+  left:50%;
+  top:var(--topPad);
+  transform:translateX(-50%);
+  max-width:calc(100vw - (var(--sideSafe) * 2));
+  text-align:center;
+  pointer-events:none;
+  z-index:80;
+}
 
-    /* ================= CLOCK ================= */
-    .center-clock{
-      position:fixed;
-      left:50%;
-      top:50%;
-      transform:translate(-50%,-50%);
-      width:min(46vh,520px);
-      aspect-ratio:1/1;
-      z-index:60;
-      pointer-events:none;
-    }
+.headline{
+  font-weight:800;
+  font-size:var(--big);
+  line-height:1;
+  letter-spacing:0.02em;
+  color:var(--white);
+  white-space:nowrap;
+  text-rendering:geometricPrecision;
+  -webkit-font-smoothing:antialiased;
+}
+.headline.is-wrapped{ white-space:pre-line; }
 
-    /* ================= BOTTOM INFO ================= */
-    .bottom-ui{
-      position:fixed;
-      left:50%;
-      top:50%;
-      transform:translate(-50%, calc(-50% + (min(46vh,520px) / 2) + 5vh)) scale(var(--infoScale));
-      transform-origin: top center;
+/* ================= CLOCK ================= */
+.center-clock{
+  position:fixed;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:min(46vh,520px);
+  aspect-ratio:1/1;
+  pointer-events:none;
+  z-index:60;
+}
 
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:0.6em;
+/* ================= BOTTOM INFO ================= */
+.bottom-ui{
+  position:fixed;
+  left:50%;
+  bottom:4vh;
+  transform:translateX(-50%) scale(var(--infoScale));
+  transform-origin:bottom center;
 
-      pointer-events:none;
-      z-index:90;
-      max-width: calc(100vw - (var(--sideSafe) * 2));
-    }
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:0.6em;
 
-    .info-line{
-      font-weight:800;
-      font-size:var(--big);
-      line-height:1;
-      letter-spacing:0.02em;
-      white-space:nowrap;
-      text-align:center;
-      text-rendering:geometricPrecision;
-      -webkit-font-smoothing:antialiased;
-    }
+  pointer-events:none;
+  z-index:90;
+  max-width:calc(100vw - (var(--sideSafe) * 2));
+}
 
-    .info-line.datetime{ color:var(--red); }
-    .info-line.lon{ color:var(--blue); }
-    .info-line.place{ color:var(--green); }
+.info-line{
+  font-weight:800;
+  font-size:var(--big);
+  line-height:1;
+  letter-spacing:0.02em;
+  white-space:nowrap;
+  text-align:center;
+  text-rendering:geometricPrecision;
+  -webkit-font-smoothing:antialiased;
+}
 
-    @media (max-aspect-ratio:3/4){
-      :root{ --big: min(8vh, 92px); }
-      .center-clock{ width:min(38vh,440px); }
-      .bottom-ui{
-        transform:translate(-50%, calc(-50% + (min(38vh,440px) / 2) + 5vh)) scale(var(--infoScale));
-      }
-    }
-  </style>
+.info-line.datetime{ color:var(--red); }
+.info-line.lon{ color:var(--blue); }
+.info-line.place{ color:var(--green); }
+
+/* ================= RESPONSIVE ================= */
+@media (max-aspect-ratio:3/4){
+  :root{ --big: min(8vh, 92px); }
+  .center-clock{ width:min(38vh,440px); }
+}
+</style>
 </head>
 
 <body>
-  <div id="cesiumContainer"></div>
-  <div class="center-line"></div>
+<div id="cesiumContainer"></div>
+<div class="center-line"></div>
 
-  <!-- HEADLINE -->
-  <div class="headline-wrap">
-    <div class="headline" id="headlineLine">EVERY DAY IS A NEW DAY</div>
-  </div>
+<!-- HEADLINE -->
+<div class="headline-wrap">
+  <div class="headline" id="headlineLine">EVERY DAY IS A NEW DAY</div>
+</div>
 
-  <!-- CLOCK (CENTER) -->
-  <svg class="center-clock" viewBox="0 0 100 100" aria-hidden="true">
-    <g id="minuteTicks"></g>
+<!-- CLOCK -->
+<svg class="center-clock" viewBox="0 0 100 100" aria-hidden="true">
+  <g id="minuteTicks"></g>
 
-    <circle cx="50" cy="50" r="40" fill="none"
-      stroke="var(--red)" stroke-width="1.2"></circle>
+  <circle cx="50" cy="50" r="40" fill="none"
+    stroke="var(--red)" stroke-width="1.2"></circle>
 
-    <line x1="50" y1="10" x2="50" y2="18"
-      stroke="var(--red)" stroke-width="1.6" stroke-linecap="round"></line>
+  <line x1="50" y1="10" x2="50" y2="18"
+    stroke="var(--red)" stroke-width="1.6" stroke-linecap="round"></line>
 
-    <!-- hands (00:00 fixed) -->
-    <line x1="50" y1="50" x2="50" y2="28"
-      stroke="var(--red)" stroke-width="3.2" stroke-linecap="round"></line>
-    <line x1="50" y1="50" x2="50" y2="20"
-      stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"></line>
+  <!-- hands (00:00 fixed) -->
+  <line x1="50" y1="50" x2="50" y2="28"
+    stroke="var(--red)" stroke-width="3.2" stroke-linecap="round"></line>
+  <line x1="50" y1="50" x2="50" y2="20"
+    stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"></line>
 
-    <circle cx="50" cy="50" r="2.2" fill="var(--red)"></circle>
-  </svg>
+  <circle cx="50" cy="50" r="2.2" fill="var(--red)"></circle>
+</svg>
 
-  <!-- BOTTOM INFO -->
-  <div class="bottom-ui">
-    <div class="info-line datetime" id="dateTimeLine">2026 FEB 02 00:00:00</div>
-    <div class="info-line lon" id="lonLine">LONGITUDE 0000E</div>
-    <div class="info-line place" id="placeLine"></div>
-  </div>
+<!-- BOTTOM INFO -->
+<div class="bottom-ui">
+  <div class="info-line datetime" id="dateTimeLine">2026 FEB 02 00:00:00</div>
+  <div class="info-line lon" id="lonLine">LONGITUDE 000.0000E</div>
+  <div class="info-line place" id="placeLine"></div>
+</div>
 
 <script>
 (async () => {
@@ -179,124 +182,72 @@
   viewer.scene.backgroundColor = Cesium.Color.BLACK;
 
   viewer.imageryLayers.removeAll();
-  try{
-    const provider = await Cesium.createWorldImageryAsync({
-      style: Cesium.IonWorldImageryStyle.AERIAL
-    });
-    viewer.imageryLayers.addImageryProvider(provider);
-  }catch(err){
-    console.error("❌ Imagery load failed:", err);
-  }
+  const provider = await Cesium.createWorldImageryAsync({
+    style: Cesium.IonWorldImageryStyle.AERIAL
+  });
+  viewer.imageryLayers.addImageryProvider(provider);
 
   /* ===== minute ticks ===== */
-  (function buildMinuteTicks(){
-    const g = document.getElementById("minuteTicks");
-    if(!g) return;
-    g.innerHTML = "";
+  const tickGroup = document.getElementById("minuteTicks");
+  for(let i=0;i<60;i++){
+    const major = i % 5 === 0;
+    const a = i * 6 * Math.PI / 180;
+    const sin = Math.sin(a), cos = Math.cos(a);
 
-    const cx = 50, cy = 50;
     const rOuter = 40;
-    const rInnerMinor = 36.2;
-    const rInnerMajor = 34.2;
+    const rInner = major ? 34.2 : 36.2;
 
-    for(let i=0;i<60;i++){
-      const isMajor = (i % 5 === 0);
-      const a = (i * 6) * Math.PI / 180;
-      const sin = Math.sin(a), cos = Math.cos(a);
+    const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+    line.setAttribute("x1", 50 + sin * rInner);
+    line.setAttribute("y1", 50 - cos * rInner);
+    line.setAttribute("x2", 50 + sin * rOuter);
+    line.setAttribute("y2", 50 - cos * rOuter);
+    line.setAttribute("stroke", "var(--red)");
+    line.setAttribute("stroke-width", major ? "1.6" : "1.0");
+    line.setAttribute("stroke-linecap","round");
+    line.setAttribute("opacity", major ? "0.95" : "0.85");
+    tickGroup.appendChild(line);
+  }
 
-      const x2 = cx + sin * rOuter;
-      const y2 = cy - cos * rOuter;
-
-      const rIn = isMajor ? rInnerMajor : rInnerMinor;
-      const x1 = cx + sin * rIn;
-      const y1 = cy - cos * rIn;
-
-      const line = document.createElementNS("http://www.w3.org/2000/svg","line");
-      line.setAttribute("x1", x1.toFixed(3));
-      line.setAttribute("y1", y1.toFixed(3));
-      line.setAttribute("x2", x2.toFixed(3));
-      line.setAttribute("y2", y2.toFixed(3));
-      line.setAttribute("stroke", "var(--red)");
-      line.setAttribute("stroke-linecap", "round");
-      line.setAttribute("stroke-width", isMajor ? "1.6" : "1.0");
-      line.setAttribute("opacity", isMajor ? "0.95" : "0.85");
-      g.appendChild(line);
-    }
-  })();
-
-  /* ===== UI elements ===== */
-  const headlineEl = document.getElementById("headlineLine");
+  /* ===== UI refs ===== */
   const dateTimeEl = document.getElementById("dateTimeLine");
   const lonEl = document.getElementById("lonLine");
   const placeEl = document.getElementById("placeLine");
 
-  /* ===== headline wrap (가로 부족하면 2줄) ===== */
-  function getSideSafePx(){
-    const rootStyle = getComputedStyle(document.documentElement);
-    const v = rootStyle.getPropertyValue("--sideSafe").trim();
-    if(v.endsWith("vw")){
-      const n = parseFloat(v) || 0;
-      return window.innerWidth * (n/100);
-    }
-    return parseFloat(v) || 0;
-  }
-  function applyHeadlineWrap(){
-    headlineEl.classList.remove("is-wrapped");
-    headlineEl.textContent = "EVERY DAY IS A NEW DAY";
-
-    const sideSafe = getSideSafePx();
-    const maxW = window.innerWidth - (sideSafe * 2);
-
-    const needWrap = (headlineEl.scrollWidth > maxW);
-    if(needWrap){
-      headlineEl.textContent = "EVERY DAY\nIS A NEW DAY";
-      headlineEl.classList.add("is-wrapped");
-    }
-  }
-  applyHeadlineWrap();
-  window.addEventListener("resize", applyHeadlineWrap);
-  setTimeout(applyHeadlineWrap, 200);
-  setTimeout(applyHeadlineWrap, 600);
-
-  /* ===== math helpers ===== */
+  /* ===== helpers ===== */
   function getMidnightOffsetHours(now){
     const utc =
       now.getUTCHours() +
       now.getUTCMinutes()/60 +
-      (now.getUTCSeconds() + now.getUTCMilliseconds()/1000)/3600;
+      (now.getUTCSeconds()+now.getUTCMilliseconds()/1000)/3600;
 
     let offset = -utc;
     offset = ((offset % 24) + 24) % 24;
     if(offset > 12) offset -= 24;
     return offset;
   }
-  function offsetToLongitude(offsetHours){ return offsetHours * 15; }
+  function offsetToLongitude(h){ return h * 15; }
   function normLon180(lon){
     return ((lon + 180) % 360 + 360) % 360 - 180;
   }
 
-  // ✅ 날짜 포맷: "YYYY MON DD 00:00:00"
   function formatMidnightDateTime(now){
     const offsetH = getMidnightOffsetHours(now);
     const shifted = new Date(now.getTime() + offsetH * 3600 * 1000);
-
     const Y = shifted.getUTCFullYear();
     const M = shifted.getUTCMonth();
     const D = shifted.getUTCDate();
-
     const MONTHS = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
     return `${Y} ${MONTHS[M]} ${String(D).padStart(2,"0")} 00:00:00`;
   }
 
-  // ✅ 경도 포맷: "LONGITUDE 0000E"
-  function formatLongitude4(lon180){
+  function formatLongitudeDecimal4(lon180){
     const dir = lon180 >= 0 ? "E" : "W";
     const abs = Math.abs(lon180);
-    const num = abs.toFixed(4).padStart(8, "0");
+    const num = abs.toFixed(4).padStart(9,"0");
     return `LONGITUDE ${num}${dir}`;
   }
 
-  /* ===== cities (원래 너 리스트 그대로) ===== */
   const CITIES = [
     { country:"세네갈", city:"다카르", lon:-17.4677 },
     { country:"모로코", city:"카사블랑카", lon:-7.5898 },
@@ -413,58 +364,35 @@
     { country:"브라질", city:"상파울루", lon:-46.6333 }
   ];
 
-  function lonDiffDeg(a, b){
-    let d = Math.abs(a - b);
-    if(d > 180) d = 360 - d;
-    return d;
-  }
-  function getCandidateCitiesByLongitude(passingLon180){
-    const THRESH = 2.0;
-    const withDist = CITIES.map(c => ({...c, d: lonDiffDeg(passingLon180, c.lon)}));
-    return withDist.filter(c => c.d <= THRESH).sort((a,b)=>a.d-b.d);
+  function nearestCity(lon){
+    let best=null, d=999;
+    for(const c of CITIES){
+      let diff=Math.abs(lon-c.lon);
+      if(diff>180) diff=360-diff;
+      if(diff<d){ d=diff; best=c; }
+    }
+    return best;
   }
 
-  /* ===== camera ===== */
-  const CAM_LAT = 0;
-  const CAM_RANGE = 15_000_000;
-  const CAM_PITCH = Cesium.Math.toRadians(-90);
-  const CAM_HEADING = Cesium.Math.toRadians(0);
-
-  function setCameraToLon(lonDeg){
-    const target = Cesium.Cartesian3.fromDegrees(lonDeg, CAM_LAT, 0);
-    const offset = new Cesium.HeadingPitchRange(CAM_HEADING, CAM_PITCH, CAM_RANGE);
-    viewer.camera.lookAt(target, offset);
-  }
-  setCameraToLon(0);
+  const CAM_LAT=0;
+  const CAM_RANGE=15_000_000;
+  const CAM_PITCH=Cesium.Math.toRadians(-90);
 
   function animate(){
-    const now = new Date();
+    const now=new Date();
+    const offset=getMidnightOffsetHours(now);
+    const lon=normLon180(offsetToLongitude(offset));
 
-    const offsetH = getMidnightOffsetHours(now);
-    const midnightLon = offsetToLongitude(offsetH);
-    const passingLon = normLon180(midnightLon);
+    viewer.camera.lookAt(
+      Cesium.Cartesian3.fromDegrees(lon,CAM_LAT),
+      new Cesium.HeadingPitchRange(0,CAM_PITCH,CAM_RANGE)
+    );
 
-    setCameraToLon(midnightLon);
-
-    // ✅ 날짜+시간 (빨간색)
     dateTimeEl.textContent = formatMidnightDateTime(now);
+    lonEl.textContent = formatLongitudeDecimal4(lon);
 
-    // ✅ 경도 (파란색)
-    lonEl.textContent = formatLongitude4(passingLon);
-
-    // ✅ 시간은 포맷 요구상 dateTime에 포함이므로 따로 안 둠 (항상 00:00:00)
-    // 만약 “시간 라인”을 별도로 다시 원하면 말해줘.
-
-    // ✅ 장소 (초록색) 한 줄: 나라 · 도시
-    const candidates = getCandidateCitiesByLongitude(passingLon);
-    const sec = Math.floor(now.getTime()/1000);
-
-    if(!candidates.length){
-      placeEl.textContent = "";
-    }else{
-      const chosen = candidates[sec % candidates.length];
-      placeEl.textContent = `${chosen.country} · ${chosen.city}`;
-    }
+    const city = nearestCity(lon);
+    placeEl.textContent = city ? `${city.country} · ${city.city}` : "";
 
     requestAnimationFrame(animate);
   }
