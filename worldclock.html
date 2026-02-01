@@ -72,14 +72,20 @@ html,body{
   text-rendering:geometricPrecision;
   -webkit-font-smoothing:antialiased;
 
-  display:inline-block;            /* 🔑 핵심 */
-  text-align:center;               /* 🔑 두 줄 중앙 */
+  display:inline-block;
+  text-align:center;
+
+  /* 🔑 핵심: 자동 줄바꿈 완전 차단 */
+  white-space:nowrap;
+  word-break:keep-all;
+
   transform: scale(0.60);
   transform-origin: top center;
 }
 
-.headline.is-wrapped{
-  white-space:pre-line;
+/* 🔑 <br>만 줄바꿈으로 인정 */
+.headline.is-wrapped br{
+  display:block;
 }
 
 /* ================= CLOCK ================= */
