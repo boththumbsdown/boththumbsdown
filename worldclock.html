@@ -55,8 +55,11 @@ html,body{
   position:fixed;
   left:50%;
   top:var(--topPad);
-  transform:translateX(-50%);
-  max-width:calc(100vw - (var(--sideSafe) * 2));
+  transform:translateX(-50%) scale(0.60);
+  transform-origin: top center;
+
+  width:max-content;                         /* ✅ 내용 폭만큼 */
+  max-width:none;                            /* ✅ “패딩처럼 보이는” 제한 제거 */
   text-align:center;
   pointer-events:none;
   z-index:80;
@@ -78,13 +81,14 @@ html,body{
   /* 🔑 핵심: 자동 줄바꿈 완전 차단 */
   white-space:nowrap;
   word-break:keep-all;
-
-  transform: scale(0.60);
-  transform-origin: top center;
 }
 
 /* 🔑 <br>만 줄바꿈으로 인정 */
 .headline.is-wrapped br{
+  display:block;
+}
+
+.headline br{
   display:block;
 }
 
