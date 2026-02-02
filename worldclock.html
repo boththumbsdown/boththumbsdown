@@ -25,6 +25,7 @@
   --red:#ff0000;
   --blue:rgb(0,0,255);
   --green:rgb(0,255,0);
+  --yellow:rgb(255,255,0);
 
   --big: min(10vh, 120px);
   --infoScale: 0.5;
@@ -141,8 +142,8 @@ html,body{
 }
 
 .info-line.datetime{ color:var(--red); }
-.info-line.lon{ color:var(--blue); }
-.info-line.place{ color:var(--green); }
+.info-line.lon{ color:var(--green); }
+.info-line.place{ color:var(--blue); }
 
 /* ================= RESPONSIVE ================= */
 @media (max-aspect-ratio:3/4){
@@ -289,7 +290,7 @@ const CITIES = [
   { country:"SOUTH AFRICA", city:"CAPE TOWN", lon:18.4241 },
   { country:"SOUTH AFRICA", city:"JOHANNESBURG", lon:28.0473 },
 
-  { country:"ICELAND", city:"REYKJAVIK", lon:-21.8277 },
+  { country:"ICELAND", city:"REYKJAVÍK", lon:-21.8277 },
   { country:"IRELAND", city:"DUBLIN", lon:-6.2603 },
   { country:"UNITED KINGDOM", city:"LONDON", lon:-0.1278 },
   { country:"UNITED KINGDOM", city:"MANCHESTER", lon:-2.2426 },
@@ -304,7 +305,7 @@ const CITIES = [
   { country:"GERMANY", city:"HAMBURG", lon:9.9937 },
   { country:"GERMANY", city:"BERLIN", lon:13.4050 },
   { country:"GERMANY", city:"MUNICH", lon:11.5820 },
-  { country:"SWITZERLAND", city:"ZURICH", lon:8.5417 },
+  { country:"SWITZERLAND", city:"ZÜRICH", lon:8.5417 },
   { country:"ITALY", city:"MILAN", lon:9.1900 },
   { country:"ITALY", city:"ROME", lon:12.4964 },
   { country:"ITALY", city:"NAPLES", lon:14.2681 },
