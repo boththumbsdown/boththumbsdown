@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>itsa</title>
+
+  <style>
+    /* -------------------------
+       Font
+    -------------------------- */
+    @font-face{
+      font-family: "MrsEavesPencildrawnBold-Overcooked";
+      src: url("MrsEavesPencildrawnBold-Overcooked.woff2") format("woff2");
+      font-weight: 700;
+      font-style: normal;
+    }
+
+    :root{
+      /* 이미지: 브라우저보다 작고 최대 500px */
+      --img-max: min(92vw, 500px);
+
+      --top-gap: 32px;
+      --between: 28px;
+
+      /* 텍스트 사이즈 */
+      --text-size: 20px;
+      --line-height: 1.1;
+    }
+
+    html, body{
+      height: 100%;
+      margin: 0;
+    }
+
+    body{
+      background: rgb(255, 0, 0);
+      color: #000;
+    }
+
+    /* 이미지 폭 기준 컬럼 */
+    .wrap{
+      width: var(--img-max);
+      max-width: var(--img-max);
+      margin: 0 auto;
+      padding: var(--top-gap) 0 64px;
+      box-sizing: border-box;
+    }
+
+    /* 상단 텍스트 */
+    .toptext{
+      font-family: "MrsEavesPencildrawnBold-Overcooked", serif;
+      font-size: var(--text-size);
+      line-height: var(--line-height);
+      text-align: left;
+      white-space: pre-line;
+      margin: 0 0 var(--between);
+    }
+
+    /* 이미지 스택 */
+    .stack{
+      display: flex;
+      flex-direction: column;
+      gap: var(--between);
+      align-items: center;
+    }
+
+    .stack img{
+      display: block;
+      max-width: 100%;
+      height: auto;
+      object-fit: contain;
+    }
+
+    /* 모바일: 텍스트만 10px */
+    @media (max-width: 480px){
+      :root{
+        --text-size: 16px;
+        --img-max: min(94vw, 500px);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+    <h1 class="toptext">it's a cape. it's a poncho. it's a flag. it's a picnic mat. it's a table cloth. it's a bathing towel. it's a night gown. it's a scarf. it's a skin of a ghost. it's a magician's cloth. it's a dirty rag. it's a sacred veil. it's a beggar's handkerchief. it's a shower curtain. it's a window blind. it's a baby diaper. it's a toilet paper. it's a pocket square. it's a wanted poster. it's a protest banner. it's an user manual. it's a paper bill. it's a menu card. it's a newspaper. it's a missing flyer. it's a diary. it's a calendar. it's a folding screen. it's a roll blind. it's a projector screen. it's a 
+    </h1>
+
+    <section class="stack">
+      <img src="itsa1.png" alt="itsa1" />
+      <img src="itsa2.png" alt="itsa2" />
+      <img src="itsa3.png" alt="itsa3" />
+      <img src="itsa4.png" alt="itsa4" />
+      <img src="itsa5.png" alt="itsa5" />
+    </section>
+  </main>
+</body>
+</html>
