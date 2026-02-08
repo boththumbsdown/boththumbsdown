@@ -3,8 +3,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>
-      YEAR 26 APPLICATIONS + Rita Palha Lopes ‘A Shape Is Never Done’ 13/02/2025
-      De Ateliers Stadhouderskade 86, 1073 AT Amsterdam
+      TOP-DOWN division when width becomes 2/3 of height
     </title>
 
     <style>
@@ -21,7 +20,7 @@
         display: flex;
         width: 100%;
         height: 100%;
-        flex-direction: row; /* 기본: 좌우 */
+        flex-direction: row;
       }
 
       iframe {
@@ -30,10 +29,9 @@
         border: none;
       }
 
-      /* 📐 가로가 세로의 2/3 이하가 되는 순간 */
       @media (max-aspect-ratio: 2/3) {
         .container {
-          flex-direction: column; /* 상하 */
+          flex-direction: column;
         }
 
         iframe {
