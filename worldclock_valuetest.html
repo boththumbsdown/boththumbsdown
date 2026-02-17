@@ -270,8 +270,13 @@ html,body{
     { country:"SOUTH AFRICA", city:"JOHANNESBURG", lon:28.0473, lat:-26.2044 },
     { country:"MAURITANIA", city:"NOUADHIBOU", lon:-16.0362, lat:20.9425 },
     { country:"MAURITANIA", city:"NOUADHIBOU", lon:-11.0362, lat:20.9425 },
+    { country:"MAURITANIA", city:"NOUADHIBOU", lon:-9.1394, lat:20.9425 },
 
-    { country:"GREENLAND", city:"TASIILAQ", lon:-37.6336, lat:65.6135 },
+    { country:"GREENLAND", city:"TASIILAQ", lon:-41.0000, lat:65.6135 },
+    { country:"GREENLAND", city:"TASIILAQ", lon:-39.0000, lat:66.6135 },
+    { country:"GREENLAND", city:"TASIILAQ", lon:-37.6336, lat:67.0135 },
+    { country:"GREENLAND", city:"TASIILAQ", lon:-34.0000, lat:67.0135 },
+    { country:"GREENLAND", city:"TASIILAQ", lon:-33.9999, lat:69.0135 },
     { country:"GREENLAND", city:"ITTOQQORTOORMIIT", lon:-24.0001, lat:69.6135 },
 
     { country:"ICELAND", city:"VESTFIRÐIR", lon:-24.0000, lat:65.6196 },
@@ -299,7 +304,7 @@ html,body{
     { country:"SWITZERLAND", city:"ZÜRICH", lon:8.5417, lat:47.3786 },
     { country:"ITALY", city:"MILAN", lon:9.1900, lat:45.4669 },
     { country:"ITALY", city:"ROME", lon:12.4964, lat:41.8931 },
-    { country:"ITALY", city:"NAPLES", lon:14.2681, lat:40.8333 },
+    { country:"ITALY", city:"NAPLES", lon:14.2681, lat:41.0333 },
     { country:"AUSTRIA", city:"VIENNA", lon:16.3738, lat:48.2083 },
     { country:"CZECH REPUBLIC", city:"PRAGUE", lon:14.4378, lat:50.0833 },
     { country:"HUNGARY", city:"BUDAPEST", lon:19.0402, lat:47.4983 },
@@ -410,14 +415,16 @@ html,body{
     { country:"CHILE", city:"SANTIAGO", lon:-70.6693, lat:-33.4500 },
     { country:"ARGENTINA", city:"BUENOS AIRES", lon:-58.3816, lat:-34.0997 },
     { country:"ARGENTINA", city:"BUENOS AIRES", lon:-53.700, lat:-34.0997 },
+    { country:"BRAZIL", city:"RIO DE JANEIRO", lon:-41.1729, lat:-21.9083 },
     { country:"BRAZIL", city:"RIO DE JANEIRO", lon:-43.1729, lat:-22.9083 },
-    { country:"BRAZIL", city:"SÃO PAULO", lon:-53.6000, lat:-23.5504 }
+    { country:"BRAZIL", city:"RIO DE JANEIRO", lon:-44.1729, lat:-22.9083 },
+    { country:"BRAZIL", city:"SÃO PAULO", lon:-53.6000, lat:-23.5504 },
     { country:"BRAZIL", city:"SÃO PAULO", lon:-46.6333, lat:-23.5504 }
   ];
 
   /* ====== TEST MODE CAMERA ====== */
   const CAM_PITCH = Cesium.Math.toRadians(-90);
-  const MIN_RANGE = 1_000_000; // 줌 인 최대 상태 고정
+  const MIN_RANGE = 1_000; // 줌 인 최대 상태 고정
 
   // 시작 longitude (원하면 다른 값으로)
   let currentLon = 0; // 예: -24, 5, 151 ... 등
