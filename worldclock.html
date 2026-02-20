@@ -32,6 +32,11 @@
 
         --sideSafe: 2.5vw;
         --topPad: 3vh;
+
+        --clockcolour: var(--white);
+        --centerline: var(--green);
+        --longitudecolour: var(--green);
+        --locationcolour: var(--white);
       }
 
       html,body{
@@ -54,7 +59,7 @@
         top:0;
         width:2px;
         height:100vh;
-        background:rgba(255,255,255,0.85);
+        background:var(--centerline);
         transform:translateX(-50%);
         pointer-events:none;
         z-index:30;
@@ -98,7 +103,6 @@
 
       /* ====== FLOATING HEADLINE LETTERS ====== */
       .headline{
-        /* 글자별 span이 transform을 먹을 수 있게 */
         display:inline-block;
       }
 
@@ -108,10 +112,9 @@
         transform-origin: 50% 60%;
       }
 
-      /* 공백도 줄바꿈 유지하면서 간격 유지 */
       .headline .sp{
         display:inline-block;
-        width:0.25em; /* 필요하면 조절 */
+        width:0.25em;
       }
 
       /* ================= CLOCK ================= */
@@ -157,20 +160,17 @@
       }
 
       /* ================= BOTTOM INFO TEXT COLOUR ================= */
-      .info-line.datetime{
-        color:var(--white);
-      }
       .info-line.lon{
-        color:var(--white);
+        color:var(--longitudecolour);
       }
       .info-line.place{
-        color:var(--white);
+        color:var(--locationcolour);
       }
 
 
       /* ================= TIME TEXT AROUND THE CLOCK ================= */
       #arcTextGroup text{
-        fill: var(--red);
+        fill: var(--clockcolour);
         font-weight: 800;
         font-size: 16px;
         letter-spacing: 0px;
@@ -209,39 +209,35 @@
 
         <g id="arcTextGroup">
           <!-- 위쪽: 날짜 -->
-          <text text-anchor="middle" fill="var(--red)" font-size="8" font-weight="800">
-            <textPath href="#arcTop" startOffset="50%" id="dateArcPath">
-              2026 MARCH 21
-            </textPath>
+          <text text-anchor="middle" fill="var(--clockcolour)" font-size="8" font-weight="800">
+            <textPath href="#arcTop" startOffset="50%" id="dateArcPath">LOADING…</textPath>
           </text>
 
           <!-- 아래쪽: 시간 -->
-          <text text-anchor="middle" fill="var(--red)" font-size="8" font-weight="800">
-            <textPath href="#arcBottom" startOffset="50%" id="timeArcPath">
-              00:00:00
-            </textPath>
+          <text text-anchor="middle" fill="var(--clockcolour)" font-size="8" font-weight="800">
+            <textPath href="#arcBottom" startOffset="50%" id="timeArcPath">LOADING…</textPath>
           </text>
         </g>
 
         <circle cx="50" cy="50" r="40" fill="none"
-          stroke="var(--red)" stroke-width="1.2"></circle>
+          stroke="var(--clockcolour)" stroke-width="1.2"></circle>
 
         <line x1="50" y1="10" x2="50" y2="18"
-          stroke="var(--red)" stroke-width="1.6" stroke-linecap="round"></line>
+          stroke="var(--clockcolour)" stroke-width="1.6" stroke-linecap="round"></line>
 
         <!-- hands (00:00 fixed) -->
         <line x1="50" y1="50" x2="50" y2="28"
-          stroke="var(--red)" stroke-width="3.2" stroke-linecap="round"></line>
+          stroke="var(--clockcolour)" stroke-width="3.2" stroke-linecap="round"></line>
         <line x1="50" y1="50" x2="50" y2="20"
-          stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"></line>
+          stroke="var(--clockcolour)" stroke-width="2.2" stroke-linecap="round"></line>
 
-        <circle cx="50" cy="50" r="2.2" fill="var(--red)"></circle>
+        <circle cx="50" cy="50" r="2.2" fill="var(--clockcolour)"></circle>
       </svg>
 
       <!-- BOTTOM INFO -->
       <div class="bottom-ui">
         <div class="info-line lon" id="lonLine">LOADING…</div>
-        <div class="info-line place" id="placeLine"></div>
+        <div class="info-line place" id="placeLine">LOADING…</div>
       </div>
 
       <script>
@@ -285,7 +281,7 @@
             line.setAttribute("y1", 50 - cos * rInner);
             line.setAttribute("x2", 50 + sin * rOuter);
             line.setAttribute("y2", 50 - cos * rOuter);
-            line.setAttribute("stroke", "var(--red)");
+            line.setAttribute("stroke", "var(--clockcolour)");
             line.setAttribute("stroke-width", major ? "1.6" : "1.0");
             line.setAttribute("stroke-linecap","round");
             line.setAttribute("opacity", major ? "0.95" : "0.85");
