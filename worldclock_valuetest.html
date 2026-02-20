@@ -1,471 +1,471 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>WORLD CLOCK</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>WORLD CLOCK</title>
 
-<link href="https://unpkg.com/cesium/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
-<script src="https://unpkg.com/cesium/Build/Cesium/Cesium.js"></script>
+  <link href="https://unpkg.com/cesium/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
+  <script src="https://unpkg.com/cesium/Build/Cesium/Cesium.js"></script>
 
-<style>
-  @font-face{
-    font-family: "FranklinGothicPencildrawn";
-    src: url("FranklinGothicPencildrawn-ExtraCond.woff2") format("woff2");
-    font-weight: 800;
-    font-style: normal;
-    font-display: swap;
+  <style>
+    @font-face{
+      font-family: "FranklinGothicPencildrawn";
+      src: url("FranklinGothicPencildrawn-ExtraCond.woff2") format("woff2");
+      font-weight: 800;
+      font-style: normal;
+      font-display: swap;
+    }
+
+  :root{
+    --bg:#000;
+    --white:#fff;
+    --red:#ff0000;
+    --blue:rgb(0,0,255);
+    --green:rgb(0,255,0);
+    --yellow:rgb(255,255,0);
+
+    --big: min(10vh, 120px);
+    --infoScale: 0.8;
+
+    --sideSafe: 2.5vw;
+    --topPad: 3vh;
   }
 
-:root{
-  --bg:#000;
-  --white:#fff;
-  --red:#ff0000;
-  --blue:rgb(0,0,255);
-  --green:rgb(0,255,0);
-  --yellow:rgb(255,255,0);
+  html,body{
+    margin:0;
+    height:100%;
+    background:var(--bg);
+    overflow:hidden;
+    font-family: "FranklinGothicPencildrawn", sans-serif;
+  }
 
-  --big: min(10vh, 120px);
-  --infoScale: 0.8;
+  #cesiumContainer{
+    position:fixed;
+    inset:0;
+  }
 
-  --sideSafe: 2.5vw;
-  --topPad: 3vh;
-}
+  /* ================= CENTER LINE ================= */
+  .center-line{
+    position:fixed;
+    left:50%;
+    top:0;
+    width:2px;
+    height:100vh;
+    background:rgba(255,255,255,0.85);
+    transform:translateX(-50%);
+    pointer-events:none;
+    z-index:30;
+  }
 
-html,body{
-  margin:0;
-  height:100%;
-  background:var(--bg);
-  overflow:hidden;
-  font-family: "FranklinGothicPencildrawn", sans-serif;
-}
+  /* ================= HEADLINE ================= */
+  .headline-wrap{
+    position:fixed;
+    left:50%;
+    top:var(--topPad);
+    transform:translateX(-50%) scale(var(--infoScale));
+    transform-origin: top center;
 
-#cesiumContainer{
-  position:fixed;
-  inset:0;
-}
+    width:max-content;
+    max-width:none;
+    text-align:center;
+    pointer-events:none;
+    z-index:80;
+  }
 
-/* ================= CENTER LINE ================= */
-.center-line{
-  position:fixed;
-  left:50%;
-  top:0;
-  width:2px;
-  height:100vh;
-  background:rgba(255,255,255,0.85);
-  transform:translateX(-50%);
-  pointer-events:none;
-  z-index:30;
-}
+  .headline{
+    font-weight:800;
+    font-size:var(--big);
+    line-height: 0.8;
+    letter-spacing:0.02em;
+    color:var(--white);
 
-/* ================= HEADLINE ================= */
-.headline-wrap{
-  position:fixed;
-  left:50%;
-  top:var(--topPad);
-  transform:translateX(-50%) scale(var(--infoScale));
-  transform-origin: top center;
+    text-rendering:geometricPrecision;
+    -webkit-font-smoothing:antialiased;
 
-  width:max-content;
-  max-width:none;
-  text-align:center;
-  pointer-events:none;
-  z-index:80;
-}
+    display:inline-block;
+    text-align:center;
 
-.headline{
-  font-weight:800;
-  font-size:var(--big);
-  line-height: 0.8;
-  letter-spacing:0.02em;
-  color:var(--white);
+    white-space:nowrap;
+    word-break:keep-all;
+  }
 
-  text-rendering:geometricPrecision;
-  -webkit-font-smoothing:antialiased;
+  .headline.is-wrapped br{ display:block; }
+  .headline br{ display:block; }
 
-  display:inline-block;
-  text-align:center;
+  /* ================= CLOCK ================= */
+  .center-clock{
+    position:fixed;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    width:min(46vh,520px);
+    aspect-ratio:1/1;
+    pointer-events:none;
+    z-index:60;
+  }
 
-  white-space:nowrap;
-  word-break:keep-all;
-}
+  /* ================= BOTTOM INFO ================= */
+  .bottom-ui{
+    position:fixed;
+    left:50%;
+    bottom:4vh;
+    transform:translateX(-50%) scale(var(--infoScale));
+    transform-origin:bottom center;
 
-.headline.is-wrapped br{ display:block; }
-.headline br{ display:block; }
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:0em;
 
-/* ================= CLOCK ================= */
-.center-clock{
-  position:fixed;
-  left:50%;
-  top:50%;
-  transform:translate(-50%,-50%);
-  width:min(46vh,520px);
-  aspect-ratio:1/1;
-  pointer-events:none;
-  z-index:60;
-}
+    pointer-events:none;
+    z-index:90;
+    max-width:calc(100vw - (var(--sideSafe) * 2));
+  }
 
-/* ================= BOTTOM INFO ================= */
-.bottom-ui{
-  position:fixed;
-  left:50%;
-  bottom:4vh;
-  transform:translateX(-50%) scale(var(--infoScale));
-  transform-origin:bottom center;
+  .info-line{
+    font-weight:800;
+    font-size:var(--big);
+    line-height:1;
+    letter-spacing:0.02em;
+    white-space:nowrap;
+    text-align:center;
+    text-rendering:geometricPrecision;
+    -webkit-font-smoothing:antialiased;
+  }
 
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:0em;
+  .info-line.datetime{ color:var(--red); }
+  .info-line.lon{ color:var(--green); }
+  .info-line.place{ color:var(--blue); }
 
-  pointer-events:none;
-  z-index:90;
-  max-width:calc(100vw - (var(--sideSafe) * 2));
-}
-
-.info-line{
-  font-weight:800;
-  font-size:var(--big);
-  line-height:1;
-  letter-spacing:0.02em;
-  white-space:nowrap;
-  text-align:center;
-  text-rendering:geometricPrecision;
-  -webkit-font-smoothing:antialiased;
-}
-
-.info-line.datetime{ color:var(--red); }
-.info-line.lon{ color:var(--green); }
-.info-line.place{ color:var(--blue); }
-
-/* ================= RESPONSIVE ================= */
-@media (max-aspect-ratio:3/4){
-  :root{ --big: min(8vh, 92px); }
-  .center-clock{ width:min(38vh,440px); }
-}
-</style>
+  /* ================= RESPONSIVE ================= */
+  @media (max-aspect-ratio:3/4){
+    :root{ --big: min(8vh, 92px); }
+    .center-clock{ width:min(38vh,440px); }
+  }
+  </style>
 </head>
 
 <body>
-<div id="cesiumContainer"></div>
-<div class="center-line"></div>
+  <div id="cesiumContainer"></div>
+  <div class="center-line"></div>
 
-<!-- HEADLINE -->
-<div class="headline-wrap">
-  <div class="headline is-wrapped" id="headlineLine">
-    EVERY DAY<br>IS<br>A NEW DAY
+  <!-- HEADLINE -->
+  <div class="headline-wrap">
+    <div class="headline is-wrapped" id="headlineLine">
+      EVERY DAY<br>IS<br>A NEW DAY
+    </div>
   </div>
-</div>
 
-<!-- CLOCK -->
-<svg class="center-clock" viewBox="0 0 100 100" aria-hidden="true">
-  <g id="minuteTicks"></g>
+  <!-- CLOCK -->
+  <svg class="center-clock" viewBox="0 0 100 100" aria-hidden="true">
+    <g id="minuteTicks"></g>
 
-  <circle cx="50" cy="50" r="40" fill="none"
-    stroke="var(--red)" stroke-width="1.2"></circle>
+    <circle cx="50" cy="50" r="40" fill="none"
+      stroke="var(--red)" stroke-width="1.2"></circle>
 
-  <line x1="50" y1="10" x2="50" y2="18"
-    stroke="var(--red)" stroke-width="1.6" stroke-linecap="round"></line>
+    <line x1="50" y1="10" x2="50" y2="18"
+      stroke="var(--red)" stroke-width="1.6" stroke-linecap="round"></line>
 
-  <!-- hands (00:00 fixed) -->
-  <line x1="50" y1="50" x2="50" y2="28"
-    stroke="var(--red)" stroke-width="3.2" stroke-linecap="round"></line>
-  <line x1="50" y1="50" x2="50" y2="20"
-    stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"></line>
+    <!-- hands (00:00 fixed) -->
+    <line x1="50" y1="50" x2="50" y2="28"
+      stroke="var(--red)" stroke-width="3.2" stroke-linecap="round"></line>
+    <line x1="50" y1="50" x2="50" y2="20"
+      stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"></line>
 
-  <circle cx="50" cy="50" r="2.2" fill="var(--red)"></circle>
-</svg>
+    <circle cx="50" cy="50" r="2.2" fill="var(--red)"></circle>
+  </svg>
 
-<!-- BOTTOM INFO -->
-<div class="bottom-ui">
-  <div class="info-line datetime" id="dateTimeLine">LOADING…</div>
-  <div class="info-line lon" id="lonLine">LOADING…</div>
-  <div class="info-line place" id="placeLine"></div>
-</div>
+  <!-- BOTTOM INFO -->
+  <div class="bottom-ui">
+    <div class="info-line datetime" id="dateTimeLine">LOADING…</div>
+    <div class="info-line lon" id="lonLine">LOADING…</div>
+    <div class="info-line place" id="placeLine"></div>
+  </div>
 
-<script>
-(async () => {
-  Cesium.Ion.defaultAccessToken =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJkNWNmOTE0Yi0wMDAzLTQzNDAtYTg4NC02YjdmYTVkZjBlNDgiLCJpZCI6Mzg1ODc3LCJpYXQiOjE3Njk5Nzg5Njl9.tCSau-yKKszfHUbw8Ip_t2uRNyduPYBTDSpgeD2hxC4";
+  <script>
+  (async () => {
+    Cesium.Ion.defaultAccessToken =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJkNWNmOTE0Yi0wMDAzLTQzNDAtYTg4NC02YjdmYTVkZjBlNDgiLCJpZCI6Mzg1ODc3LCJpYXQiOjE3Njk5Nzg5Njl9.tCSau-yKKszfHUbw8Ip_t2uRNyduPYBTDSpgeD2hxC4";
 
-  const viewer = new Cesium.Viewer("cesiumContainer", {
-    animation:false, timeline:false, baseLayerPicker:false, geocoder:false,
-    homeButton:false, navigationHelpButton:false, sceneModePicker:false,
-    fullscreenButton:false, selectionIndicator:false, infoBox:false,
-    shouldAnimate:true
-  });
+    const viewer = new Cesium.Viewer("cesiumContainer", {
+      animation:false, timeline:false, baseLayerPicker:false, geocoder:false,
+      homeButton:false, navigationHelpButton:false, sceneModePicker:false,
+      fullscreenButton:false, selectionIndicator:false, infoBox:false,
+      shouldAnimate:true
+    });
 
-  viewer.scene.skyAtmosphere.show = false;
-  viewer.scene.skyBox.show = false;
-  viewer.scene.sun.show = false;
-  viewer.scene.moon.show = false;
-  viewer.scene.fog.enabled = false;
-  viewer.scene.backgroundColor = Cesium.Color.BLACK;
+    viewer.scene.skyAtmosphere.show = false;
+    viewer.scene.skyBox.show = false;
+    viewer.scene.sun.show = false;
+    viewer.scene.moon.show = false;
+    viewer.scene.fog.enabled = false;
+    viewer.scene.backgroundColor = Cesium.Color.BLACK;
 
-  viewer.imageryLayers.removeAll();
-  const provider = await Cesium.createWorldImageryAsync({
-    style: Cesium.IonWorldImageryStyle.AERIAL
-  });
-  viewer.imageryLayers.addImageryProvider(provider);
+    viewer.imageryLayers.removeAll();
+    const provider = await Cesium.createWorldImageryAsync({
+      style: Cesium.IonWorldImageryStyle.AERIAL
+    });
+    viewer.imageryLayers.addImageryProvider(provider);
 
-  /* ===== minute ticks ===== */
-  const tickGroup = document.getElementById("minuteTicks");
-  for(let i=0;i<60;i++){
-    const major = i % 5 === 0;
-    const a = i * 6 * Math.PI / 180;
-    const sin = Math.sin(a), cos = Math.cos(a);
-    const rOuter = 40;
-    const rInner = major ? 34.2 : 36.2;
+    /* ===== minute ticks ===== */
+    const tickGroup = document.getElementById("minuteTicks");
+    for(let i=0;i<60;i++){
+      const major = i % 5 === 0;
+      const a = i * 6 * Math.PI / 180;
+      const sin = Math.sin(a), cos = Math.cos(a);
+      const rOuter = 40;
+      const rInner = major ? 34.2 : 36.2;
 
-    const line = document.createElementNS("http://www.w3.org/2000/svg","line");
-    line.setAttribute("x1", 50 + sin * rInner);
-    line.setAttribute("y1", 50 - cos * rInner);
-    line.setAttribute("x2", 50 + sin * rOuter);
-    line.setAttribute("y2", 50 - cos * rOuter);
-    line.setAttribute("stroke", "var(--red)");
-    line.setAttribute("stroke-width", major ? "1.6" : "1.0");
-    line.setAttribute("stroke-linecap","round");
-    line.setAttribute("opacity", major ? "0.95" : "0.85");
-    tickGroup.appendChild(line);
-  }
-
-  /* ===== UI refs ===== */
-  const dateTimeEl = document.getElementById("dateTimeLine");
-  const lonEl = document.getElementById("lonLine");
-  const placeEl = document.getElementById("placeLine");
-
-  /* ===== helpers ===== */
-  function normLon180(lon){
-    return ((lon + 180) % 360 + 360) % 360 - 180;
-  }
-  function formatLongitudeDecimal4(lon180){
-    const dir = lon180 >= 0 ? "E" : "W";
-    const abs = Math.abs(lon180);
-    const num = abs.toFixed(4).padStart(8,"0");
-    return `LONGITUDE ${num}°${dir}`;
-  }
-  function nearestCity(lon){
-    let best=null, d=999;
-    for(const c of CITIES){
-      let diff=Math.abs(lon-c.lon);
-      if(diff>180) diff=360-diff;
-      if(diff<d){ d=diff; best=c; }
+      const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+      line.setAttribute("x1", 50 + sin * rInner);
+      line.setAttribute("y1", 50 - cos * rInner);
+      line.setAttribute("x2", 50 + sin * rOuter);
+      line.setAttribute("y2", 50 - cos * rOuter);
+      line.setAttribute("stroke", "var(--red)");
+      line.setAttribute("stroke-width", major ? "1.6" : "1.0");
+      line.setAttribute("stroke-linecap","round");
+      line.setAttribute("opacity", major ? "0.95" : "0.85");
+      tickGroup.appendChild(line);
     }
-    return best;
-  }
 
-  const CITIES = [
-    { country:"SENEGAL", city:"DAKAR", lon:-17.3000, lat:14.7319 },
-    { country:"MOROCCO", city:"CASABLANCA", lon:-7.5898, lat:33.5992 },
-    { country:"GHANA", city:"ACCRA", lon:-0.1870, lat:5.6037 },
-    { country:"NIGERIA", city:"LAGOS", lon:3.3792, lat:6.4500 },
-    { country:"TUNISIA", city:"TUNIS", lon:10.1815, lat:36.8008 },
-    { country:"EGYPT", city:"ALEXANDRIA", lon:29.9187, lat:31.2001 },
-    { country:"EGYPT", city:"CAIRO", lon:31.2357, lat:30.0444 },
-    { country:"EGYPT", city:"CAIRO", lon:34.7817, lat:30.0444 },
-    { country:"ETHIOPIA", city:"ADDIS ABABA", lon:38.7578, lat:9.0300 },
-    { country:"KENYA", city:"NAIROBI", lon:36.8219, lat:-1.2864 },
-    { country:"TANZANIA", city:"DAR ES SALAAM", lon:39.2083, lat:-6.8000 },
-    { country:"SOUTH AFRICA", city:"CAPE TOWN", lon:18.4241, lat:-33.9258 },
-    { country:"SOUTH AFRICA", city:"JOHANNESBURG", lon:28.0473, lat:-26.2044 },
-    { country:"MAURITANIA", city:"NOUADHIBOU", lon:-16.0362, lat:20.9425 },
-    { country:"MAURITANIA", city:"NOUADHIBOU", lon:-11.0362, lat:20.9425 },
-    { country:"MAURITANIA", city:"NOUADHIBOU", lon:-9.1394, lat:20.9425 },
+    /* ===== UI refs ===== */
+    const dateTimeEl = document.getElementById("dateTimeLine");
+    const lonEl = document.getElementById("lonLine");
+    const placeEl = document.getElementById("placeLine");
 
-    { country:"GREENLAND", city:"TASIILAQ", lon:-41.0000, lat:65.6135 },
-    { country:"GREENLAND", city:"TASIILAQ", lon:-39.0000, lat:66.6135 },
-    { country:"GREENLAND", city:"TASIILAQ", lon:-37.6336, lat:67.0135 },
-    { country:"GREENLAND", city:"TASIILAQ", lon:-34.0000, lat:67.0135 },
-    { country:"GREENLAND", city:"TASIILAQ", lon:-33.9999, lat:69.0135 },
-    { country:"GREENLAND", city:"ITTOQQORTOORMIIT", lon:-24.0001, lat:69.6135 },
-
-    { country:"ICELAND", city:"VESTFIRÐIR", lon:-24.0000, lat:65.6196 },
-    { country:"ICELAND", city:"VESTFIRÐIR", lon:-22.5277, lat:65.6196 },
-    { country:"ICELAND", city:"REYKJAVÍK", lon:-21.8277, lat:64.1451 },
-    { country:"ICELAND", city:"AKUREYRI", lon:-17.3001, lat:65.6826 },
-    { country:"IRELAND", city:"DUBLIN", lon:-6.2603, lat:53.3331 },
-    { country:"UNITED KINGDOM", city:"LONDON", lon:-0.1278, lat:51.5072 },
-    { country:"UNITED KINGDOM", city:"LONDON", lon:0.0000, lat:51.3072 },
-    { country:"UNITED KINGDOM", city:"MANCHESTER", lon:-2.2426, lat:53.4794 },
-    { country:"PORTUGAL", city:"LISBON", lon:-9.1393, lat:38.7452 },
-    { country:"PORTUGAL", city:"LISBON", lon:-7.5899, lat:38.7452 },
-    { country:"SPAIN", city:"MADRID", lon:-3.7038, lat:40.4167 },
-    { country:"SPAIN", city:"MADRID", lon:-6.2602, lat:40.4167 },
-    { country:"SPAIN", city:"BARCELONA", lon:2.1734, lat:41.3829 },
-    { country:"FRANCE", city:"PARIS", lon:2.3522, lat:48.8566 },
-    { country:"FRANCE", city:"MARSEILLE", lon:5.3698, lat:43.2964 },
-    { country:"BELGIUM", city:"BRUSSELS", lon:4.3517, lat:50.8467 },
-    { country:"NETHERLANDS", city:"AMSTERDAM", lon:4.9041, lat:52.3728 },
-    { country:"NETHERLANDS", city:"ROTTERDAM", lon:4.4792, lat:51.9225 },
-    { country:"NETHERLANDS", city:"ARNHEM", lon:5.8987, lat:51.9851 },
-    { country:"GERMANY", city:"HAMBURG", lon:9.9937, lat:53.5500 },
-    { country:"GERMANY", city:"BERLIN", lon:13.4050, lat:52.5167 },
-    { country:"GERMANY", city:"MUNICH", lon:11.5820, lat:48.1372 },
-    { country:"SWITZERLAND", city:"ZÜRICH", lon:8.5417, lat:47.3786 },
-    { country:"ITALY", city:"MILAN", lon:9.1900, lat:45.4669 },
-    { country:"ITALY", city:"ROME", lon:12.4964, lat:41.8931 },
-    { country:"ITALY", city:"NAPLES", lon:14.2681, lat:41.0333 },
-    { country:"AUSTRIA", city:"VIENNA", lon:16.3738, lat:48.2083 },
-    { country:"CZECH REPUBLIC", city:"PRAGUE", lon:14.4378, lat:50.0833 },
-    { country:"HUNGARY", city:"BUDAPEST", lon:19.0402, lat:47.4983 },
-    { country:"POLAND", city:"WARSAW", lon:21.0122, lat:52.2333 },
-    { country:"DENMARK", city:"COPENHAGEN", lon:12.5683, lat:55.6761 },
-    { country:"SWEDEN", city:"STOCKHOLM", lon:18.0686, lat:59.3294 },
-    { country:"NORWAY", city:"OSLO", lon:10.7522, lat:59.9133 },
-    { country:"NORWAY", city:"OSLO", lon:10.1816, lat:59.9133 },
-    { country:"FINLAND", city:"HELSINKI", lon:24.9384, lat:60.1756 },
-    { country:"GREECE", city:"ATHENS", lon:23.7275, lat:37.9842 },
-    { country:"ROMANIA", city:"BUCHAREST", lon:26.1025, lat:44.4325 },
-    { country:"UKRAINE", city:"KYIV", lon:30.5234, lat:50.4500 },
-    { country:"RUSSIA", city:"SAINT PETERSBURG", lon:30.3351, lat:59.9390 },
-    { country:"RUSSIA", city:"MOSCOW", lon:37.6173, lat:55.7558 },
-    { country:"RUSSIA", city:"KAMCHATKA KRAI", lon:168.7884, lat:65.4344 },
-    { country:"RUSSIA", city:"KAMCHATKA KRAI", lon:151.2094, lat:65.4344 },
-    { country:"RUSSIA", city:"CHUKOTKA AUTONOMOUS OKRUG", lon:174.7773, lat:65.6298 },
-    { country:"RUSSIA", city:"CHUKOTKA AUTONOMOUS OKRUG", lon:179.0000, lat:67.6298 },
-    { country:"RUSSIA", city:"CHUKOTKA AUTONOMOUS OKRUG", lon:-175.0000, lat:66.1298 },
-    { country:"RUSSIA", city:"CHUKOTKA AUTONOMOUS OKRUG", lon:-171.0000, lat:66.1298 },
-
-    { country:"ISRAEL", city:"TEL AVIV", lon:34.7818, lat:32.0800 },
-    { country:"LEBANON", city:"BEIRUT", lon:35.5018, lat:33.8869 },
-    { country:"SAUDI ARABIA", city:"RIYADH", lon:46.6753, lat:24.6408 },
-    { country:"UNITED ARAB EMIRATES", city:"ABU DHABI", lon:54.3773, lat:23.4511 },
-    { country:"UNITED ARAB EMIRATES", city:"DUBAI", lon:55.2708, lat:24.2697 },
-    { country:"QATAR", city:"DOHA", lon:51.5310, lat:25.2867 },
-    { country:"TURKEY", city:"ISTANBUL", lon:28.9784, lat:41.0100 },
-    { country:"TURKEY", city:"DIYARBAKIR", lon:40.211, lat:37.925 },
-    { country:"GEORGIA", city:"TBILISI", lon:44.8271, lat:41.7225 },
-    { country:"AZERBAIJAN", city:"BAKU", lon:49.8671, lat:40.3667 },
-    { country:"IRAN", city:"TEHRAN", lon:51.3890, lat:35.7000 },
-    { country:"UZBEKISTAN", city:"TASHKENT", lon:69.2401, lat:41.3111 },
-    { country:"KAZAKHSTAN", city:"ALMATY", lon:76.9450, lat:43.2775 },
-    { country:"KAZAKHSTAN", city:"MANGYSHLAK PENINSULA", lon:52.2500, lat:43.5000 },
-
-
-    { country:"PAKISTAN", city:"KARACHI", lon:67.0099, lat:26.8600 },
-    { country:"PAKISTAN", city:"KARACHI", lon:55.2709, lat:27.8600 },
-    { country:"INDIA", city:"MUMBAI", lon:72.8777, lat:29.0758 },
-    { country:"INDIA", city:"NEW DELHI", lon:77.2090, lat:28.6667 },
-    { country:"INDIA", city:"CHENNAI", lon:80.2707, lat:13.0825 },
-    { country:"INDIA", city:"CHENNAI", lon:79.8613, lat:13.0825 },
-    { country:"SRI LANKA", city:"COLOMBO", lon:79.8612, lat:11.9167 },
-    { country:"BANGLADESH", city:"DHAKA", lon:90.4125, lat:23.7289 },
-    { country:"NEPAL", city:"KATHMANDU", lon:85.3240, lat:27.7167 },
-    { country:"NEPAL", city:"KATHMANDU", lon:80.2708, lat:27.7167 },
-
-    { country:"MYANMAR", city:"YANGON", lon:96.1951, lat:20.7950 },
-    { country:"THAILAND", city:"BANGKOK", lon:100.5018, lat:13.7500 },
-    { country:"CAMBODIA", city:"PHNOM PENH", lon:104.9282, lat:11.5696 },
-    { country:"VIETNAM", city:"HO CHI MINH CITY", lon:106.6297, lat:10.8167 },
-    { country:"VIETNAM", city:"HANOI", lon:105.8342, lat:21.0283 },
-    { country:"MALAYSIA", city:"KUALA LUMPUR", lon:101.6869, lat:3.1478 },
-    { country:"SINGAPORE", city:"SINGAPORE", lon:103.8198, lat:1.8000 },
-    { country:"INDONESIA", city:"JAKARTA", lon:106.8456, lat:-7.2146 },
-    { country:"PHILIPPINES", city:"MANILA", lon:120.9842, lat:14.6000 },
-    { country:"MONGOLIA", city:"KHALKHGOL", lon:119.6224, lat:47.6270 },
-
-    { country:"CHINA", city:"BEIJING", lon:116.4074, lat:39.9040 },
-    { country:"CHINA", city:"BEIJING", lon:114.1695, lat:39.9040 },
-    { country:"CHINA", city:"SHANGHAI", lon:121.4737, lat:31.1667 },
-    { country:"CHINA", city:"HONG KONG", lon:114.1694, lat:22.3069 },
-    { country:"CHINA", city:"SHENYANG", lon:124.4330, lat:41.8048 },
-    { country:"CHINA", city:"SHENYANG", lon:122.4330, lat:41.8048 },
-    { country:"TAIWAN", city:"TAIPEI", lon:121.5654, lat:25.0478 },
-    { country:"SOUTH KOREA", city:"SEOUL", lon:126.9780, lat:37.5600 },
-    { country:"SOUTH KOREA", city:"BUSAN", lon:129.0756, lat:36.1667 },
-    { country:"NORTH KOREA", city:"PYONGYANG", lon:125.8198, lat:39.0738 },
-    { country:"JAPAN", city:"NAGASAKI", lon:129.8779, lat:32.8003 },
-    { country:"JAPAN", city:"OSAKA", lon:133.5023, lat:34.6937 },
-    { country:"JAPAN", city:"OSAKA", lon:138.6006, lat:34.6937 },
-    { country:"JAPAN", city:"KYOTO", lon:135.7681, lat:35.0116 },
-    { country:"JAPAN", city:"TOKYO", lon:139.6503, lat:35.6839 },
-    { country:"JAPAN", city:"SAPPORO", lon:141.3545, lat:43.0621 },
-
-    { country:"AUSTRALIA", city:"ADELAIDE", lon:138.6007, lat:-34.9289 },
-    { country:"AUSTRALIA", city:"MELBOURNE", lon:144.9631, lat:-37.8136 },
-    { country:"AUSTRALIA", city:"SYDNEY", lon:151.2093, lat:-33.8650 },
-    { country:"NEW ZEALAND", city:"AUCKLAND", lon:174.7633, lat:-41.8406 },
-    { country:"NEW ZEALAND", city:"AUCKLAND", lon:170.7633, lat:-43.8406 },
-    { country:"NEW ZEALAND", city:"WELLINGTON", lon:174.7772, lat:-41.3000 },
-
-    { country:"CANADA", city:"VANCOUVER", lon:-123.1207, lat:49.2500 },
-    { country:"CANADA", city:"CALGARY", lon:-114.0719, lat:51.0500 },
-    { country:"CANADA", city:"TORONTO", lon:-79.3832, lat:44.0417 },
-    { country:"UNITED STATES", city:"ALASKA", lon:-123.2000, lat:63.5888 },
-    { country:"UNITED STATES", city:"ALASKA", lon:-154.4931, lat:63.5888 },
-    { country:"UNITED STATES", city:"ALASKA", lon:-160.0000, lat:65.5888 },
-    { country:"UNITED STATES", city:"ALASKA", lon:-168.0000, lat:65.5888 },
-    { country:"UNITED STATES", city:"ALASKA", lon:-168.5000, lat:63.2888 },
-    { country:"UNITED STATES", city:"ALASKA", lon:-170.9000, lat:63.2888 },
-    { country:"UNITED STATES", city:"SEATTLE", lon:-122.3321, lat:47.6211 },
-    { country:"UNITED STATES", city:"SEATTLE", lon:-119.0000, lat:47.6211 },
-    { country:"UNITED STATES", city:"SAN FRANCISCO", lon:-122.4194, lat:37.7562 },
-    { country:"UNITED STATES", city:"LOS ANGELES", lon:-118.2437, lat:34.1139 },
-    { country:"UNITED STATES", city:"DENVER", lon:-104.9903, lat:39.7621 },
-    { country:"UNITED STATES", city:"CHICAGO", lon:-87.6298, lat:41.4375 },
-    { country:"UNITED STATES", city:"HOUSTON", lon:-95.3698, lat:29.8863 },
-    { country:"UNITED STATES", city:"WASHINGTON, D.C.", lon:-77.0369, lat:38.9047 },
-    { country:"UNITED STATES", city:"NEW YORK", lon:-74.0060, lat:40.8343 },
-    { country:"UNITED STATES", city:"NEW YORK", lon:-73.2060, lat:40.8343 },
-    { country:"UNITED STATES", city:"NEW YORK", lon:-72.0060, lat:41.0343 },
-    { country:"MEXICO", city:"MEXICO CITY", lon:-99.1332, lat:19.4333 },
-    { country:"CUBA", city:"HAVANA", lon:-82.3666, lat:22.6367 },
-    { country:"COLOMBIA", city:"BOGOTÁ", lon:-74.0721, lat:4.7111 },
-    { country:"PERU", city:"LIMA", lon:-77.0428, lat:-10.0600 },
-    { country:"CHILE", city:"SANTIAGO", lon:-70.6693, lat:-33.4500 },
-    { country:"ARGENTINA", city:"BUENOS AIRES", lon:-58.3816, lat:-34.0997 },
-    { country:"ARGENTINA", city:"BUENOS AIRES", lon:-53.700, lat:-34.0997 },
-    { country:"BRAZIL", city:"RIO DE JANEIRO", lon:-41.1729, lat:-21.9083 },
-    { country:"BRAZIL", city:"RIO DE JANEIRO", lon:-43.1729, lat:-22.9083 },
-    { country:"BRAZIL", city:"RIO DE JANEIRO", lon:-44.1729, lat:-22.9083 },
-    { country:"BRAZIL", city:"SÃO PAULO", lon:-53.6000, lat:-23.5504 },
-    { country:"BRAZIL", city:"SÃO PAULO", lon:-46.6333, lat:-23.5504 }
-  ];
-
-  /* ====== TEST MODE CAMERA ====== */
-  const CAM_PITCH = Cesium.Math.toRadians(-90);
-  const MIN_RANGE = 1_000; // 줌 인 최대 상태 고정
-
-  // 시작 longitude (원하면 다른 값으로)
-  let currentLon = 0; // 예: -24, 5, 151 ... 등
-  currentLon = normLon180(currentLon);
-
-  function render(){
-    const city = nearestCity(currentLon);
-    const camLat = (city && typeof city.lat === "number") ? city.lat : 0;
-
-    viewer.camera.lookAt(
-      Cesium.Cartesian3.fromDegrees(currentLon, camLat),
-      new Cesium.HeadingPitchRange(0, CAM_PITCH, MIN_RANGE)
-    );
-
-    // UI
-    dateTimeEl.textContent = "TEST MODE";
-    lonEl.textContent = formatLongitudeDecimal4(currentLon);
-    placeEl.textContent = city ? `${city.country} · ${city.city}` : "";
-  }
-
-  // 키보드로 longitude 조정 (↑/↓)
-  window.addEventListener("keydown", (e) => {
-    // 폼 요소 포커스 중이면 무시하고 싶으면 아래 조건을 켜도 됨
-    // if (["INPUT","TEXTAREA"].includes(document.activeElement?.tagName)) return;
-
-    let step = e.shiftKey ? 10 : 1;
-
-    if(e.key === "ArrowUp"){
-      e.preventDefault();
-      currentLon = normLon180(currentLon + step);
-      render();
-    } else if(e.key === "ArrowDown"){
-      e.preventDefault();
-      currentLon = normLon180(currentLon - step);
-      render();
+    /* ===== helpers ===== */
+    function normLon180(lon){
+      return ((lon + 180) % 360 + 360) % 360 - 180;
     }
-  }, { passive:false });
+    function formatLongitudeDecimal4(lon180){
+      const dir = lon180 >= 0 ? "E" : "W";
+      const abs = Math.abs(lon180);
+      const num = abs.toFixed(4).padStart(8,"0");
+      return `LONGITUDE ${num}°${dir}`;
+    }
+    function nearestCity(lon){
+      let best=null, d=999;
+      for(const c of CITIES){
+        let diff=Math.abs(lon-c.lon);
+        if(diff>180) diff=360-diff;
+        if(diff<d){ d=diff; best=c; }
+      }
+      return best;
+    }
 
-  render();
-})();
-</script>
+    const CITIES = [
+      { country:"SENEGAL", city:"DAKAR", lon:-17.3000, lat:14.7319 },
+      { country:"MOROCCO", city:"CASABLANCA", lon:-7.5898, lat:33.5992 },
+      { country:"GHANA", city:"ACCRA", lon:-0.1870, lat:5.6037 },
+      { country:"NIGERIA", city:"LAGOS", lon:3.3792, lat:6.4500 },
+      { country:"TUNISIA", city:"TUNIS", lon:10.1815, lat:36.8008 },
+      { country:"EGYPT", city:"ALEXANDRIA", lon:29.9187, lat:31.2001 },
+      { country:"EGYPT", city:"CAIRO", lon:31.2357, lat:30.0444 },
+      { country:"EGYPT", city:"CAIRO", lon:34.7817, lat:30.0444 },
+      { country:"ETHIOPIA", city:"ADDIS ABABA", lon:38.7578, lat:9.0300 },
+      { country:"KENYA", city:"NAIROBI", lon:36.8219, lat:-1.2864 },
+      { country:"TANZANIA", city:"DAR ES SALAAM", lon:39.2083, lat:-6.8000 },
+      { country:"SOUTH AFRICA", city:"CAPE TOWN", lon:18.4241, lat:-33.9258 },
+      { country:"SOUTH AFRICA", city:"JOHANNESBURG", lon:28.0473, lat:-26.2044 },
+      { country:"MAURITANIA", city:"NOUADHIBOU", lon:-16.0362, lat:20.9425 },
+      { country:"MAURITANIA", city:"NOUADHIBOU", lon:-11.0362, lat:20.9425 },
+      { country:"MAURITANIA", city:"NOUADHIBOU", lon:-9.1394, lat:20.9425 },
+
+      { country:"GREENLAND", city:"TASIILAQ", lon:-41.0000, lat:65.6135 },
+      { country:"GREENLAND", city:"TASIILAQ", lon:-39.0000, lat:66.6135 },
+      { country:"GREENLAND", city:"TASIILAQ", lon:-37.6336, lat:67.0135 },
+      { country:"GREENLAND", city:"TASIILAQ", lon:-34.0000, lat:67.0135 },
+      { country:"GREENLAND", city:"TASIILAQ", lon:-33.9999, lat:69.0135 },
+      { country:"GREENLAND", city:"ITTOQQORTOORMIIT", lon:-24.0001, lat:69.6135 },
+
+      { country:"ICELAND", city:"VESTFIRÐIR", lon:-24.0000, lat:65.6196 },
+      { country:"ICELAND", city:"VESTFIRÐIR", lon:-22.5277, lat:65.6196 },
+      { country:"ICELAND", city:"REYKJAVÍK", lon:-21.8277, lat:64.1451 },
+      { country:"ICELAND", city:"AKUREYRI", lon:-17.3001, lat:65.6826 },
+      { country:"IRELAND", city:"DUBLIN", lon:-6.2603, lat:53.3331 },
+      { country:"UNITED KINGDOM", city:"LONDON", lon:-0.1278, lat:51.5072 },
+      { country:"UNITED KINGDOM", city:"LONDON", lon:0.0000, lat:51.3072 },
+      { country:"UNITED KINGDOM", city:"MANCHESTER", lon:-2.2426, lat:53.4794 },
+      { country:"PORTUGAL", city:"LISBON", lon:-9.1393, lat:38.7452 },
+      { country:"PORTUGAL", city:"LISBON", lon:-7.5899, lat:38.7452 },
+      { country:"SPAIN", city:"MADRID", lon:-3.7038, lat:40.4167 },
+      { country:"SPAIN", city:"MADRID", lon:-6.2602, lat:40.4167 },
+      { country:"SPAIN", city:"BARCELONA", lon:2.1734, lat:41.3829 },
+      { country:"FRANCE", city:"PARIS", lon:2.3522, lat:48.8566 },
+      { country:"FRANCE", city:"MARSEILLE", lon:5.3698, lat:43.2964 },
+      { country:"BELGIUM", city:"BRUSSELS", lon:4.3517, lat:50.8467 },
+      { country:"NETHERLANDS", city:"AMSTERDAM", lon:4.9041, lat:52.3728 },
+      { country:"NETHERLANDS", city:"ROTTERDAM", lon:4.4792, lat:51.9225 },
+      { country:"NETHERLANDS", city:"ARNHEM", lon:5.8987, lat:51.9851 },
+      { country:"GERMANY", city:"HAMBURG", lon:9.9937, lat:53.5500 },
+      { country:"GERMANY", city:"BERLIN", lon:13.4050, lat:52.5167 },
+      { country:"GERMANY", city:"MUNICH", lon:11.5820, lat:48.1372 },
+      { country:"SWITZERLAND", city:"ZÜRICH", lon:8.5417, lat:47.3786 },
+      { country:"ITALY", city:"MILAN", lon:9.1900, lat:45.4669 },
+      { country:"ITALY", city:"ROME", lon:12.4964, lat:41.8931 },
+      { country:"ITALY", city:"NAPLES", lon:14.2681, lat:41.0333 },
+      { country:"AUSTRIA", city:"VIENNA", lon:16.3738, lat:48.2083 },
+      { country:"CZECH REPUBLIC", city:"PRAGUE", lon:14.4378, lat:50.0833 },
+      { country:"HUNGARY", city:"BUDAPEST", lon:19.0402, lat:47.4983 },
+      { country:"POLAND", city:"WARSAW", lon:21.0122, lat:52.2333 },
+      { country:"DENMARK", city:"COPENHAGEN", lon:12.5683, lat:55.6761 },
+      { country:"SWEDEN", city:"STOCKHOLM", lon:18.0686, lat:59.3294 },
+      { country:"NORWAY", city:"OSLO", lon:10.7522, lat:59.9133 },
+      { country:"NORWAY", city:"OSLO", lon:10.1816, lat:59.9133 },
+      { country:"FINLAND", city:"HELSINKI", lon:24.9384, lat:60.1756 },
+      { country:"GREECE", city:"ATHENS", lon:23.7275, lat:37.9842 },
+      { country:"ROMANIA", city:"BUCHAREST", lon:26.1025, lat:44.4325 },
+      { country:"UKRAINE", city:"KYIV", lon:30.5234, lat:50.4500 },
+      { country:"RUSSIA", city:"SAINT PETERSBURG", lon:30.3351, lat:59.9390 },
+      { country:"RUSSIA", city:"MOSCOW", lon:37.6173, lat:55.7558 },
+      { country:"RUSSIA", city:"KAMCHATKA KRAI", lon:168.7884, lat:65.4344 },
+      { country:"RUSSIA", city:"KAMCHATKA KRAI", lon:151.2094, lat:65.4344 },
+      { country:"RUSSIA", city:"CHUKOTKA AUTONOMOUS OKRUG", lon:174.7773, lat:65.6298 },
+      { country:"RUSSIA", city:"CHUKOTKA AUTONOMOUS OKRUG", lon:179.0000, lat:67.6298 },
+      { country:"RUSSIA", city:"CHUKOTKA AUTONOMOUS OKRUG", lon:-175.0000, lat:66.1298 },
+      { country:"RUSSIA", city:"CHUKOTKA AUTONOMOUS OKRUG", lon:-171.0000, lat:66.1298 },
+
+      { country:"ISRAEL", city:"TEL AVIV", lon:34.7818, lat:32.0800 },
+      { country:"LEBANON", city:"BEIRUT", lon:35.5018, lat:33.8869 },
+      { country:"SAUDI ARABIA", city:"RIYADH", lon:46.6753, lat:24.6408 },
+      { country:"UNITED ARAB EMIRATES", city:"ABU DHABI", lon:54.3773, lat:23.4511 },
+      { country:"UNITED ARAB EMIRATES", city:"DUBAI", lon:55.2708, lat:24.2697 },
+      { country:"QATAR", city:"DOHA", lon:51.5310, lat:25.2867 },
+      { country:"TURKEY", city:"ISTANBUL", lon:28.9784, lat:41.0100 },
+      { country:"TURKEY", city:"DIYARBAKIR", lon:40.211, lat:37.925 },
+      { country:"GEORGIA", city:"TBILISI", lon:44.8271, lat:41.7225 },
+      { country:"AZERBAIJAN", city:"BAKU", lon:49.8671, lat:40.3667 },
+      { country:"IRAN", city:"TEHRAN", lon:51.3890, lat:35.7000 },
+      { country:"UZBEKISTAN", city:"TASHKENT", lon:69.2401, lat:41.3111 },
+      { country:"KAZAKHSTAN", city:"ALMATY", lon:76.9450, lat:43.2775 },
+      { country:"KAZAKHSTAN", city:"MANGYSHLAK PENINSULA", lon:52.2500, lat:43.5000 },
+
+
+      { country:"PAKISTAN", city:"KARACHI", lon:67.0099, lat:26.8600 },
+      { country:"PAKISTAN", city:"KARACHI", lon:55.2709, lat:27.8600 },
+      { country:"INDIA", city:"MUMBAI", lon:72.8777, lat:29.0758 },
+      { country:"INDIA", city:"NEW DELHI", lon:77.2090, lat:28.6667 },
+      { country:"INDIA", city:"CHENNAI", lon:80.2707, lat:13.0825 },
+      { country:"INDIA", city:"CHENNAI", lon:79.8613, lat:13.0825 },
+      { country:"SRI LANKA", city:"COLOMBO", lon:79.8612, lat:11.9167 },
+      { country:"BANGLADESH", city:"DHAKA", lon:90.4125, lat:23.7289 },
+      { country:"NEPAL", city:"KATHMANDU", lon:85.3240, lat:27.7167 },
+      { country:"NEPAL", city:"KATHMANDU", lon:80.2708, lat:27.7167 },
+
+      { country:"MYANMAR", city:"YANGON", lon:96.1951, lat:20.7950 },
+      { country:"THAILAND", city:"BANGKOK", lon:100.5018, lat:13.7500 },
+      { country:"CAMBODIA", city:"PHNOM PENH", lon:104.9282, lat:11.5696 },
+      { country:"VIETNAM", city:"HO CHI MINH CITY", lon:106.6297, lat:10.8167 },
+      { country:"VIETNAM", city:"HANOI", lon:105.8342, lat:21.0283 },
+      { country:"MALAYSIA", city:"KUALA LUMPUR", lon:101.6869, lat:3.1478 },
+      { country:"SINGAPORE", city:"SINGAPORE", lon:103.8198, lat:1.8000 },
+      { country:"INDONESIA", city:"JAKARTA", lon:106.8456, lat:-7.2146 },
+      { country:"PHILIPPINES", city:"MANILA", lon:120.9842, lat:14.6000 },
+      { country:"MONGOLIA", city:"KHALKHGOL", lon:119.6224, lat:47.6270 },
+
+      { country:"CHINA", city:"BEIJING", lon:116.4074, lat:39.9040 },
+      { country:"CHINA", city:"BEIJING", lon:114.1695, lat:39.9040 },
+      { country:"CHINA", city:"SHANGHAI", lon:121.4737, lat:31.1667 },
+      { country:"CHINA", city:"HONG KONG", lon:114.1694, lat:22.3069 },
+      { country:"CHINA", city:"SHENYANG", lon:124.4330, lat:41.8048 },
+      { country:"CHINA", city:"SHENYANG", lon:122.4330, lat:41.8048 },
+      { country:"TAIWAN", city:"TAIPEI", lon:121.5654, lat:25.0478 },
+      { country:"SOUTH KOREA", city:"SEOUL", lon:126.9780, lat:37.5600 },
+      { country:"SOUTH KOREA", city:"BUSAN", lon:129.0756, lat:36.1667 },
+      { country:"NORTH KOREA", city:"PYONGYANG", lon:125.8198, lat:39.0738 },
+      { country:"JAPAN", city:"NAGASAKI", lon:129.8779, lat:32.8003 },
+      { country:"JAPAN", city:"OSAKA", lon:133.5023, lat:34.6937 },
+      { country:"JAPAN", city:"OSAKA", lon:138.6006, lat:34.6937 },
+      { country:"JAPAN", city:"KYOTO", lon:135.7681, lat:35.0116 },
+      { country:"JAPAN", city:"TOKYO", lon:139.6503, lat:35.6839 },
+      { country:"JAPAN", city:"SAPPORO", lon:141.3545, lat:43.0621 },
+
+      { country:"AUSTRALIA", city:"ADELAIDE", lon:138.6007, lat:-34.9289 },
+      { country:"AUSTRALIA", city:"MELBOURNE", lon:144.9631, lat:-37.8136 },
+      { country:"AUSTRALIA", city:"SYDNEY", lon:151.2093, lat:-33.8650 },
+      { country:"NEW ZEALAND", city:"AUCKLAND", lon:174.7633, lat:-41.8406 },
+      { country:"NEW ZEALAND", city:"AUCKLAND", lon:170.7633, lat:-43.8406 },
+      { country:"NEW ZEALAND", city:"WELLINGTON", lon:174.7772, lat:-41.3000 },
+
+      { country:"CANADA", city:"VANCOUVER", lon:-123.1207, lat:49.2500 },
+      { country:"CANADA", city:"CALGARY", lon:-114.0719, lat:51.0500 },
+      { country:"CANADA", city:"TORONTO", lon:-79.3832, lat:44.0417 },
+      { country:"UNITED STATES", city:"ALASKA", lon:-123.2000, lat:63.5888 },
+      { country:"UNITED STATES", city:"ALASKA", lon:-154.4931, lat:63.5888 },
+      { country:"UNITED STATES", city:"ALASKA", lon:-160.0000, lat:65.5888 },
+      { country:"UNITED STATES", city:"ALASKA", lon:-168.0000, lat:65.5888 },
+      { country:"UNITED STATES", city:"ALASKA", lon:-168.5000, lat:63.2888 },
+      { country:"UNITED STATES", city:"ALASKA", lon:-170.9000, lat:63.2888 },
+      { country:"UNITED STATES", city:"SEATTLE", lon:-122.3321, lat:47.6211 },
+      { country:"UNITED STATES", city:"SEATTLE", lon:-119.0000, lat:47.6211 },
+      { country:"UNITED STATES", city:"SAN FRANCISCO", lon:-122.4194, lat:37.7562 },
+      { country:"UNITED STATES", city:"LOS ANGELES", lon:-118.2437, lat:34.1139 },
+      { country:"UNITED STATES", city:"DENVER", lon:-104.9903, lat:39.7621 },
+      { country:"UNITED STATES", city:"CHICAGO", lon:-87.6298, lat:41.4375 },
+      { country:"UNITED STATES", city:"HOUSTON", lon:-95.3698, lat:29.8863 },
+      { country:"UNITED STATES", city:"WASHINGTON, D.C.", lon:-77.0369, lat:38.9047 },
+      { country:"UNITED STATES", city:"NEW YORK", lon:-74.0060, lat:40.8343 },
+      { country:"UNITED STATES", city:"NEW YORK", lon:-73.2060, lat:40.8343 },
+      { country:"UNITED STATES", city:"NEW YORK", lon:-72.0060, lat:41.0343 },
+      { country:"MEXICO", city:"MEXICO CITY", lon:-99.1332, lat:19.4333 },
+      { country:"CUBA", city:"HAVANA", lon:-82.3666, lat:22.6367 },
+      { country:"COLOMBIA", city:"BOGOTÁ", lon:-74.0721, lat:4.7111 },
+      { country:"PERU", city:"LIMA", lon:-77.0428, lat:-10.0600 },
+      { country:"CHILE", city:"SANTIAGO", lon:-70.6693, lat:-33.4500 },
+      { country:"ARGENTINA", city:"BUENOS AIRES", lon:-58.3816, lat:-34.0997 },
+      { country:"ARGENTINA", city:"BUENOS AIRES", lon:-53.700, lat:-34.0997 },
+      { country:"BRAZIL", city:"RIO DE JANEIRO", lon:-41.1729, lat:-21.9083 },
+      { country:"BRAZIL", city:"RIO DE JANEIRO", lon:-43.1729, lat:-22.9083 },
+      { country:"BRAZIL", city:"RIO DE JANEIRO", lon:-44.1729, lat:-22.9083 },
+      { country:"BRAZIL", city:"SÃO PAULO", lon:-53.6000, lat:-23.5504 },
+      { country:"BRAZIL", city:"SÃO PAULO", lon:-46.6333, lat:-23.5504 }
+    ];
+
+    /* ====== TEST MODE CAMERA ====== */
+    const CAM_PITCH = Cesium.Math.toRadians(-90);
+    const MIN_RANGE = 1_000; // 줌 인 최대 상태 고정
+
+    // 시작 longitude (원하면 다른 값으로)
+    let currentLon = 0; // 예: -24, 5, 151 ... 등
+    currentLon = normLon180(currentLon);
+
+    function render(){
+      const city = nearestCity(currentLon);
+      const camLat = (city && typeof city.lat === "number") ? city.lat : 0;
+
+      viewer.camera.lookAt(
+        Cesium.Cartesian3.fromDegrees(currentLon, camLat),
+        new Cesium.HeadingPitchRange(0, CAM_PITCH, MIN_RANGE)
+      );
+
+      // UI
+      dateTimeEl.textContent = "TEST MODE";
+      lonEl.textContent = formatLongitudeDecimal4(currentLon);
+      placeEl.textContent = city ? `${city.country} · ${city.city}` : "";
+    }
+
+    // 키보드로 longitude 조정 (↑/↓)
+    window.addEventListener("keydown", (e) => {
+      // 폼 요소 포커스 중이면 무시하고 싶으면 아래 조건을 켜도 됨
+      // if (["INPUT","TEXTAREA"].includes(document.activeElement?.tagName)) return;
+
+      let step = e.shiftKey ? 10 : 1;
+
+      if(e.key === "ArrowUp"){
+        e.preventDefault();
+        currentLon = normLon180(currentLon + step);
+        render();
+      } else if(e.key === "ArrowDown"){
+        e.preventDefault();
+        currentLon = normLon180(currentLon - step);
+        render();
+      }
+    }, { passive:false });
+
+    render();
+  })();
+  </script>
 
 </body>
 </html>
