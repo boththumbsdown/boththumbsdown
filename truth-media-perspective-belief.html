@@ -125,6 +125,28 @@
     transition: opacity 2000ms ease;  /* 페이드 속도 */
   }
   #blackOverlay.off{ opacity: 0; }
+
+  @media (orientation: landscape) {
+    html, body {
+      background-image: url("selfportrait_bottomcut_wider.png");
+      background-position: center bottom; /* 동일 유지 */
+      background-size: cover;             /* 동일 유지 */
+    }
+    .belief-word{
+      top: 50%;
+      transform: translate(-50%, -50%); /* 완전 중앙 */
+    }
+  }
+
+  @media (min-aspect-ratio: 1/1) {
+    html, body {
+      background-image: url("selfportrait_bottomcut_wider.png");
+    }
+    .belief-word{
+      top: 50%;
+      transform: translate(-50%, -50%); /* 완전 중앙 */
+    }
+  }
 </style>
 </head>
 <body>
@@ -159,7 +181,7 @@ const COLLAPSE_MS = 1000;
 const BELIEF_SHOW_AT_MS = 2400;
 
 /* BELIEF 폰트 크기 */
-const BELIEF_SCALE = 0.50;
+let BELIEF_SCALE = 0.50;
 
 /* 루핑: BELIEF 유지/페이드 후 리셋 */
 const BELIEF_HOLD_MS = 10000;  // BELIEF 완전히 나타난 뒤 유지 시간(10초)
@@ -214,6 +236,16 @@ function updateUiScale(){
   uiScale = clamp(uiScale, 0.45, 1.75);
 
   document.documentElement.style.setProperty("--uiScale", uiScale.toFixed(4));
+}
+
+function updateBeliefLayout(){
+  const isLandscape = window.innerWidth > window.innerHeight;
+
+  if (isLandscape){
+    BELIEF_SCALE = 0.20;   // 👈 작게
+  } else {
+    BELIEF_SCALE = 0.50;   // 👈 기본
+  }
 }
 
 function overlayOn(){
@@ -788,6 +820,7 @@ function tick(now){
 }
 
 updateUiScale();
+updateBeliefLayout();
 buildRail();
 
 /* 첫 화면도 부드럽게 시작 */
@@ -802,6 +835,7 @@ setTimeout(() => {
 
 window.addEventListener("resize", () => {
   updateUiScale();
+  updateBeliefLayout();
   buildRail();
   if (!morphing){
     piles.clear();
