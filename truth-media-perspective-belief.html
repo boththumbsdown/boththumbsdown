@@ -3,30 +3,43 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>사실 → 미디어 → 관점 → 신념</title>
+<title>truth → media → perspective → belief</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-<!-- 신념: 나눔명조 800 -->
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@800&display=swap" rel="stylesheet">
-
-<!-- 나머지: Noto Sans KR 700 -->
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@700&display=swap" rel="stylesheet">
-
 <style>
-  html, body { margin:0; padding:0; background:#000; overflow:hidden; height:100%; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+
+    background-color: #ff0000;
+    background-image: url("selfportrait_bottomcut.png");
+    background-repeat: no-repeat;
+    background-position: center bottom;  /* ⬅️ 핵심 */
+    background-size: cover;              /* ⬅️ 화면 꽉 채움 */
+  }
 
   :root{
     --uiScale: 1; /* 1080x1920 기준 스케일 */
   }
 
-  /* Noto Sans KR */
-  .noto-sans-kr-<uniquifier> {
-    font-family: "Noto Sans KR", sans-serif;
-    font-optical-sizing: auto;
+  @font-face{
+    font-family: "MrsEavesPencildrawnBold-Overcooked";
+    src: url("MrsEavesPencildrawnBold-Overcooked.woff2") format("woff2");
     font-weight: 700;
     font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face{
+    font-family: "FranklinExtraCond";
+    src: url("FranklinGothicPencildrawn-ExtraCond.woff2") format("woff2");
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
   }
 
   .media-band{
@@ -53,8 +66,7 @@
     gap: 42px;
     color: #fff;
 
-    font-family: "Noto Sans KR", sans-serif;
-    font-optical-sizing: auto;
+    font-family: "MrsEavesPencildrawnBold-Overcooked", serif;
     font-weight: 700;
     font-style: normal;
 
@@ -67,8 +79,7 @@
     position: absolute; top: -140px; left: 0;
     transform: translate3d(0,0,0); will-change: transform;
 
-    font-family: "Noto Sans KR", sans-serif;
-    font-optical-sizing: auto;
+    font-family: "MrsEavesPencildrawnBold-Overcooked", serif;
     font-weight: 700;
     font-style: normal;
 
@@ -84,16 +95,17 @@
     position: fixed;
     left: 50%;
     top: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) translateY(6vh);
     color: #ff0000;
-    font-family: "Nanum Myeongjo", serif;
+
+    font-family: "FranklinExtraCond", sans-serif;   /* 👈 여기만 변경 */
     font-weight: 800;
-    letter-spacing: -0.06em;
+
+    letter-spacing: 0em;
     line-height: 1;
     opacity: 0;
     z-index: 40;
     pointer-events: none;
-    /* 신념 출현 속도 조절 (opacity) */
     transition: opacity 3000ms ease;
     -webkit-font-smoothing: antialiased;
     text-rendering: geometricPrecision;
@@ -146,11 +158,11 @@ const CRAZY_DURATION_MS = 10000;
 const COLLAPSE_MS = 1000;
 const BELIEF_SHOW_AT_MS = 2400;
 
-/* 신념 폰트 크기 */
-const BELIEF_SCALE = 0.10;
+/* BELIEF 폰트 크기 */
+const BELIEF_SCALE = 0.50;
 
-/* 루핑: 신념 유지/페이드 후 리셋 */
-const BELIEF_HOLD_MS = 10000;  // 신념이 완전히 나타난 뒤 유지 시간(10초)
+/* 루핑: BELIEF 유지/페이드 후 리셋 */
+const BELIEF_HOLD_MS = 10000;  // BELIEF 완전히 나타난 뒤 유지 시간(10초)
 const BELIEF_FADE_MS = 3000;   // CSS transition(opacity)와 동일하게 맞추기
 
 /* 루프 전환용 오버레이 */
@@ -228,7 +240,7 @@ function buildRail(){
   const rail = document.getElementById("mediaRail");
   rail.innerHTML = "";
 
-  const word = "뉴스 인스타그램 신문 책 틱톡 유튜브 팟캐스트 블로그 잡지 쓰레드 엑스";
+  const word = "newspaper instagram book news tiktok youtube podcast blog threads x";
 
   const track = document.createElement("div");
   track.className = "rail-track";
@@ -283,7 +295,7 @@ function pickSpawnX(size){
 function spawnDrop(){
   const el = document.createElement("div");
   el.className = "drop";
-  el.textContent = "사실";
+  el.textContent = "truth";
 
   const baseSize = Math.round(rand(50, 76));
   const size = Math.max(10, Math.round(baseSize * uiScale));
@@ -330,7 +342,7 @@ function randomNonWhiteRGB(){
 
 function convertToPerspective(d){
   d.converted = true;
-  d.el.textContent = "관점";
+  d.el.textContent = "perspective";
   d.el.style.color = randomNonWhiteRGB();
   d.el.style.transition = "none";
   d.el.style.filter = "none";
@@ -432,8 +444,8 @@ function startCrazyMorph(now){
   }
 
   const belief = document.getElementById("beliefWord");
-  belief.textContent = "신념";
-  belief.style.fontSize = (computeMaxFontSizeForWord(belief, "신념") * BELIEF_SCALE) + "px";
+  belief.textContent = "belief";
+  belief.style.fontSize = (computeMaxFontSizeForWord(belief, "BELIEF") * BELIEF_SCALE) + "px";
   belief.classList.remove("show");
 
   beliefShownAt = 0;
@@ -572,7 +584,7 @@ function updateCrazyMorph(now, dt){
     a.el.style.transform = `translate3d(${a.mx}px, ${a.my}px, 0) scale(${wob.toFixed(3)})`;
   }
 
-  // collapse: 중앙으로 빨려들어가며 사라짐 + 신념 등장
+  // collapse: 중앙으로 빨려들어가며 사라짐 + BELIEF 등장
   if (!collapsed && (now - morphStartMs >= CRAZY_DURATION_MS)){
     collapsed = true;
     collapseStartMs = now;
@@ -645,7 +657,7 @@ function resetToStart(now){
   band.style.display = "flex";
   band.style.opacity = "0";
 
-  // 신념 원복
+  // BELIEF 원복
   const belief = document.getElementById("beliefWord");
   belief.classList.remove("show");
   belief.style.opacity = "";
@@ -688,7 +700,7 @@ function tick(now){
   if (morphing){
     updateCrazyMorph(now, dt);
 
-    // 신념이 나타난 뒤 10초 유지 → fade out → 오버레이로 덮고 리셋 → fade in
+    // BELIEF 나타난 뒤 10초 유지 → fade out → 오버레이로 덮고 리셋 → fade in
     if (beliefShownAt > 0){
       if (!beliefFadeStarted && (now - beliefShownAt >= BELIEF_HOLD_MS)){
         beliefFadeStarted = true;
