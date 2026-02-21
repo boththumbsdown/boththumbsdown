@@ -137,14 +137,6 @@
         aspect-ratio:1/1;
         pointer-events:none;
         z-index:60;
-        overflow: visible;
-      }
-
-      .center-clock text{
-        text-anchor: middle;
-        dominant-baseline: middle;
-        text-rendering: geometricPrecision;
-        -webkit-font-smoothing: antialiased;
       }
 
       /* ================= BOTTOM INFO ================= */
@@ -191,6 +183,16 @@
         color:var(--locationcolour);
       }
 
+
+      /* ================= TIME TEXT AROUND THE CLOCK ================= */
+      #arcTextGroup text{
+        fill: var(--clockcolour);
+        font-family: "MrsEavesPencildrawnBold-Overcooked", serif;
+        font-weight: 700;
+        font-size: 12px;
+        letter-spacing: 0px;
+      }
+
       /* ================= RESPONSIVE ================= */
       @media (max-aspect-ratio:3/4){
         :root{ --big: min(8vh, 92px); }
@@ -222,26 +224,15 @@
           <path id="arcBottom" d="M 92 50 A 42 42 0 0 1 8 50" />
         </defs>
 
-        <!-- ===== STRAIGHT TIME + DATE (below clock) ===== -->
-        <g id="belowTextGroup">
-          <!-- 1st line: time -->
-          <text id="timeLineText"
-                x="50" y="106"
-                text-anchor="middle"
-                fill="var(--clockcolour)"
-                font-size="20"
-                >
-            Loading…
+        <g id="arcTextGroup">
+          <!-- 위쪽: 날짜 -->
+          <text text-anchor="middle" fill="var(--clockcolour)" font-size="8" font-weight="800">
+            <textPath href="#arcTop" startOffset="50%" id="dateArcPath">Loading…</textPath>
           </text>
 
-          <!-- 2nd line: date -->
-          <text id="dateLineText"
-                x="50" y="122"
-                text-anchor="middle"
-                fill="var(--clockcolour)"
-                font-size="10"
-                >
-            Loading…
+          <!-- 아래쪽: 시간 -->
+          <text text-anchor="middle" fill="var(--clockcolour)" font-size="8" font-weight="800">
+            <textPath href="#arcBottom" startOffset="50%" id="timeArcPath">Loading…</textPath>
           </text>
         </g>
 
@@ -318,8 +309,8 @@
           const lonEl = document.getElementById("lonLine");
           const placeEl = document.getElementById("placeLine");
 
-          const timeLineEl = document.getElementById("timeLineText");
-          const dateLineEl = document.getElementById("dateLineText");
+          const dateArcEl = document.getElementById("dateArcPath");
+          const timeArcEl = document.getElementById("timeArcPath");
 
           /* ====== headline letters split + float ====== */
           const headlineEl = document.getElementById("headlineLine");
@@ -727,8 +718,8 @@
             );
 
             // UI
-            timeLineEl.textContent = formatMidnightTime();
-            dateLineEl.textContent = formatMidnightDate(nowDate);
+            dateArcEl.textContent = formatMidnightDate(nowDate);
+            timeArcEl.textContent = formatMidnightTime();
             lonEl.textContent = formatLongitudeDecimal4(liveLon);
 
             const cityForLabel =

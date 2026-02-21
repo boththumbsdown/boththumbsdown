@@ -19,6 +19,14 @@
         font-display: swap;
       }
 
+      @font-face{
+        font-family: "MrsEavesPencildrawnBold-Overcooked";
+        src: url("MrsEavesPencildrawnBold-Overcooked.woff2") format("woff2");
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+      }
+
       :root{
         --bg:#000;
         --white:#fff;
@@ -26,9 +34,11 @@
         --blue:rgb(0,0,255);
         --green:rgb(0,255,0);
         --yellow:rgb(255,255,0);
+        --black: rgb(0,0,0);
 
         --big: min(10vh, 120px);
-        --infoScale: 0.8;
+        --headlineScale: 0.8;
+        --infoScale: 0.6;
 
         --sideSafe: 2.5vw;
         --topPad: 3vh;
@@ -70,7 +80,7 @@
         position:fixed;
         left:50%;
         top:var(--topPad);
-        transform:translateX(-50%) scale(var(--infoScale));
+        transform:translateX(-50%) scale(var(--headlineScale));
         transform-origin: top center;
 
         width:max-content;
@@ -127,6 +137,14 @@
         aspect-ratio:1/1;
         pointer-events:none;
         z-index:60;
+        overflow: visible;
+      }
+
+      .center-clock text{
+        text-anchor: middle;
+        dominant-baseline: middle;
+        text-rendering: geometricPrecision;
+        -webkit-font-smoothing: antialiased;
       }
 
       /* ================= BOTTOM INFO ================= */
@@ -159,21 +177,18 @@
         -webkit-font-smoothing:antialiased;
       }
 
+      /* ================= BOTTOM INFO FONT ================= */
+      .bottom-ui .info-line{
+        font-family: "MrsEavesPencildrawnBold-Overcooked", serif;
+        font-weight: 700;
+      }
+
       /* ================= BOTTOM INFO TEXT COLOUR ================= */
       .info-line.lon{
         color:var(--longitudecolour);
       }
       .info-line.place{
         color:var(--locationcolour);
-      }
-
-
-      /* ================= TIME TEXT AROUND THE CLOCK ================= */
-      #arcTextGroup text{
-        fill: var(--clockcolour);
-        font-weight: 800;
-        font-size: 16px;
-        letter-spacing: 0px;
       }
 
       /* ================= RESPONSIVE ================= */
@@ -207,15 +222,26 @@
           <path id="arcBottom" d="M 92 50 A 42 42 0 0 1 8 50" />
         </defs>
 
-        <g id="arcTextGroup">
-          <!-- 위쪽: 날짜 -->
-          <text text-anchor="middle" fill="var(--clockcolour)" font-size="8" font-weight="800">
-            <textPath href="#arcTop" startOffset="50%" id="dateArcPath">LOADING…</textPath>
+        <!-- ===== STRAIGHT TIME + DATE (below clock) ===== -->
+        <g id="belowTextGroup">
+          <!-- 1st line: time -->
+          <text id="timeLineText"
+                x="50" y="106"
+                text-anchor="middle"
+                fill="var(--clockcolour)"
+                font-size="20"
+                >
+            Loading…
           </text>
 
-          <!-- 아래쪽: 시간 -->
-          <text text-anchor="middle" fill="var(--clockcolour)" font-size="8" font-weight="800">
-            <textPath href="#arcBottom" startOffset="50%" id="timeArcPath">LOADING…</textPath>
+          <!-- 2nd line: date -->
+          <text id="dateLineText"
+                x="50" y="122"
+                text-anchor="middle"
+                fill="var(--clockcolour)"
+                font-size="10"
+                >
+            Loading…
           </text>
         </g>
 
@@ -236,8 +262,8 @@
 
       <!-- BOTTOM INFO -->
       <div class="bottom-ui">
-        <div class="info-line lon" id="lonLine">LOADING…</div>
-        <div class="info-line place" id="placeLine">LOADING…</div>
+        <div class="info-line lon" id="lonLine">Loading…</div>
+        <div class="info-line place" id="placeLine">Loading…</div>
       </div>
 
       <script>
@@ -292,8 +318,8 @@
           const lonEl = document.getElementById("lonLine");
           const placeEl = document.getElementById("placeLine");
 
-          const dateArcEl = document.getElementById("dateArcPath");
-          const timeArcEl = document.getElementById("timeArcPath");
+          const timeLineEl = document.getElementById("timeLineText");
+          const dateLineEl = document.getElementById("dateLineText");
 
           /* ====== headline letters split + float ====== */
           const headlineEl = document.getElementById("headlineLine");
@@ -397,11 +423,17 @@
 
           function formatMidnightDate(now){
             const shifted = getMidnightShiftedUTC(now);
+
             const Y = shifted.getUTCFullYear();
             const M = shifted.getUTCMonth();
             const D = shifted.getUTCDate();
-            const MONTHS = ["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"];
-            return `${Y} ${MONTHS[M]} ${String(D).padStart(2,"0")}`;
+            const W = shifted.getUTCDay(); // 0=Sun
+
+            const WEEKDAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+            const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+            // 요일, 날짜, 월, 년
+            return `${WEEKDAYS[W]} ${String(D).padStart(2,"0")} ${MONTHS[M]} ${Y}`;
           }
 
           function formatMidnightTime(){
@@ -412,7 +444,7 @@
             const dir = lon180 >= 0 ? "E" : "W";
             const abs = Math.abs(lon180);
             const num = abs.toFixed(4).padStart(8,"0");
-            return `LONGITUDE ${num}°${dir}`;
+            return `Longitude ${num}°${dir}`;
           }
 
           function lerp(a,b,t){
@@ -420,171 +452,170 @@
           }
 
           const CITIES = [
-            { country:"SENEGAL", city:"DAKAR", lon:-17.3000, lat:14.7319 },
-            { country:"MOROCCO", city:"CASABLANCA", lon:-7.5898, lat:33.5992 },
-            { country:"GHANA", city:"ACCRA", lon:-0.1870, lat:5.6037 },
-            { country:"NIGERIA", city:"LAGOS", lon:3.3792, lat:6.4500 },
-            { country:"TUNISIA", city:"TUNIS", lon:10.1815, lat:36.8008 },
-            { country:"EGYPT", city:"ALEXANDRIA", lon:29.9187, lat:31.2001 },
-            { country:"EGYPT", city:"CAIRO", lon:31.2357, lat:30.0444 },
-            { country:"EGYPT", city:"CAIRO", lon:34.7817, lat:30.0444 },
-            { country:"ETHIOPIA", city:"ADDIS ABABA", lon:38.7578, lat:9.0300 },
-            { country:"KENYA", city:"NAIROBI", lon:36.8219, lat:-1.2864 },
-            { country:"TANZANIA", city:"DAR ES SALAAM", lon:39.2083, lat:-6.8000 },
-            { country:"SOUTH AFRICA", city:"CAPE TOWN", lon:18.4241, lat:-33.9258 },
-            { country:"SOUTH AFRICA", city:"JOHANNESBURG", lon:28.0473, lat:-26.2044 },
-            { country:"MAURITANIA", city:"NOUADHIBOU", lon:-16.0362, lat:20.9425 },
-            { country:"MAURITANIA", city:"NOUADHIBOU", lon:-11.0362, lat:20.9425 },
-            { country:"MAURITANIA", city:"NOUADHIBOU", lon:-9.1394, lat:20.9425 },
+            { country:"Senegal", city:"Dakar", lon:-17.3000, lat:14.7319 },
+            { country:"Morocco", city:"Casablanca", lon:-7.5898, lat:33.5992 },
+            { country:"Ghana", city:"Accra", lon:-0.1870, lat:5.6037 },
+            { country:"Nigeria", city:"Lagos", lon:3.3792, lat:6.4500 },
+            { country:"Tunisia", city:"Tunis", lon:10.1815, lat:36.8008 },
+            { country:"Egypt", city:"Alexandria", lon:29.9187, lat:31.2001 },
+            { country:"Egypt", city:"Cairo", lon:31.2357, lat:30.0444 },
+            { country:"Egypt", city:"Cairo", lon:34.7817, lat:30.0444 },
+            { country:"Ethiopia", city:"Addis Ababa", lon:38.7578, lat:9.0300 },
+            { country:"Kenya", city:"Nairobi", lon:36.8219, lat:-1.2864 },
+            { country:"Tanzania", city:"Dar Es Salaam", lon:39.2083, lat:-6.8000 },
+            { country:"South Africa", city:"Cape Town", lon:18.4241, lat:-33.9258 },
+            { country:"South Africa", city:"Johannesburg", lon:28.0473, lat:-26.2044 },
+            { country:"Mauritania", city:"Nouadhibou", lon:-16.0362, lat:20.9425 },
+            { country:"Mauritania", city:"Nouadhibou", lon:-11.0362, lat:20.9425 },
+            { country:"Mauritania", city:"Nouadhibou", lon:-9.1394, lat:20.9425 },
 
-            { country:"GREENLAND", city:"TASIILAQ", lon:-41.0000, lat:65.6135 },
-            { country:"GREENLAND", city:"TASIILAQ", lon:-39.0000, lat:66.6135 },
-            { country:"GREENLAND", city:"TASIILAQ", lon:-37.6336, lat:67.0135 },
-            { country:"GREENLAND", city:"TASIILAQ", lon:-34.0000, lat:67.0135 },
-            { country:"GREENLAND", city:"TASIILAQ", lon:-33.9999, lat:69.0135 },
-            { country:"GREENLAND", city:"ITTOQQORTOORMIIT", lon:-24.0001, lat:69.6135 },
+            { country:"Greenland", city:"Tasiilaq", lon:-41.0000, lat:65.6135 },
+            { country:"Greenland", city:"Tasiilaq", lon:-39.0000, lat:66.6135 },
+            { country:"Greenland", city:"Tasiilaq", lon:-37.6336, lat:67.0135 },
+            { country:"Greenland", city:"Tasiilaq", lon:-34.0000, lat:67.0135 },
+            { country:"Greenland", city:"Tasiilaq", lon:-33.9999, lat:69.0135 },
+            { country:"Greenland", city:"Ittoqqortoormiit", lon:-24.0001, lat:69.6135 },
 
-            { country:"ICELAND", city:"VESTFIRÐIR", lon:-24.0000, lat:65.6196 },
-            { country:"ICELAND", city:"VESTFIRÐIR", lon:-22.5277, lat:65.6196 },
-            { country:"ICELAND", city:"REYKJAVÍK", lon:-21.8277, lat:64.1451 },
-            { country:"ICELAND", city:"AKUREYRI", lon:-17.3001, lat:65.6826 },
-            { country:"IRELAND", city:"DUBLIN", lon:-6.2603, lat:53.3331 },
-            { country:"UNITED KINGDOM", city:"LONDON", lon:-0.1278, lat:51.5072 },
-            { country:"UNITED KINGDOM", city:"LONDON", lon:0.0000, lat:51.3072 },
-            { country:"UNITED KINGDOM", city:"MANCHESTER", lon:-2.2426, lat:53.4794 },
-            { country:"PORTUGAL", city:"LISBON", lon:-9.1393, lat:38.7452 },
-            { country:"PORTUGAL", city:"LISBON", lon:-7.5899, lat:38.7452 },
-            { country:"SPAIN", city:"MADRID", lon:-3.7038, lat:40.4167 },
-            { country:"SPAIN", city:"MADRID", lon:-6.2602, lat:40.4167 },
-            { country:"SPAIN", city:"BARCELONA", lon:2.1734, lat:41.3829 },
-            { country:"FRANCE", city:"PARIS", lon:2.3522, lat:48.8566 },
-            { country:"FRANCE", city:"MARSEILLE", lon:5.3698, lat:43.2964 },
-            { country:"BELGIUM", city:"BRUSSELS", lon:4.3517, lat:50.8467 },
-            { country:"NETHERLANDS", city:"AMSTERDAM", lon:4.9041, lat:52.3728 },
-            { country:"NETHERLANDS", city:"ROTTERDAM", lon:4.4792, lat:51.9225 },
-            { country:"NETHERLANDS", city:"ARNHEM", lon:5.8987, lat:51.9851 },
-            { country:"GERMANY", city:"HAMBURG", lon:9.9937, lat:53.5500 },
-            { country:"GERMANY", city:"BERLIN", lon:13.4050, lat:52.5167 },
-            { country:"GERMANY", city:"MUNICH", lon:11.5820, lat:48.1372 },
-            { country:"SWITZERLAND", city:"ZÜRICH", lon:8.5417, lat:47.3786 },
-            { country:"ITALY", city:"MILAN", lon:9.1900, lat:45.4669 },
-            { country:"ITALY", city:"ROME", lon:12.4964, lat:41.8931 },
-            { country:"ITALY", city:"NAPLES", lon:14.2681, lat:41.0333 },
-            { country:"AUSTRIA", city:"VIENNA", lon:16.3738, lat:48.2083 },
-            { country:"CZECH REPUBLIC", city:"PRAGUE", lon:14.4378, lat:50.0833 },
-            { country:"HUNGARY", city:"BUDAPEST", lon:19.0402, lat:47.4983 },
-            { country:"POLAND", city:"WARSAW", lon:21.0122, lat:52.2333 },
-            { country:"DENMARK", city:"COPENHAGEN", lon:12.5683, lat:55.6761 },
-            { country:"SWEDEN", city:"STOCKHOLM", lon:18.0686, lat:59.3294 },
-            { country:"NORWAY", city:"OSLO", lon:10.7522, lat:59.9133 },
-            { country:"NORWAY", city:"OSLO", lon:10.1816, lat:59.9133 },
-            { country:"FINLAND", city:"HELSINKI", lon:24.9384, lat:60.1756 },
-            { country:"GREECE", city:"ATHENS", lon:23.7275, lat:37.9842 },
-            { country:"ROMANIA", city:"BUCHAREST", lon:26.1025, lat:44.4325 },
-            { country:"UKRAINE", city:"KYIV", lon:30.5234, lat:50.4500 },
-            { country:"RUSSIA", city:"SAINT PETERSBURG", lon:30.3351, lat:59.9390 },
-            { country:"RUSSIA", city:"MOSCOW", lon:37.6173, lat:55.7558 },
-            { country:"RUSSIA", city:"KAMCHATKA KRAI", lon:168.7884, lat:65.4344 },
-            { country:"RUSSIA", city:"KAMCHATKA KRAI", lon:151.2094, lat:65.4344 },
-            { country:"RUSSIA", city:"CHUKOTKA AUTONOMOUS OKRUG", lon:174.7773, lat:65.6298 },
-            { country:"RUSSIA", city:"CHUKOTKA AUTONOMOUS OKRUG", lon:179.0000, lat:67.6298 },
-            { country:"RUSSIA", city:"CHUKOTKA AUTONOMOUS OKRUG", lon:-175.0000, lat:66.1298 },
-            { country:"RUSSIA", city:"CHUKOTKA AUTONOMOUS OKRUG", lon:-171.0000, lat:66.1298 },
+            { country:"Iceland", city:"Vestfirðir", lon:-24.0000, lat:65.6196 },
+            { country:"Iceland", city:"Vestfirðir", lon:-22.5277, lat:65.6196 },
+            { country:"Iceland", city:"Reykjavík", lon:-21.8277, lat:64.1451 },
+            { country:"Iceland", city:"Akureyri", lon:-17.3001, lat:65.6826 },
+            { country:"Ireland", city:"Dublin", lon:-6.2603, lat:53.3331 },
+            { country:"United Kingdom", city:"London", lon:-0.1278, lat:51.5072 },
+            { country:"United Kingdom", city:"London", lon:0.0000, lat:51.3072 },
+            { country:"United Kingdom", city:"Manchester", lon:-2.2426, lat:53.4794 },
+            { country:"Portugal", city:"Lisbon", lon:-9.1393, lat:38.7452 },
+            { country:"Portugal", city:"Lisbon", lon:-7.5899, lat:38.7452 },
+            { country:"Spain", city:"Madrid", lon:-3.7038, lat:40.4167 },
+            { country:"Spain", city:"Madrid", lon:-6.2602, lat:40.4167 },
+            { country:"Spain", city:"Barcelona", lon:2.1734, lat:41.3829 },
+            { country:"France", city:"Paris", lon:2.3522, lat:48.8566 },
+            { country:"France", city:"Marseille", lon:5.3698, lat:43.2964 },
+            { country:"Belgium", city:"Brussels", lon:4.3517, lat:50.8467 },
+            { country:"Netherlands", city:"Amsterdam", lon:4.9041, lat:52.3728 },
+            { country:"Netherlands", city:"Rotterdam", lon:4.4792, lat:51.9225 },
+            { country:"Netherlands", city:"Arnhem", lon:5.8987, lat:51.9851 },
+            { country:"Germany", city:"Hamburg", lon:9.9937, lat:53.5500 },
+            { country:"Germany", city:"Berlin", lon:13.4050, lat:52.5167 },
+            { country:"Germany", city:"Munich", lon:11.5820, lat:48.1372 },
+            { country:"Switzerland", city:"Zürich", lon:8.5417, lat:47.3786 },
+            { country:"Italy", city:"Milan", lon:9.1900, lat:45.4669 },
+            { country:"Italy", city:"Rome", lon:12.4964, lat:41.8931 },
+            { country:"Italy", city:"Naples", lon:14.2681, lat:41.0333 },
+            { country:"Austria", city:"Vienna", lon:16.3738, lat:48.2083 },
+            { country:"Czech Republic", city:"Prague", lon:14.4378, lat:50.0833 },
+            { country:"Hungary", city:"Budapest", lon:19.0402, lat:47.4983 },
+            { country:"Poland", city:"Warsaw", lon:21.0122, lat:52.2333 },
+            { country:"Denmark", city:"Copenhagen", lon:12.5683, lat:55.6761 },
+            { country:"Sweden", city:"Stockholm", lon:18.0686, lat:59.3294 },
+            { country:"Norway", city:"Oslo", lon:10.7522, lat:59.9133 },
+            { country:"Norway", city:"Oslo", lon:10.1816, lat:59.9133 },
+            { country:"Finland", city:"Helsinki", lon:24.9384, lat:60.1756 },
+            { country:"Greece", city:"Athens", lon:23.7275, lat:37.9842 },
+            { country:"Romania", city:"Bucharest", lon:26.1025, lat:44.4325 },
+            { country:"Ukraine", city:"Kyiv", lon:30.5234, lat:50.4500 },
+            { country:"Russia", city:"Saint Petersburg", lon:30.3351, lat:59.9390 },
+            { country:"Russia", city:"Moscow", lon:37.6173, lat:55.7558 },
+            { country:"Russia", city:"Kamchatka Krai", lon:168.7884, lat:65.4344 },
+            { country:"Russia", city:"Kamchatka Krai", lon:151.2094, lat:65.4344 },
+            { country:"Russia", city:"Chukotka Autonomous Okrug", lon:174.7773, lat:65.6298 },
+            { country:"Russia", city:"Chukotka Autonomous Okrug", lon:179.0000, lat:67.6298 },
+            { country:"Russia", city:"Chukotka Autonomous Okrug", lon:-175.0000, lat:66.1298 },
+            { country:"Russia", city:"Chukotka Autonomous Okrug", lon:-171.0000, lat:66.1298 },
 
-            { country:"ISRAEL", city:"TEL AVIV", lon:34.7818, lat:32.0800 },
-            { country:"LEBANON", city:"BEIRUT", lon:35.5018, lat:33.8869 },
-            { country:"SAUDI ARABIA", city:"RIYADH", lon:46.6753, lat:24.6408 },
-            { country:"UNITED ARAB EMIRATES", city:"ABU DHABI", lon:54.3773, lat:23.4511 },
-            { country:"UNITED ARAB EMIRATES", city:"DUBAI", lon:55.2708, lat:24.2697 },
-            { country:"QATAR", city:"DOHA", lon:51.5310, lat:25.2867 },
-            { country:"TURKEY", city:"ISTANBUL", lon:28.9784, lat:41.0100 },
-            { country:"TURKEY", city:"DIYARBAKIR", lon:40.211, lat:37.925 },
-            { country:"GEORGIA", city:"TBILISI", lon:44.8271, lat:41.7225 },
-            { country:"AZERBAIJAN", city:"BAKU", lon:49.8671, lat:40.3667 },
-            { country:"IRAN", city:"TEHRAN", lon:51.3890, lat:35.7000 },
-            { country:"UZBEKISTAN", city:"TASHKENT", lon:69.2401, lat:41.3111 },
-            { country:"KAZAKHSTAN", city:"ALMATY", lon:76.9450, lat:43.2775 },
-            { country:"KAZAKHSTAN", city:"MANGYSHLAK PENINSULA", lon:52.2500, lat:43.5000 },
+            { country:"Israel", city:"Tel Aviv", lon:34.7818, lat:32.0800 },
+            { country:"Lebanon", city:"Beirut", lon:35.5018, lat:33.8869 },
+            { country:"Saudi Arabia", city:"Riyadh", lon:46.6753, lat:24.6408 },
+            { country:"United Arab Emirates", city:"Abu Dhabi", lon:54.3773, lat:23.4511 },
+            { country:"United Arab Emirates", city:"Dubai", lon:55.2708, lat:24.2697 },
+            { country:"Qatar", city:"Doha", lon:51.5310, lat:25.2867 },
+            { country:"Turkey", city:"Istanbul", lon:28.9784, lat:41.0100 },
+            { country:"Turkey", city:"Diyarbakir", lon:40.211, lat:37.925 },
+            { country:"Georgia", city:"Tbilisi", lon:44.8271, lat:41.7225 },
+            { country:"Azerbaijan", city:"Baku", lon:49.8671, lat:40.3667 },
+            { country:"Iran", city:"Tehran", lon:51.3890, lat:35.7000 },
+            { country:"Uzbekistan", city:"Tashkent", lon:69.2401, lat:41.3111 },
+            { country:"Kazakhstan", city:"Almaty", lon:76.9450, lat:43.2775 },
+            { country:"Kazakhstan", city:"Mangyshlak Peninsula", lon:52.2500, lat:43.5000 },
 
+            { country:"Pakistan", city:"Karachi", lon:67.0099, lat:26.8600 },
+            { country:"Pakistan", city:"Karachi", lon:55.2709, lat:27.8600 },
+            { country:"India", city:"Mumbai", lon:72.8777, lat:29.0758 },
+            { country:"India", city:"New Delhi", lon:77.2090, lat:28.6667 },
+            { country:"India", city:"Chennai", lon:80.2707, lat:13.0825 },
+            { country:"India", city:"Chennai", lon:79.8613, lat:13.0825 },
+            { country:"Sri Lanka", city:"Colombo", lon:79.8612, lat:11.9167 },
+            { country:"Bangladesh", city:"Dhaka", lon:90.4125, lat:23.7289 },
+            { country:"Nepal", city:"Kathmandu", lon:85.3240, lat:27.7167 },
+            { country:"Nepal", city:"Kathmandu", lon:80.2708, lat:27.7167 },
 
-            { country:"PAKISTAN", city:"KARACHI", lon:67.0099, lat:26.8600 },
-            { country:"PAKISTAN", city:"KARACHI", lon:55.2709, lat:27.8600 },
-            { country:"INDIA", city:"MUMBAI", lon:72.8777, lat:29.0758 },
-            { country:"INDIA", city:"NEW DELHI", lon:77.2090, lat:28.6667 },
-            { country:"INDIA", city:"CHENNAI", lon:80.2707, lat:13.0825 },
-            { country:"INDIA", city:"CHENNAI", lon:79.8613, lat:13.0825 },
-            { country:"SRI LANKA", city:"COLOMBO", lon:79.8612, lat:11.9167 },
-            { country:"BANGLADESH", city:"DHAKA", lon:90.4125, lat:23.7289 },
-            { country:"NEPAL", city:"KATHMANDU", lon:85.3240, lat:27.7167 },
-            { country:"NEPAL", city:"KATHMANDU", lon:80.2708, lat:27.7167 },
+            { country:"Myanmar", city:"Yangon", lon:96.1951, lat:20.7950 },
+            { country:"Thailand", city:"Bangkok", lon:100.5018, lat:13.7500 },
+            { country:"Cambodia", city:"Phnom Penh", lon:104.9282, lat:11.5696 },
+            { country:"Vietnam", city:"Ho Chi Minh City", lon:106.6297, lat:10.8167 },
+            { country:"Vietnam", city:"Hanoi", lon:105.8342, lat:21.0283 },
+            { country:"Malaysia", city:"Kuala Lumpur", lon:101.6869, lat:3.1478 },
+            { country:"Singapore", city:"Singapore", lon:103.8198, lat:1.8000 },
+            { country:"Indonesia", city:"Jakarta", lon:106.8456, lat:-7.2146 },
+            { country:"Philippines", city:"Manila", lon:120.9842, lat:14.6000 },
+            { country:"Mongolia", city:"Khalkhgol", lon:119.6224, lat:47.6270 },
 
-            { country:"MYANMAR", city:"YANGON", lon:96.1951, lat:20.7950 },
-            { country:"THAILAND", city:"BANGKOK", lon:100.5018, lat:13.7500 },
-            { country:"CAMBODIA", city:"PHNOM PENH", lon:104.9282, lat:11.5696 },
-            { country:"VIETNAM", city:"HO CHI MINH CITY", lon:106.6297, lat:10.8167 },
-            { country:"VIETNAM", city:"HANOI", lon:105.8342, lat:21.0283 },
-            { country:"MALAYSIA", city:"KUALA LUMPUR", lon:101.6869, lat:3.1478 },
-            { country:"SINGAPORE", city:"SINGAPORE", lon:103.8198, lat:1.8000 },
-            { country:"INDONESIA", city:"JAKARTA", lon:106.8456, lat:-7.2146 },
-            { country:"PHILIPPINES", city:"MANILA", lon:120.9842, lat:14.6000 },
-            { country:"MONGOLIA", city:"KHALKHGOL", lon:119.6224, lat:47.6270 },
+            { country:"China", city:"Beijing", lon:116.4074, lat:39.9040 },
+            { country:"China", city:"Beijing", lon:114.1695, lat:39.9040 },
+            { country:"China", city:"Shanghai", lon:121.4737, lat:31.1667 },
+            { country:"China", city:"Hong Kong", lon:114.1694, lat:22.3069 },
+            { country:"China", city:"Shenyang", lon:124.4330, lat:41.8048 },
+            { country:"China", city:"Shenyang", lon:122.4330, lat:41.8048 },
+            { country:"Taiwan", city:"Taipei", lon:121.5654, lat:25.0478 },
+            { country:"South Korea", city:"Seoul", lon:126.9780, lat:37.5600 },
+            { country:"South Korea", city:"Busan", lon:129.0756, lat:36.1667 },
+            { country:"North Korea", city:"Pyongyang", lon:125.8198, lat:39.0738 },
+            { country:"Japan", city:"Nagasaki", lon:129.8779, lat:32.8003 },
+            { country:"Japan", city:"Osaka", lon:133.5023, lat:34.6937 },
+            { country:"Japan", city:"Osaka", lon:138.6006, lat:34.6937 },
+            { country:"Japan", city:"Kyoto", lon:135.7681, lat:35.0116 },
+            { country:"Japan", city:"Tokyo", lon:139.6503, lat:35.6839 },
+            { country:"Japan", city:"Sapporo", lon:141.3545, lat:43.0621 },
 
-            { country:"CHINA", city:"BEIJING", lon:116.4074, lat:39.9040 },
-            { country:"CHINA", city:"BEIJING", lon:114.1695, lat:39.9040 },
-            { country:"CHINA", city:"SHANGHAI", lon:121.4737, lat:31.1667 },
-            { country:"CHINA", city:"HONG KONG", lon:114.1694, lat:22.3069 },
-            { country:"CHINA", city:"SHENYANG", lon:124.4330, lat:41.8048 },
-            { country:"CHINA", city:"SHENYANG", lon:122.4330, lat:41.8048 },
-            { country:"TAIWAN", city:"TAIPEI", lon:121.5654, lat:25.0478 },
-            { country:"SOUTH KOREA", city:"SEOUL", lon:126.9780, lat:37.5600 },
-            { country:"SOUTH KOREA", city:"BUSAN", lon:129.0756, lat:36.1667 },
-            { country:"NORTH KOREA", city:"PYONGYANG", lon:125.8198, lat:39.0738 },
-            { country:"JAPAN", city:"NAGASAKI", lon:129.8779, lat:32.8003 },
-            { country:"JAPAN", city:"OSAKA", lon:133.5023, lat:34.6937 },
-            { country:"JAPAN", city:"OSAKA", lon:138.6006, lat:34.6937 },
-            { country:"JAPAN", city:"KYOTO", lon:135.7681, lat:35.0116 },
-            { country:"JAPAN", city:"TOKYO", lon:139.6503, lat:35.6839 },
-            { country:"JAPAN", city:"SAPPORO", lon:141.3545, lat:43.0621 },
+            { country:"Australia", city:"Adelaide", lon:138.6007, lat:-34.9289 },
+            { country:"Australia", city:"Melbourne", lon:144.9631, lat:-37.8136 },
+            { country:"Australia", city:"Sydney", lon:151.2093, lat:-33.8650 },
+            { country:"New Zealand", city:"Auckland", lon:174.7633, lat:-41.8406 },
+            { country:"New Zealand", city:"Auckland", lon:170.7633, lat:-43.8406 },
+            { country:"New Zealand", city:"Wellington", lon:174.7772, lat:-41.3000 },
 
-            { country:"AUSTRALIA", city:"ADELAIDE", lon:138.6007, lat:-34.9289 },
-            { country:"AUSTRALIA", city:"MELBOURNE", lon:144.9631, lat:-37.8136 },
-            { country:"AUSTRALIA", city:"SYDNEY", lon:151.2093, lat:-33.8650 },
-            { country:"NEW ZEALAND", city:"AUCKLAND", lon:174.7633, lat:-41.8406 },
-            { country:"NEW ZEALAND", city:"AUCKLAND", lon:170.7633, lat:-43.8406 },
-            { country:"NEW ZEALAND", city:"WELLINGTON", lon:174.7772, lat:-41.3000 },
-
-            { country:"CANADA", city:"VANCOUVER", lon:-123.1207, lat:49.2500 },
-            { country:"CANADA", city:"CALGARY", lon:-114.0719, lat:51.0500 },
-            { country:"CANADA", city:"TORONTO", lon:-79.3832, lat:44.0417 },
-            { country:"UNITED STATES", city:"ALASKA", lon:-123.2000, lat:63.5888 },
-            { country:"UNITED STATES", city:"ALASKA", lon:-154.4931, lat:63.5888 },
-            { country:"UNITED STATES", city:"ALASKA", lon:-160.0000, lat:65.5888 },
-            { country:"UNITED STATES", city:"ALASKA", lon:-168.0000, lat:65.5888 },
-            { country:"UNITED STATES", city:"ALASKA", lon:-168.5000, lat:63.2888 },
-            { country:"UNITED STATES", city:"ALASKA", lon:-170.9000, lat:63.2888 },
-            { country:"UNITED STATES", city:"SEATTLE", lon:-122.3321, lat:47.6211 },
-            { country:"UNITED STATES", city:"SEATTLE", lon:-119.0000, lat:47.6211 },
-            { country:"UNITED STATES", city:"SAN FRANCISCO", lon:-122.4194, lat:37.7562 },
-            { country:"UNITED STATES", city:"LOS ANGELES", lon:-118.2437, lat:34.1139 },
-            { country:"UNITED STATES", city:"DENVER", lon:-104.9903, lat:39.7621 },
-            { country:"UNITED STATES", city:"CHICAGO", lon:-87.6298, lat:41.4375 },
-            { country:"UNITED STATES", city:"HOUSTON", lon:-95.3698, lat:29.8863 },
-            { country:"UNITED STATES", city:"WASHINGTON, D.C.", lon:-77.0369, lat:38.9047 },
-            { country:"UNITED STATES", city:"NEW YORK", lon:-74.0060, lat:40.8343 },
-            { country:"UNITED STATES", city:"NEW YORK", lon:-73.2060, lat:40.8343 },
-            { country:"UNITED STATES", city:"NEW YORK", lon:-72.0060, lat:41.0343 },
-            { country:"MEXICO", city:"MEXICO CITY", lon:-99.1332, lat:19.4333 },
-            { country:"CUBA", city:"HAVANA", lon:-82.3666, lat:22.6367 },
-            { country:"COLOMBIA", city:"BOGOTÁ", lon:-74.0721, lat:4.7111 },
-            { country:"PERU", city:"LIMA", lon:-77.0428, lat:-10.0600 },
-            { country:"CHILE", city:"SANTIAGO", lon:-70.6693, lat:-33.4500 },
-            { country:"ARGENTINA", city:"BUENOS AIRES", lon:-58.3816, lat:-34.0997 },
-            { country:"ARGENTINA", city:"BUENOS AIRES", lon:-53.700, lat:-34.0997 },
-            { country:"BRAZIL", city:"RIO DE JANEIRO", lon:-41.1729, lat:-21.9083 },
-            { country:"BRAZIL", city:"RIO DE JANEIRO", lon:-43.1729, lat:-22.9083 },
-            { country:"BRAZIL", city:"RIO DE JANEIRO", lon:-44.1729, lat:-22.9083 },
-            { country:"BRAZIL", city:"SÃO PAULO", lon:-53.6000, lat:-23.5504 },
-            { country:"BRAZIL", city:"SÃO PAULO", lon:-46.6333, lat:-23.5504 }
+            { country:"Canada", city:"Vancouver", lon:-123.1207, lat:49.2500 },
+            { country:"Canada", city:"Calgary", lon:-114.0719, lat:51.0500 },
+            { country:"Canada", city:"Toronto", lon:-79.3832, lat:44.0417 },
+            { country:"United States", city:"Alaska", lon:-123.2000, lat:63.5888 },
+            { country:"United States", city:"Alaska", lon:-154.4931, lat:63.5888 },
+            { country:"United States", city:"Alaska", lon:-160.0000, lat:65.5888 },
+            { country:"United States", city:"Alaska", lon:-168.0000, lat:65.5888 },
+            { country:"United States", city:"Alaska", lon:-168.5000, lat:63.2888 },
+            { country:"United States", city:"Alaska", lon:-170.9000, lat:63.2888 },
+            { country:"United States", city:"Seattle", lon:-122.3321, lat:47.6211 },
+            { country:"United States", city:"Seattle", lon:-119.0000, lat:47.6211 },
+            { country:"United States", city:"San Francisco", lon:-122.4194, lat:37.7562 },
+            { country:"United States", city:"Los Angeles", lon:-118.2437, lat:34.1139 },
+            { country:"United States", city:"Denver", lon:-104.9903, lat:39.7621 },
+            { country:"United States", city:"Chicago", lon:-87.6298, lat:41.4375 },
+            { country:"United States", city:"Houston", lon:-95.3698, lat:29.8863 },
+            { country:"United States", city:"Washington, D.C.", lon:-77.0369, lat:38.9047 },
+            { country:"United States", city:"New York", lon:-74.0060, lat:40.8343 },
+            { country:"United States", city:"New York", lon:-73.2060, lat:40.8343 },
+            { country:"United States", city:"New York", lon:-72.0060, lat:41.0343 },
+            { country:"Mexico", city:"Mexico City", lon:-99.1332, lat:19.4333 },
+            { country:"Cuba", city:"Havana", lon:-82.3666, lat:22.6367 },
+            { country:"Colombia", city:"Bogotá", lon:-74.0721, lat:4.7111 },
+            { country:"Peru", city:"Lima", lon:-77.0428, lat:-10.0600 },
+            { country:"Chile", city:"Santiago", lon:-70.6693, lat:-33.4500 },
+            { country:"Argentina", city:"Buenos Aires", lon:-58.3816, lat:-34.0997 },
+            { country:"Argentina", city:"Buenos Aires", lon:-53.700, lat:-34.0997 },
+            { country:"Brazil", city:"Rio De Janeiro", lon:-41.1729, lat:-21.9083 },
+            { country:"Brazil", city:"Rio De Janeiro", lon:-43.1729, lat:-22.9083 },
+            { country:"Brazil", city:"Rio De Janeiro", lon:-44.1729, lat:-22.9083 },
+            { country:"Brazil", city:"São Paulo", lon:-53.6000, lat:-23.5504 },
+            { country:"Brazil", city:"São Paulo", lon:-46.6333, lat:-23.5504 }
           ];
 
           function nearestCity(lon){
@@ -696,8 +727,8 @@
             );
 
             // UI
-            dateArcEl.textContent = formatMidnightDate(nowDate);
-            timeArcEl.textContent = formatMidnightTime();
+            timeLineEl.textContent = formatMidnightTime();
+            dateLineEl.textContent = formatMidnightDate(nowDate);
             lonEl.textContent = formatLongitudeDecimal4(liveLon);
 
             const cityForLabel =
