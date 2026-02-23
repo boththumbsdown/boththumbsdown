@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>boththumbsdown</title>
+
+  <!-- Icons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=3" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <style>
+    /* -------------------------
+       Fonts
+    -------------------------- */
+    @font-face {
+      font-family: "MrsEavesOvercooked";
+      src: url("MrsEavesPencildrawnBold-Overcooked.woff2") format("woff2");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "FranklinGothicPencilExtraCond";
+      src: url("FranklinGothicPencildrawn-ExtraCond.woff2") format("woff2");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    /* -------------------------
+       Base
+    -------------------------- */
+    :root {
+      --bg: #000;
+      --fg: #fff;
+      --link: rgb(255, 0, 0);
+      --link-hover: rgb(0, 255, 0);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "MrsEavesOvercooked", serif;
+      font-size: 20px;
+      line-height: 1.2;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      position: relative;
+      overflow-x: hidden;
+      font-synthesis: none;
+      text-align: center;
+    }
+
+    /* -------------------------
+       Background image
+    -------------------------- */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-color: #000;
+      background-image: url("boththumbsdown_wideandrough.png");
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: auto 100vh;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+
+    /* -------------------------
+       Layout
+    -------------------------- */
+    .wrap {
+      max-width: 740px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* -------------------------
+       Typography
+    -------------------------- */
+    h1 {
+      margin: 0 0 6px 0;
+      font-family: "FranklinGothicPencilExtraCond", sans-serif;
+      font-size: 60px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    h2 {
+      margin: 0 0 16px 0;
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    p { margin: 10px 0; }
+
+    /* -------------------------
+       Links
+    -------------------------- */
+    a {
+      color: var(--link);
+      text-decoration: none;
+    }
+    a:hover {
+      color: var(--link-hover);
+      text-decoration: none;
+    }
+
+    /* -------------------------
+       Images (center)
+    -------------------------- */
+    img {
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      height: auto;
+    }
+
+    .manicule {
+      max-width: 100px;
+      width: 100%;
+      margin-top: 6px;
+      margin-bottom: 10px;
+    }
+
+    .stampwithface {
+      max-width: 150px;
+      width: 100%;
+      margin-top: 40px;
+      margin-bottom: 10px;
+    }
+
+   .links {
+     margin: 6px 0 0 0;
+     padding: 0;
+     list-style: none;
+
+     display: flex;
+     flex-wrap: wrap;
+     justify-content: left;
+     row-gap: 6px;
+     column-gap: 0;
+   }
+
+   .links li {
+     display: flex;
+     align-items: center;
+     margin: 0;
+   }
+
+   .links li::after {
+     content: " ₪ ";
+     color: var(--fg);      /* 흰색 */
+     font-size: 0.9em;      /* 살짝 작게 */
+     margin: 0 6px;         /* 간격 조절 */
+   }
+
+   .links li:last-child::after {
+     content: "";
+   }
+
+    /* -------------------------
+       Responsive
+    -------------------------- */
+    @media (max-width: 480px) {
+      body { padding: 18px; }
+      h2 {
+        font-size: 25px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      body { padding: 18px; }
+      h1 {
+        font-size: 45px;
+      }
+      h2 {
+        font-size: 20px;
+      }
+    }
+
+    /* Desktop scale-up (keep mobile as-is) */
+    @media (min-width: 900px) {
+      body { font-size: 30px; }
+
+      h1 {
+        font-size: 90px;
+        margin-bottom: 12px;
+      }
+
+      h2 { font-size: 45px; }
+
+      .manicule { max-width: 150px; }
+
+      .stampwithface {
+        max-width: 225px;
+        margin-top: 60px;
+      }
+
+      /* 데스크탑에서 구분자/여백 살짝 키우고 싶으면 여기만 조절 */
+      /* :root { --sep-size: 14px; --sep-gap: 12px; } */
+    }
+
+    @media (min-width: 1500px) {
+      h1 { font-size: 120px; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+    <h1>BOTHTHUMBSDOWN</h1>
+
+    <h2>
+      <a href="http://boththumbsdown.xyz/about">about me</a> ₪ 
+      <a href="mailto:hello@boththumbsdown.xyz">write me an email</a>
+    </h2>
+
+    <p>some unsorted hyperlinks</p>
+
+    <img src="manicule my hand_WHITE.png" alt="☟☟☟☟☟" class="manicule" />
+
+    <ul class="links">
+      <li><a href="http://boththumbsdown.xyz/truth-media-perspective-belief">truth » media » perspective » belief</a></li>
+      <li><a href="http://boththumbsdown.xyz/scribble">scribble</a></li>
+      <li><a href="http://boththumbsdown.xyz/itsa">it's a</a></li>
+      <li><a href="http://boththumbsdown.xyz/dec2025hongsangsoo">december 2025. hongsangsoo</a></li>
+      <li><a href="http://boththumbsdown.xyz/happynewyear2026">happynewyear2026</a></li>
+      <li><a href="http://boththumbsdown.xyz/couldyouconfirmthis">could you confirm this?</a></li>
+      <li><a href="http://boththumbsdown.xyz/couldyouconfirmthis.pdf">could you confirm this?.pdf</a></li>
+      <li><a href="http://boththumbsdown.xyz/EYE">EYE</a></li>
+      <li><a href="http://boththumbsdown.xyz/ghostsofworks">ghosts of works</a></li>
+      <li><a href="http://boththumbsdown.xyz/LOSTINTRANSLATION">LOSTINTRANSLATION</a></li>
+      <li><a href="http://boththumbsdown.xyz/helveticahangeul">Helvetica Hangeul</a></li>
+      <li><a href="http://boththumbsdown.xyz/needtostayawake">need to stay awake..</a></li>
+      <li><a href="http://boththumbsdown.xyz/toomuchcandygonnarotyoursoul">toomuchcandygonnarotyoursoul</a></li>
+      <li><a href="http://boththumbsdown.xyz/flowerpot-play">flowerpot</a></li>
+      <li><a href="http://boththumbsdown.xyz/workinprogress">work in progress</a></li>
+      <li><a href="http://boththumbsdown.xyz/cherrylady">cherry lady</a></li>
+      <li><a href="http://boththumbsdown.xyz/chocolatecake">chocolatecake</a></li>
+      <li><a href="https://boththumbsdown.neocities.org">neocities..</a></li>
+      <li><a href="http://boththumbsdown.xyz/%3C3">&lt;3</a></li>
+      <li><a href="http://boththumbsdown.xyz/wherethestoryends">where the story ends</a></li>
+      <li><a href="http://instagram.com/boththumbsdown">where i reside atm</a></li>
+    </ul>
+
+    <a href="http://archive.radiohead.com/Site13/rh0005.html" target="_blank" rel="noopener noreferrer">
+      <img src="stampwithface.png" alt="* * *" class="stampwithface" />
+    </a>
+  </main>
+</body>
+</html>
