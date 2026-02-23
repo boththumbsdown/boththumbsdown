@@ -140,30 +140,36 @@
     /* -------------------------
        Links list (vertical, centered)
     -------------------------- */
-    .links {
+   .links {
       list-style: none;
       padding: 0;
       margin: 6px 0 0 0;
-    }
+   }
 
-    .links li {
+   .links li {
       margin: 6px 0;
-    }
+   }
+
+   .links li::after{
+     content:" ₪ ";
+     color: var(--fg);
+     font-family: "MrsEavesOvercooked", serif; /* 강제 */
+   }
 
     /* -------------------------
        Responsive
     -------------------------- */
-    @media (max-width: 480px) {
+   @media (max-width: 480px) {
       body { padding: 18px; }
       h2 { font-size: 25px; }
-    }
+   }
 
-    @media (max-width: 380px) {
+   @media (max-width: 380px) {
       h1 { font-size: 45px; }
       h2 { font-size: 20px; }
-    }
+   }
 
-    @media (min-width: 900px) {
+   @media (min-width: 900px) {
       body { font-size: 30px; }
 
       h1 {
@@ -179,7 +185,7 @@
         max-width: 225px;
         margin-top: 60px;
       }
-    }
+   }
 
     @media (min-width: 1500px) {
       h1 { font-size: 120px; }
