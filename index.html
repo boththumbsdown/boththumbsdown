@@ -1,293 +1,232 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>boththumbsdown</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>boththumbsdown</title>
 
-	<!-- Icons -->
-	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=3" />
-	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-	<link rel="manifest" href="/site.webmanifest" />
+  <!-- Icons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=3" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="manifest" href="/site.webmanifest" />
 
-	<style>
+  <style>
     /* -------------------------
        Fonts
     -------------------------- */
     @font-face {
-    	font-family: "MrsEavesCrispy";
-    	src: url("MrsEavesPencildrawnBold-Crispy.woff2") format("woff2");
-    	font-weight: 700;
-    	font-style: normal;
-    	font-display: swap;
+      font-family: "MrsEavesOvercooked";
+      src: url("MrsEavesPencildrawnBold-Overcooked.woff2") format("woff2");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
     }
 
     @font-face {
-    	font-family: "MrsEavesOvercooked";
-    	src: url("MrsEavesPencildrawnBold-Overcooked.woff2") format("woff2");
-    	font-weight: 700;
-    	font-style: normal;
-    	font-display: swap;
-    }
-
-    @font-face {
-    	font-family: "MrsEavesBurnt";
-    	src: url("MrsEavesPencildrawnBold-Burnt.woff2") format("woff2");
-    	font-weight: 700;
-    	font-style: normal;
-    	font-display: swap;
-    }
-
-    @font-face {
-    	font-family: "FranklinGothicPencilExtraCond";
-    	src: url("FranklinGothicPencildrawn-ExtraCond.woff2") format("woff2");
-    	font-weight: 700;
-    	font-style: normal;
-    	font-display: swap;
+      font-family: "FranklinGothicPencilExtraCond";
+      src: url("FranklinGothicPencildrawn-ExtraCond.woff2") format("woff2");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
     }
 
     /* -------------------------
        Base
     -------------------------- */
     :root {
-    	--bg: #000;
-    	--fg: #fff;
-    	--link: rgb(255, 0, 0);
-    	--link-hover: rgb(0, 255, 0);
+      --bg: #000;
+      --fg: #fff;
+      --link: rgb(255, 0, 0);
+      --link-hover: rgb(0, 255, 0);
     }
 
     * { box-sizing: border-box; }
 
     body {
-    	margin: 0;
-    	padding: 24px;
-    	background: var(--bg);
-    	color: var(--fg);
-    	font-family: "MrsEavesOvercooked", serif;
-    	font-size: 20px;
-    	line-height: 1.2;
-    	-webkit-font-smoothing: antialiased;
-    	text-rendering: optimizeLegibility;
-    	position: relative;
-    	overflow-x: hidden;
-    	font-synthesis: none;
-    	text-align: center;
+      margin: 0;
+      padding: 24px;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "MrsEavesOvercooked", serif;
+      font-size: 20px;
+      line-height: 1.2;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      font-synthesis: none;
+      text-align: center;
+      overflow-x: hidden;
     }
 
     /* -------------------------
        Background image
     -------------------------- */
     body::before {
-    	content: "";
-    	position: fixed;
-    	inset: 0;
-    	background-color: #000;
-    	background-image: url("boththumbsdown_wideandrough.png");
-    	background-repeat: no-repeat;
-    	background-position: center center;
-    	background-size: auto 100vh;
-    	z-index: -1;
-    	pointer-events: none;
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: #000 url("boththumbsdown_wideandrough.png") no-repeat center;
+      background-size: auto 100vh;
+      z-index: -1;
+      pointer-events: none;
     }
 
     /* -------------------------
        Layout
     -------------------------- */
     .wrap {
-    	max-width: 740px;
-    	margin: 0 auto;
-    	position: relative;
-    	z-index: 1;
+      max-width: 740px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      text-align: center;
     }
 
     /* -------------------------
        Typography
     -------------------------- */
     h1 {
-    	margin: 0 0 6px 0;
-    	font-family: "FranklinGothicPencilExtraCond", sans-serif;
-    	font-size: 60px;
-    	font-weight: 700;
-    	font-style: normal;
-    	line-height: 1;
+      margin: 0 0 6px 0;
+      font-family: "FranklinGothicPencilExtraCond", sans-serif;
+      font-size: 60px;
+      font-weight: 700;
+      line-height: 1;
     }
 
-    /* h2 정리:
-       - h2에는 링크만 들어가므로: 기본 underline/hover를 h2 전용으로 깨끗하게
-       - br 사용 대신 블록으로 쌓기
-    */
     h2 {
-    	margin: 0 0 16px 0;
-    	font-family: "MrsEavesOvercooked", serif;
-    	font-size: 30px;
-    	font-weight: 700;
-    	font-style: normal;
-    	line-height: 1.2;
-    }
-
-    .h2-links {
-    	margin: 0;
-    	padding: 0;
-    }
-
-    .h2-links a {
-    	display: inline-block;
-    }
-
-    .h2-links a + a {
-    	margin-top: 6px;
+      margin: 0 0 16px 0;
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1.2;
     }
 
     p { margin: 10px 0; }
 
     /* -------------------------
        Links
-       - hover 시 underline 제거
-       - hover 시 초록색으로
     -------------------------- */
     a {
-    	color: var(--link);
-    	text-decoration: none;
+      color: var(--link);
+      text-decoration: none;
     }
 
     a:hover {
-    	color: var(--link-hover);
-    	text-decoration: none;
+      color: var(--link-hover);
     }
 
     /* -------------------------
-       Images (center)
+       Images
     -------------------------- */
     img {
-    	display: block;
-    	margin-left: auto;
-    	margin-right: auto;
+      display: block;
+      margin: 0 auto;
+      height: auto;
     }
 
-    .manicule {
-    	max-width: 100px;
-    	width: 100%;
-    	height: auto;
-    	margin-top: 6px;
-    	margin-bottom: 10px;
-    }
+   .manicule {
+     max-width: 100px;
+     width: 100%;
+     margin: 6px auto 10px;
+     height: auto;
+   }
 
-    .stampwithface {
-    	max-width: 150px;
-    	width: 100%;
-    	height: auto;
-    	margin-top: 40px;
-    	margin-bottom: 10px;
-    }
-
+   .stampwithface {
+     max-width: 150px;
+     width: 100%;
+     margin: 40px auto 10px;
+     height: auto;
+   }
 
     /* -------------------------
-       Links list
+       Links list (vertical, centered)
     -------------------------- */
     .links {
-    	margin: 6px 0 0 0;
-    	padding: 0;
-    	list-style: none;
+      list-style: none;
+      padding: 0;
+      margin: 6px 0 0 0;
     }
-    .links li { margin: 6px 0; }
 
-    .spacer { height: 84px; }
+    .links li {
+      margin: 6px 0;
+    }
 
+    /* -------------------------
+       Responsive
+    -------------------------- */
     @media (max-width: 480px) {
-    	body { padding: 18px; }
+      body { padding: 18px; }
+      h2 { font-size: 25px; }
     }
 
-    /* ✅ Desktop scale-up (keep mobile as-is) */
+    @media (max-width: 380px) {
+      h1 { font-size: 45px; }
+      h2 { font-size: 20px; }
+    }
+
     @media (min-width: 900px) {
-    	body {
-    		font-size: 30px; /* 20px -> 30px */
-    	}
+      body { font-size: 30px; }
 
-    	h1 {
-    		font-size: 90px; /* 60px -> 90px */
-    		margin-bottom: 12px; /* 살짝 여유 */
-    	}
+      h1 {
+        font-size: 90px;
+        margin-bottom: 12px;
+      }
 
-    	h2 {
-    		font-size: 45px; /* 30px -> 45px */
-    		margin-bottom: 16px;
-    	}
+      h2 { font-size: 45px; }
 
-    	p {
-    		margin: 10px 0; /* 10px */
-    	}
+      .manicule { max-width: 150px; }
 
-    	.links li {
-    		margin: 9px 0; /* 6px -> 9px */
-    	}
-
-    	.manicule {
-    		max-width: 150px; /* 100px -> 150px */
-    		margin-top: 9px;
-    		margin-bottom: 15px;
-    	}
-
-    	.stampwithface {
-    		max-width: 225px; /* 200px -> 300px */
-    		margin-top: 60px;
-    		margin-bottom: 15px;
-    	}
-
-    	.spacer {
-    		height: 126px; /* 84px -> 168px */
-    	}
+      .stampwithface {
+        max-width: 225px;
+        margin-top: 60px;
+      }
     }
 
     @media (min-width: 1500px) {
-    	h1 {
-    		font-size: 120px;
-    	}
+      h1 { font-size: 120px; }
     }
-
-</style>
+  </style>
 </head>
 
 <body>
-	<main class="wrap">
-		<h1>BOTHTHUMBSDOWN</h1>
+  <main class="wrap">
+    <h1>BOTHTHUMBSDOWN</h1>
 
-		<h2 class="h2-links">
-			<a href="http://boththumbsdown.xyz/about">about me</a><br />
-			<a href="mailto:hello@boththumbsdown.xyz">write me an email</a>
-		</h2>
+    <h2>
+      <a href="http://boththumbsdown.xyz/about">about me</a> ₪
+      <a href="mailto:hello@boththumbsdown.xyz">write me an email</a>
+    </h2>
 
-		<p>some unsorted hyperlinks</p>
+    <p>some unsorted hyperlinks</p>
 
-		<img src="manicule my hand_WHITE.png" alt="☟☟☟☟☟" class="manicule" />
+    <img src="manicule my hand_WHITE.png" alt="☟☟☟☟☟" class="manicule" />
 
-		<ul class="links">
-         <li><a href="http://boththumbsdown.xyz/truth-media-perspective-belief">truth » media » perspective » belief</a></li>
-         <li><a href="http://boththumbsdown.xyz/scribble">scribble</a></li>
-         <li><a href="http://boththumbsdown.xyz/itsa">it's a</a></li>
-			<li><a href="http://boththumbsdown.xyz/dec2025hongsangsoo">december 2025. hongsangsoo</a></li>
-			<li><a href="http://boththumbsdown.xyz/happynewyear2026">happynewyear2026</a></li>
-			<li><a href="http://boththumbsdown.xyz/couldyouconfirmthis">could you confirm this?</a></li>
-			<li><a href="http://boththumbsdown.xyz/couldyouconfirmthis.pdf">could you confirm this?.pdf</a></li>
-			<li><a href="http://boththumbsdown.xyz/EYE">EYE</a></li>
-			<li><a href="http://boththumbsdown.xyz/ghostsofworks">ghosts of works</a></li>
-			<li><a href="http://boththumbsdown.xyz/LOSTINTRANSLATION">LOSTINTRANSLATION</a></li>
-			<li><a href="http://boththumbsdown.xyz/helveticahangeul">Helvetica Hangeul</a></li>
-			<li><a href="http://boththumbsdown.xyz/needtostayawake">need to stay awake..</a></li>
-			<li><a href="http://boththumbsdown.xyz/toomuchcandygonnarotyoursoul">toomuchcandygonnarotyoursoul</a></li>
-			<li><a href="http://boththumbsdown.xyz/flowerpot-play">flowerpot</a></li>
-         <li><a href="http://boththumbsdown.xyz/workinprogress">work in progress</a></li>
-         <li><a href="http://boththumbsdown.xyz/cherrylady">cherry lady</a></li>
-			<li><a href="http://boththumbsdown.xyz/chocolatecake">chocolatecake</a></li>
-			<li><a href="https://boththumbsdown.neocities.org">neocities..</a></li>
-			<li><a href="http://boththumbsdown.xyz/<3"><3</a></li>
-			<li><a href="http://boththumbsdown.xyz/wherethestoryends">where the story ends</a></li>
-			<li><a href="http://instagram.com/boththumbsdown">where i reside atm</a></li>
-		</ul>
+    <ul class="links">
+      <li><a href="http://boththumbsdown.xyz/truth-media-perspective-belief">truth » media » perspective » belief</a></li>
+      <li><a href="http://boththumbsdown.xyz/scribble">scribble</a></li>
+      <li><a href="http://boththumbsdown.xyz/itsa">it's a</a></li>
+      <li><a href="http://boththumbsdown.xyz/dec2025hongsangsoo">december 2025. hongsangsoo</a></li>
+      <li><a href="http://boththumbsdown.xyz/happynewyear2026">happynewyear2026</a></li>
+      <li><a href="http://boththumbsdown.xyz/couldyouconfirmthis">could you confirm this?</a></li>
+      <li><a href="http://boththumbsdown.xyz/couldyouconfirmthis.pdf">could you confirm this?.pdf</a></li>
+      <li><a href="http://boththumbsdown.xyz/EYE">EYE</a></li>
+      <li><a href="http://boththumbsdown.xyz/ghostsofworks">ghosts of works</a></li>
+      <li><a href="http://boththumbsdown.xyz/LOSTINTRANSLATION">LOSTINTRANSLATION</a></li>
+      <li><a href="http://boththumbsdown.xyz/helveticahangeul">Helvetica Hangeul</a></li>
+      <li><a href="http://boththumbsdown.xyz/needtostayawake">need to stay awake..</a></li>
+      <li><a href="http://boththumbsdown.xyz/toomuchcandygonnarotyoursoul">toomuchcandygonnarotyoursoul</a></li>
+      <li><a href="http://boththumbsdown.xyz/flowerpot-play">flowerpot</a></li>
+      <li><a href="http://boththumbsdown.xyz/workinprogress">work in progress</a></li>
+      <li><a href="http://boththumbsdown.xyz/cherrylady">cherry lady</a></li>
+      <li><a href="http://boththumbsdown.xyz/chocolatecake">chocolatecake</a></li>
+      <li><a href="https://boththumbsdown.neocities.org">neocities..</a></li>
+      <li><a href="http://boththumbsdown.xyz/%3C3">&lt;3</a></li>
+      <li><a href="http://boththumbsdown.xyz/wherethestoryends">where the story ends</a></li>
+      <li><a href="http://instagram.com/boththumbsdown">where i reside atm</a></li>
+    </ul>
 
-			<a href="http://archive.radiohead.com/Site13/rh0005.html" target="_blank">
-           <img src="stampwithface.png" alt="* * *" class="stampwithface" />
-         </a>
-		</main>
-	</body>
-	</html>
+    <a href="http://archive.radiohead.com/Site13/rh0005.html" target="_blank" rel="noopener noreferrer">
+      <img src="stampwithface.png" alt="* * *" class="stampwithface" />
+    </a>
+  </main>
+</body>
+</html>

@@ -53,10 +53,9 @@
       line-height: 1.2;
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
-      position: relative;
-      overflow-x: hidden;
       font-synthesis: none;
       text-align: center;
+      overflow-x: hidden;
     }
 
     /* -------------------------
@@ -66,15 +65,11 @@
       content: "";
       position: fixed;
       inset: 0;
-      background-color: #000;
-      background-image: url("boththumbsdown_wideandrough.png");
-      background-repeat: no-repeat;
-      background-position: center center;
+      background: #000 url("boththumbsdown_wideandrough.png") no-repeat center;
       background-size: auto 100vh;
       z-index: -1;
       pointer-events: none;
     }
-
 
     /* -------------------------
        Layout
@@ -84,6 +79,7 @@
       margin: 0 auto;
       position: relative;
       z-index: 1;
+      text-align: center;
     }
 
     /* -------------------------
@@ -113,85 +109,60 @@
       color: var(--link);
       text-decoration: none;
     }
+
     a:hover {
       color: var(--link-hover);
-      text-decoration: none;
     }
 
     /* -------------------------
-       Images (center)
+       Images
     -------------------------- */
     img {
       display: block;
-      margin-left: auto;
-      margin-right: auto;
+      margin: 0 auto;
       height: auto;
     }
 
-    .manicule {
-      max-width: 100px;
-      width: 100%;
-      margin-top: 6px;
-      margin-bottom: 10px;
+   .manicule {
+     max-width: 100px;
+     width: 100%;
+     margin: 6px auto 10px;   /* ✅ 좌우 auto */
+     height: auto;
+   }
+
+   .stampwithface {
+     max-width: 150px;
+     width: 100%;
+     margin: 40px auto 10px;  /* ✅ 좌우 auto */
+     height: auto;
+   }
+
+    /* -------------------------
+       Links list (vertical, centered)
+    -------------------------- */
+    .links {
+      list-style: none;
+      padding: 0;
+      margin: 6px 0 0 0;
     }
 
-    .stampwithface {
-      max-width: 150px;
-      width: 100%;
-      margin-top: 40px;
-      margin-bottom: 10px;
+    .links li {
+      margin: 6px 0;
     }
-
-   .links {
-     margin: 6px 0 0 0;
-     padding: 0;
-     list-style: none;
-
-     display: flex;
-     flex-wrap: wrap;
-     justify-content: left;
-     row-gap: 6px;
-     column-gap: 0;
-   }
-
-   .links li {
-     display: flex;
-     align-items: center;
-     margin: 0;
-   }
-
-   .links li::after {
-     content: " ₪ ";
-     color: var(--fg);      /* 흰색 */
-     font-size: 0.9em;      /* 살짝 작게 */
-     margin: 0 6px;         /* 간격 조절 */
-   }
-
-   .links li:last-child::after {
-     content: "";
-   }
 
     /* -------------------------
        Responsive
     -------------------------- */
     @media (max-width: 480px) {
       body { padding: 18px; }
-      h2 {
-        font-size: 25px;
-      }
+      h2 { font-size: 25px; }
     }
 
     @media (max-width: 380px) {
-      body { padding: 18px; }
-      h1 {
-        font-size: 45px;
-      }
-      h2 {
-        font-size: 20px;
-      }
+      h1 { font-size: 45px; }
+      h2 { font-size: 20px; }
     }
 
-    /* Desktop scale-up (keep mobile as-is) */
     @media (min-width: 900px) {
       body { font-size: 30px; }
 
@@ -208,9 +179,6 @@
         max-width: 225px;
         margin-top: 60px;
       }
-
-      /* 데스크탑에서 구분자/여백 살짝 키우고 싶으면 여기만 조절 */
-      /* :root { --sep-size: 14px; --sep-gap: 12px; } */
     }
 
     @media (min-width: 1500px) {
@@ -224,7 +192,7 @@
     <h1>BOTHTHUMBSDOWN</h1>
 
     <h2>
-      <a href="http://boththumbsdown.xyz/about">about me</a> ₪ 
+      <a href="http://boththumbsdown.xyz/about">about me</a> ₪
       <a href="mailto:hello@boththumbsdown.xyz">write me an email</a>
     </h2>
 
