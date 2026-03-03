@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ouroboros</title>
+  <style>
+    html, body{
+      margin:0;
+      height:100%;
+      background:#0d3802;
+      overflow:hidden;
+    }
+    .wrap{
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    video{
+      width:min(100vw, 100vh);
+      height:min(100vw, 100vh);
+      object-fit:contain;
+      display:block;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <video id="v" src="ouroboros.mp4" autoplay muted playsinline preload="auto"></video>
+  </div>
+
+  <script>
+    const v = document.getElementById("v");
+
+    // 설정값
+    const SPEED = 1.0;      // 1.0 = 정상 속도 느낌
+    const EPS = 0.03;       // 0 근처 / 끝 근처 판정 여유(초) - 너무 빡빡하면 튐
+
+    let dir = +1;           // +1: forward, -1: backward (스크럽)
+    let rafId = null;
+    let lastT = null;
+
+    function stopRAF(){
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = null;
+      lastT = null;
+    }
+
+    function tick(t){
+      if (!lastT) lastT = t;
+      const dt = (t - lastT) / 1000; // seconds
+      lastT = t;
+
+      if (dir === -1){
+        // 역방향: pause 상태에서 currentTime을 줄여가며 스크럽
+        const step = dt * SPEED;
+        const next = v.currentTime - step;
+
+        if (next <= 0 + EPS){
+          v.currentTime = 0;
+          dir = +1;
+          stopRAF();
+          v.play().catch(()=>{});
+          return;
+        } else {
+          v.currentTime = next;
+        }
+      }
+      rafId = requestAnimationFrame(tick);
+    }
+
+    function startBackward(){
+      // forward 재생을 멈추고 역방향 스크럽 시작
+      v.pause();
+      stopRAF();
+      rafId = requestAnimationFrame(tick);
+    }
+
+    // 메타데이터 준비 후 시작 안정화
+    v.addEventListener("loadedmetadata", () => {
+      // autoplay가 막힐 경우 대비(대부분 muted면 통과)
+      v.play().catch(()=>{});
+    });
+
+    // forward 끝에 도달하면 backward로 전환
+    v.addEventListener("timeupdate", () => {
+      if (dir === +1 && v.duration && (v.duration - v.currentTime) <= EPS){
+        dir = -1;
+        startBackward();
+      }
+    });
+
+    // ended 이벤트는 일부 환경에서 timeupdate보다 확실하게 들어옴
+    v.addEventListener("ended", () => {
+      if (dir === +1){
+        dir = -1;
+        startBackward();
+      }
+    });
+  </script>
+</body>
+</html>

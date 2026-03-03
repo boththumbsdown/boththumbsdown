@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>a walk</title>
+
+<style>
+html, body{
+  margin:0;
+  height:100%;
+  background:black;
+  overflow:hidden;
+}
+
+.wrap{
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+video{
+  width:min(100vw, 100vh);
+  height:min(100vw, 100vh);
+  object-fit:contain;
+  display:block;
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+  <video
+    autoplay
+    muted
+    loop
+    playsinline
+    preload="auto"
+  >
+    <source src="awalk.mp4" type="video/mp4">
+  </video>
+</div>
+</body>
+</html>
