@@ -1,198 +1,215 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>welcome</title>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dummy Page</title>
 
-    <!-- Icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=3" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-    <link rel="manifest" href="/site.webmanifest" />
+<style>
 
-    <style>
-      @font-face {
-        font-family: "MrsEavesBurnt";
-        src: url("MrsEavesPencildrawnBold-Burnt.woff2") format("woff2");
-        font-weight: normal;
-        font-style: normal;
-        font-display: swap;
-      }
+/* ===== fonts ===== */
 
-      :root{
-        /* ===== 직사각형 창 크기 ===== */
-        --panel-width: 420px;
-        --panel-height: 800px;
+@font-face {
+  font-family: "MrsEavesBurnt";
+  src: url("MrsEavesPencildrawnBold-Burnt.woff2") format("woff2");
+  font-display: swap;
+}
 
-        /* ===== 폰트 크기 ===== */
-        --h1-size: 40px;
-        --body-size: 16px;
-        --link-size: 18px;
+@font-face {
+  font-family: "MrsEavesOvercooked";
+  src: url("MrsEavesPencildrawnBold-Overcooked.woff2") format("woff2");
+  font-display: swap;
+}
 
-        /* ===== 이미지 크기 ===== */
-        --logo-size: 120px;
+/* ===== variables ===== */
 
-        --padding: 30px;
+:root{
 
-        --bg:#000000;
-        --text:#ffffff;
-        --link-red:rgb(255,0,0);
-        --link-green:rgb(0,255,0);
-      }
+  --panel-width:420px;
+  --panel-height:700px;
 
-      *{
-        box-sizing:border-box;
-      }
+  --h1-size:40px;
+  --body-size:16px;
+  --link-size:18px;
 
-      html,body{
-        margin:0;
-        width:100%;
-        height:100%;
-        background:var(--bg);
-        color:var(--text);
-      }
+  --logo-size:120px;
 
-      body{
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        padding:20px;
-      }
+  --padding:30px;
 
-      .panel{
-        width:var(--panel-width);
-        height:var(--panel-height);
-        padding:var(--padding);
-        display:flex;
-        flex-direction:column;
-        gap:28px;
-        overflow:auto;
-      }
+  --bg:#000;
+  --text:#fff;
 
-      /* ===== h1 ===== */
+  --link-red:rgb(255,0,0);
+  --link-green:rgb(0,255,0);
 
-      h1{
-        margin:0;
-        text-align:center;
-        font-family:"MrsEavesBurnt", serif;
-        font-size:var(--h1-size);
-        line-height:0.95;
-      }
+  /* 기본 타입페이스 */
+  --main-font:"MrsEavesBurnt", serif;
+}
 
-      /* ===== body list ===== */
+/* ===== reset ===== */
 
-      .body-list{
-        margin:0;
-        padding-left:1.6em;
-        font-family:"MrsEavesBurnt", serif;
-        font-size:var(--body-size);
-        line-height:1.25;
-      }
+*{
+  box-sizing:border-box;
+}
 
-      .body-list li{
-        margin-bottom:0.6em;
-      }
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  background:var(--bg);
+  color:var(--text);
+}
 
-      /* ===== entrance area ===== */
+body{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
 
-      .enter-link{
-        margin-top:auto;
-        display:flex;
-        justify-content:center;
-      }
+/* ===== panel ===== */
 
-      /* ===== clickable block ===== */
+.panel{
+  width:var(--panel-width);
+  height:var(--panel-height);
+  padding:var(--padding);
+  display:flex;
+  flex-direction:column;
+  gap:28px;
+  overflow:auto;
+}
 
-      .enter-link a{
-        display:flex;
-        flex-direction:column;
-        align-items:center;
-        gap:12px;
+/* ===== h1 ===== */
 
-        text-decoration:none;
-        color:var(--link-red);
+h1{
+  margin:0;
+  text-align:center;
+  font-family:var(--main-font);
+  font-size:var(--h1-size);
+  line-height:0.95;
+}
 
-        font-family:"MrsEavesBurnt", serif;
-        font-size:var(--link-size);
-      }
+/* ===== body ===== */
 
-      .enter-link a:hover{
-        color:var(--link-green);
-      }
+.body-list{
+  margin:0;
+  padding-left:1.6em;
+  font-family:var(--main-font);
+  font-size:var(--body-size);
+  line-height:1.25;
+}
 
-      /* ===== logo ===== */
+.body-list li{
+  margin-bottom:0.6em;
+}
 
-      .gallery-logo{
-        width:var(--logo-size);
-        height:auto;
-        display:block;
-      }
+/* ===== entrance ===== */
 
-      /* ===== responsive ===== */
+.enter-link{
+  margin-top:auto;
+  display:flex;
+  justify-content:center;
+}
 
-      @media (max-width:900px){
+/* clickable block */
 
-      :root{
-        --panel-width:380px;
-        --panel-height:640px;
+.enter-link a{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
 
-        --h1-size:36px;
-        --body-size:15px;
-        --link-size:17px;
+  text-decoration:none;
+  color:var(--link-red);
 
-        --logo-size:100px;
-      }
+  font-family:var(--main-font);
+  font-size:var(--link-size);
+}
 
-      }
+.enter-link a:hover{
+  color:var(--link-green);
+}
 
-      @media (max-width:500px){
+/* ===== logo ===== */
 
-      :root{
-        --panel-width:90vw;
-        --panel-height:85vh;
+.gallery-logo{
+  width:var(--logo-size);
+  height:auto;
+  display:block;
+}
 
-        --h1-size:32px;
-        --body-size:14px;
-        --link-size:16px;
+/* ===== responsive ===== */
 
-        --logo-size:90px;
+@media (max-width:900px){
 
-        --padding:22px;
-      }
+:root{
+  --panel-width:380px;
+  --panel-height:640px;
 
-      .panel{
-        gap:22px;
-      }
+  --h1-size:36px;
+  --body-size:15px;
+  --link-size:17px;
 
-      }
+  --logo-size:100px;
+}
 
-    </style>
-  </head>
+}
 
-  <body>
+/* ===== small screen ===== */
 
-    <div class="panel">
+@media (max-width:500px){
 
-      <h1>welcome to gallery boththumbsdown</h1>
+:root{
 
-      <ol class="body-list">
-        <li>please take off your shoes. this is like a private home of the owner. respect the gallery owner's culture and tradition. he is from east asia.</li>
-        <li>stay hydrated. bring a liquid. a cup of coffee or a glass of wine would do their job the best, but anything else could work. getting shitfaced is also very much ok and encouraged. everything you will about to see and hear are replicated anyways.</li>
-        <li>make yourself at home. play loud music. devour stinky food with noises. pick your nose with passion. maybe you’re at home already.</li>
-        <li>don’t forget to hit like, subscribe, add favourite, share, comment, turn on notifications, follow, save, tag a friend, send to your enemy, give it a thumbs up. oh wait these are not supported. just write me a mail or send me a dm. you will see how to do so somewhere in the gallery.</li>
-        <li>the owner wants to be famous. help me.</li>
-        <li>the owner sincerely hope this gallery trigger anything interesting from you for you.</li>
-        <li>please help yourself.</li>
-      </ol>
+  --panel-width:90vw;
+  --panel-height:85vh;
 
-      <div class="enter-link">
-        <a href="http://boththumbsdown.xyz/mainhall">
-          <img src="boththumbsdown_roughnoback.png" class="gallery-logo">
-          enter
-        </a>
-      </div>
-    </div>
+  --h1-size:32px;
+  --body-size:12px;
+  --link-size:14px;
 
-  </body>
+  --logo-size:90px;
+  --padding:22px;
+
+  /* 여기서 타입페이스 변경 */
+  --main-font:"MrsEavesOvercooked", serif;
+}
+
+.panel{
+  gap:22px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="panel">
+
+<h1>welcome to gallery boththumbsdown</h1>
+
+<ol class="body-list">
+<li>please take off your shoes. this is like a private home for the owner of the gallery. respect the gallery owner's culture and tradition. he is from east asia.</li>
+<li>stay hydrated. bring a liquid. a cup of coffee or a glass of wine would do their job the best, but anything else could work. getting shitfaced is also very much ok and encouraged. everything you will about to see and hear are replicated anyways.</li>
+<li>make yourself at home. play loud music. loudly devour stinky food. pick your nose with passion. maybe you’re at home already.</li>
+<li>don’t forget to hit like, subscribe, add favourite, share, comment, turn on notifications, follow, save, tag a friend, send to your enemy, give it a thumbs up. oh wait these are not supported yet. just write me a mail or send me a dm.</li>
+</ol>
+
+<div class="enter-link">
+
+<a href="http://boththumbsdown.xyz/">
+
+<img src="boththumbsdown_roughnoback.png" class="gallery-logo">
+
+enter gallery
+
+</a>
+
+</div>
+
+</div>
+
+</body>
 </html>
