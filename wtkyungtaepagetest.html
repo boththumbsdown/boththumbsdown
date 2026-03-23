@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>backdoor</title>
+
+  <style>
+    :root { color-scheme: dark; }
+
+    html {
+      height: -webkit-fill-available;
+    }
+
+    @font-face {
+      font-family: "HeadlineOnePencildrawn-Crispy";
+      src: url("HeadlineOnePencildrawn-Crispy.woff2") format("woff2");
+      font-style: normal;
+      font-weight: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "MrsEavesPencildrawnBold-Overcooked";
+      src: url("MrsEavesPencildrawnBold-Overcooked.woff2") format("woff2");
+      font-style: normal;
+      font-weight: normal;
+      font-display: swap;
+    }
+
+    html, body {
+      margin: 0;
+      background: #000;
+      color: #fff;
+      font-family: "HeadlineOnePencildrawn-Crispy", serif;
+    }
+
+    body {
+      display: grid;
+      grid-template-rows: 1fr auto;
+      min-height: 100svh;
+      min-height: -webkit-fill-available;
+      overflow: hidden;
+    }
+
+    @supports (min-height: 100dvh) {
+      body { min-height: 100dvh; }
+    }
+
+    .stage {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+      padding: 6vmin;
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    .content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.2rem;
+      max-width: 90vw;
+    }
+
+    .top-text,
+    .bottom-text {
+      line-height: 1.05;
+      text-wrap: balance;
+    }
+
+    .top-text {
+      font-size: clamp(1.1rem, 2.5vw, 2.4rem);
+    }
+
+    .bottom-text {
+      font-size: clamp(0.9rem, 2vw, 1.6rem);
+    }
+
+    .door-link {
+      display: inline-block;
+      line-height: 0;
+    }
+
+    .door-link img {
+      display: block;
+
+      /* door.png 가로 크기 여기서 수정 */
+      width: 100px;
+
+      height: auto;
+      max-width: 100%;
+    }
+
+    /* FOOTER (기존 폰트 복구) */
+    .footer {
+      width: 100%;
+      text-align: center;
+      color: #fff;
+      font-family: "MrsEavesPencildrawnBold-Overcooked", serif;
+      font-weight: 800;
+      font-size: 1rem;
+      background: none;
+      padding-top: 0.5em;
+      padding-bottom: env(safe-area-inset-bottom);
+      line-height: 1;
+    }
+
+    .footer p { margin: 0.6em 0; }
+    .footer a { color: #ffffff; text-decoration: none; }
+    .footer a:hover { color: #ff0000; }
+    .footer sup { font-size: 0.5em; vertical-align: super; }
+    .italic { font-style: italic; }
+    .footnote { font-size: 0.5em; font-weight: 600; vertical-align: super; }
+
+    @media (max-width: 480px) {
+      .content { gap: 1rem; }
+
+      .top-text {
+        font-size: clamp(1rem, 5vw, 1.5rem);
+      }
+
+      .bottom-text {
+        font-size: clamp(0.8rem, 4vw, 1rem);
+      }
+
+      .footer {
+        font-size: 0.75rem;
+        padding-top: 0.4em;
+        line-height: 1.05;
+      }
+
+      .door-link img {
+        width: 80px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <div class="content">
+      <div class="top-text">
+        YOU’VE REACHED<br>
+        THE BACKDOOR OF<br>
+        GALLERY BOTHTHUMBSDOWN
+      </div>
+
+      <a class="door-link" href="https://www.boththumbsdown.xyz/" target="_blank" rel="noopener noreferrer">
+        <img src="door.png" alt="Enter through the backdoor">
+      </a>
+
+      <div class="bottom-text">
+        ENTER THROUGH THE BACKDOOR<br>
+        (I MEAN CLICK ON THE BACKDOOR)
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>
+      <a href="http://instagram.com/boththumbsdown">where to</a><sup>1</sup>
+      <a href="http://boththumbsdown.xyz">find me</a><sup>2</sup>
+      <span class="italic">or</span> &nbsp;hello@boththumbsdown.xyz&nbsp;
+      <span class="italic">or</span> &nbsp;kyungtae@werkplaatstypografie.org
+    </p>
+    <p>
+      <sup>1.</sup> <span class="footnote"> https://instagram.com/boththumbsdown</span>
+      &nbsp;&nbsp;
+      <sup>2.</sup> <span class="footnote"> https://boththumbsdown.xyz</span>
+    </p>
+  </div>
+</body>
+</html>
