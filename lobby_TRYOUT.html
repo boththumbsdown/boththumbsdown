@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LOBBY</title>
+
+  <!-- Icons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=3" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <style>
+    /* -------------------------
+       Font
+    -------------------------- */
+    @font-face {
+      font-family: "HeadlineOneCrispy";
+      src: url("HeadlineOnePencildrawn-Crispy.woff2") format("woff2");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    /* -------------------------
+       Base
+    -------------------------- */
+    :root {
+      --bg: #000;
+      --fg: #fff;
+      --link: rgb(255, 0, 0);
+      --link-hover: rgb(0, 255, 0);
+      --page-pad: 24px;
+      --fit-width: calc(100vw - (var(--page-pad) * 2));
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+    }
+
+    body {
+      padding: var(--page-pad);
+      color: var(--fg);
+      font-family: "HeadlineOneCrispy", sans-serif;
+      font-size: 20px;
+      line-height: 0.95;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      font-synthesis: none;
+      text-align: center;
+      overflow-x: hidden;
+      text-transform: uppercase;
+    }
+
+    /* -------------------------
+       Background image
+    -------------------------- */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: #000 url("boththumbsdown_wideandrough.png") no-repeat center;
+      background-size: auto 100vh;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* -------------------------
+       Layout
+    -------------------------- */
+    .wrap {
+      width: 100%;
+      /* 최대 창 크기 조절 */
+      max-width: 800px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    /* -------------------------
+       Fit text blocks
+    -------------------------- */
+    .fit-line {
+      display: block;
+      width: max-content;
+      max-width: none;
+      white-space: nowrap;
+      margin-left: auto;
+      margin-right: auto;
+      transform-origin: center center;
+    }
+
+    .fit-group {
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* -------------------------
+       Typography
+    -------------------------- */
+    h1, h2, p, li, a {
+      font-family: "HeadlineOneCrispy", sans-serif;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      margin: 0 0 10px 0;
+      line-height: 0.9;
+    }
+
+    h2 {
+      margin: 0 0 18px 0;
+      line-height: 0.95;
+      font-weight: 700;
+    }
+
+    p {
+      margin: 14px 0 10px 0;
+      line-height: 0.95;
+    }
+
+    /* -------------------------
+       Links
+    -------------------------- */
+    a {
+      color: var(--link);
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--link-hover);
+    }
+
+    /* -------------------------
+       Images
+    -------------------------- */
+    img {
+      display: block;
+      margin: 0 auto;
+      height: auto;
+    }
+
+    .manicule {
+      max-width: 100px;
+      width: 100%;
+      margin: 8px auto 14px;
+      height: auto;
+    }
+
+    .stampwithface {
+      max-width: 150px;
+      width: 100%;
+      margin: 40px auto 10px;
+      height: auto;
+    }
+
+    /* -------------------------
+       Links list
+    -------------------------- */
+    .links {
+      list-style: none;
+      padding: 0;
+      margin: 8px 0 0 0;
+      width: 100%;
+    }
+
+    .links li {
+      margin: 5px 0;
+      width: 100%;
+    }
+
+    .links li a {
+      display: inline-block;
+    }
+
+    /* -------------------------
+       Footer links
+    -------------------------- */
+    .deep-links {
+      margin-top: 0;
+    }
+
+    .deep-links a {
+      display: block;
+      margin: 10px auto;
+      width: max-content;
+      white-space: nowrap;
+    }
+
+    /* -------------------------
+       Spacer
+    -------------------------- */
+    .spacer {
+      height: 260vh;
+    }
+
+    /* -------------------------
+       Responsive
+    -------------------------- */
+    @media (max-width: 700px) {
+      :root {
+        --page-pad: 18px;
+      }
+
+      .manicule {
+        max-width: 84px;
+      }
+
+      .stampwithface {
+        max-width: 120px;
+      }
+
+      .spacer {
+        height: 220vh;
+      }
+    }
+
+    @media (max-width: 480px) {
+      :root {
+        --page-pad: 14px;
+      }
+
+      .manicule {
+        max-width: 74px;
+      }
+
+      .stampwithface {
+        max-width: 100px;
+      }
+
+      .spacer {
+        height: 180vh;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+
+    <h2 class="fit-group">
+      <span class="fit-line">
+        <a href="http://boththumbsdown.xyz/about">ABOUT ME</a> _
+        <a href="mailto:hello@boththumbsdown.xyz">WRITE ME AN EMAIL</a>
+      </span>
+    </h2>
+
+    <p class="fit-line">SOME UNSORTED HYPERLINKS</p>
+
+    <img src="manicule my hand_WHITE.png" alt="☟☟☟☟☟" class="manicule" />
+
+    <ul class="links">
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/podhhptsmaprtttwwh">PHOTO OF DANNY HOLDING HIS PHONE TO SHOW ME A PHOTO RELATED TO THE TALK WE WERE HAVING, 20 MARCH 2026</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/preface">PREFACE (THAT MAY OR MAY NOT BE INCLUDED, TO A WORK THAT MAY OR MAY NOT BE PRODUCED)</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/worldclock">WORLDCLOCK</a></li>
+      <li><a class="fit-line" href="http://lab.ag.co.kr/hyperlinks/gallery-trigem-interview-3">GALLERY TRIGEM INTERVIEW: ON WORLDCLOCK</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/truth-media-perspective-belief">TRUTH > MEDIA > PERSPECTIVE > BELIEF</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/didactic">DIDACTIC</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/scribble">SCRIBBLE</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/wtapplicationdeadline2026">WT APPLICATION DEADLINE 2026</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/TW=TW_JAN2026">TW=TW JAN2026</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/itsa">IT'S A</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/dec2025hongsangsoo">DECEMBER 2025. HONGSANGSOO</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/happynewyear2026">HAPPYNEWYEAR2026</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/couldyouconfirmthis">COULD YOU CONFIRM THIS?</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/couldyouconfirmthis.pdf">COULD YOU CONFIRM THIS?.PDF</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/EYE">EYE</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/ghostsofworks">GHOSTS OF WORKS</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/LOSTINTRANSLATION">LOSTINTRANSLATION</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/helveticahangeul">HELVETICA HANGEUL</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/needtostayawake">NEED TO STAY AWAKE..</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/toomuchcandygonnarotyoursoul">TOOMUCHCANDYGONNAROTYOURSOUL</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/flowerpot-play">FLOWERPOT</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/workinprogress">WORK IN PROGRESS</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/cherrylady">CHERRY LADY</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/ouroboros">OUROBOROS</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/flower">FLOWER</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/awalk">A WALK</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/chocolatecake">CHOCOLATECAKE</a></li>
+      <li><a class="fit-line" href="https://boththumbsdown.neocities.org">NEOCITIES..</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/%3C3">&lt;3</a></li>
+      <li><a class="fit-line" href="http://boththumbsdown.xyz/wherethestoryends">WHERE THE STORY ENDS</a></li>
+      <li><a class="fit-line" href="http://instagram.com/boththumbsdown">WHERE I RESIDE ATM</a></li>
+    </ul>
+
+    <a href="http://archive.radiohead.com/Site13/rh0005.html" target="_blank" rel="noopener noreferrer">
+      <img src="stampwithface.png" alt="* * *" class="stampwithface" />
+    </a>
+
+    <div class="spacer"></div>
+
+    <div class="deep-links">
+      <a class="fit-line" href="http://boththumbsdown.xyz/questions">I DON'T UNDERSTAND.</a>
+      <a class="fit-line" href="https://forms.gle/fqQze8UZb9gPoaQZA">SAY SOMETHING WITHOUT LETTING ME KNOW WHO YOU ARE</a>
+      <a class="fit-line" href="http://boththumbsdown.xyz/manifesto">EXIT THROUGH THE GIFT SHOP.</a>
+    </div>
+  </main>
+
+  <script>
+    function fitElementToWidth(el, availableWidth) {
+      if (!el) return;
+
+      el.style.fontSize = '10px';
+      const measuredWidth = el.getBoundingClientRect().width;
+
+      if (!measuredWidth) return;
+
+      const newSize = (availableWidth / measuredWidth) * 10;
+      el.style.fontSize = newSize + 'px';
+    }
+
+    function fitAllText() {
+      const pageStyle = getComputedStyle(document.documentElement);
+      const pagePad = parseFloat(pageStyle.getPropertyValue('--page-pad')) || 24;
+
+      const wrap = document.querySelector('.wrap');
+      const availableWidth = wrap.clientWidth - (pagePad * 0); // padding은 body에 있어서 이미 포함됨
+
+      document.querySelectorAll('.fit-line').forEach(el => {
+        fitElementToWidth(el, availableWidth);
+      });
+    }
+
+    window.addEventListener('load', fitAllText);
+    window.addEventListener('resize', fitAllText);
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(fitAllText);
+    }
+  </script>
+</body>
+</html>
