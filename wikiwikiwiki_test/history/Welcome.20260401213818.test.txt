@@ -1,0 +1,3 @@
+Welcome! This is your wiki made with [[WikiWikiWiki]]. You can create and link a [[document]] using [[Markdown]]. Not hard, right? On the other hand, [[WikiWikiWiki]] is a [[wiki engine]] made by [Min Guhong](https://minguhong.fyi) with the help of [Min Guhong Manufacturing](https://minguhongmfg.com) based on [[text files]] and [[PHP]].
+
+[[document]] how do i link to a document?

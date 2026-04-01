@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-define('WIKI_TITLE', 'Wiki');
-define('WIKI_DESCRIPTION', 'A wiki made by WikiWikiWiki');
+define('WIKI_TITLE', 'WikiWikiWiki TEST');
+define('WIKI_DESCRIPTION', 'A TEST wiki made by WikiWikiWiki');
 define('BASE_URL', '');
 define('THEME', '');
 define('LANGUAGE', 'en');
