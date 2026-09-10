@@ -169,7 +169,7 @@
       .info-line{
         font-weight:800;
         font-size:var(--big);
-        line-height:1;
+        line-height:1.1;
         letter-spacing:0.02em;
         white-space:nowrap;
         text-align:center;
@@ -226,24 +226,20 @@
         <g id="belowTextGroup">
           <!-- 1st line: time -->
           <text id="timeLineText"
-                x="57.6" y="104"
+                x="50" y="106"
                 text-anchor="middle"
                 fill="var(--clockcolour)"
                 font-size="20"
-                font-weight="700"
-                font-family="MrsEavesPencildrawnBold-Overcooked, serif"
                 >
             Loading…
           </text>
 
           <!-- 2nd line: date -->
           <text id="dateLineText"
-                x="56" y="118"
+                x="50" y="122"
                 text-anchor="middle"
                 fill="var(--clockcolour)"
-                font-size="12"
-                font-weight="700"
-                font-family="MrsEavesPencildrawnBold-Overcooked, serif"
+                font-size="10"
                 >
             Loading…
           </text>
@@ -412,6 +408,7 @@
             return offset;
           }
           
+          // 24시간 = 360°, 1시간 = 15°
           function offsetToLongitude(h){
             return h * 15;
           }
@@ -690,6 +687,7 @@
           let lockCity = null;
 
           function animate(){
+            // 현재 시각 (로컬 타임존)
             const nowDate = new Date();
 
             // lon은 항상 "라이브 자정 경도" (줌과 무관하게 계속 흐름)
@@ -725,6 +723,7 @@
               camLat = lerp(targetLat, HOME_LAT, easeInOut(phaseT));
             }
 
+            // 자정 경도를 카메라 중앙에 위치
             viewer.camera.lookAt(
               Cesium.Cartesian3.fromDegrees(liveLon, camLat),
               new Cesium.HeadingPitchRange(0, CAM_PITCH, range)

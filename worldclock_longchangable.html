@@ -451,6 +451,20 @@
             return a + (b-a) * t;
           }
 
+
+
+/* ===== MANUAL LONGITUDE =====
+
+   숫자를 입력하면 해당 longitude로 고정
+
+   null이면 기존 실시간 자정 longitude 사용
+
+*/
+
+const MANUAL_LONGITUDE = 126.9780;
+
+
+
           const CITIES = [
             { country:"Senegal", city:"Dakar", lon:-17.3000, lat:14.7319 },
             { country:"Morocco", city:"Casablanca", lon:-7.5898, lat:33.5992 },
@@ -685,16 +699,29 @@
           let targetLat = HOME_LAT;
           let lockCity = null;
 
-          function animate(){
-            const nowDate = new Date();
+function animate(){
 
-            // lon은 항상 "라이브 자정 경도" (줌과 무관하게 계속 흐름)
-            const offset = getMidnightOffsetHours(nowDate);
-            const liveLon = normLon180(offsetToLongitude(offset));
+  const nowDate = new Date();
 
-            const {
-              phase, phaseT, range
-            } = getPhaseAndRange();
+  const offset = getMidnightOffsetHours(nowDate);
+
+  const autoLon = normLon180(offsetToLongitude(offset));
+
+  const liveLon =
+
+    MANUAL_LONGITUDE !== null
+
+      ? normLon180(MANUAL_LONGITUDE)
+
+      : autoLon;
+
+  const {
+
+    phase, phaseT, range
+
+  } = getPhaseAndRange();
+
+
 
             // ZOOM_IN 시작 순간에만 "가까운 도시"를 고정해서 그 도시 lat로 이동
             if(phase !== prevPhase){
